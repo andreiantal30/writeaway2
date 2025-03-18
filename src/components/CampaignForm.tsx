@@ -1,0 +1,487 @@
+
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import InputField from "@/components/InputField";
+import { cn } from "@/lib/utils";
+import { industries, emotionalAppeals, objectives, targetAudiences } from "@/lib/campaignData";
+import { CampaignInput } from "@/lib/generateCampaign";
+import TransitionElement from "./TransitionElement";
+import { ChevronDown, ChevronUp, XCircle } from "lucide-react";
+
+interface CampaignFormProps {
+  onSubmit: (input: CampaignInput) => void;
+  isGenerating: boolean;
+}
+
+const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) => {
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [formData, setFormData] = useState<CampaignInput>({
+    brand: "",
+    industry: "",
+    targetAudience: [],
+    objectives: [],
+    emotionalAppeal: [],
+    additionalConstraints: "",
+  });
+
+  const [errors, setErrors] = useState<{
+    brand?: string;
+    industry?: string;
+    targetAudience?: string;
+    objectives?: string;
+    emotionalAppeal?: string;
+  }>({});
+
+  const [audienceInput, setAudienceInput] = useState("");
+  const [objectiveInput, setObjectiveInput] = useState("");
+  const [emotionalAppealInput, setEmotionalAppealInput] = useState("");
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name as keyof typeof errors]) {
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
+  };
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name as keyof typeof errors]) {
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
+  };
+
+  const addTagItem = (key: 'targetAudience' | 'objectives' | 'emotionalAppeal', value: string) => {
+    if (!value.trim()) return;
+    
+    // Don't add duplicates
+    if (formData[key].includes(value.trim())) return;
+    
+    setFormData(prev => ({
+      ...prev,
+      [key]: [...prev[key], value.trim()]
+    }));
+    
+    // Clear input field
+    if (key === 'targetAudience') setAudienceInput('');
+    else if (key === 'objectives') setObjectiveInput('');
+    else if (key === 'emotionalAppeal') setEmotionalAppealInput('');
+    
+    // Clear any errors
+    if (errors[key]) {
+      setErrors(prev => ({ ...prev, [key]: undefined }));
+    }
+  };
+
+  const removeTagItem = (key: 'targetAudience' | 'objectives' | 'emotionalAppeal', index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      [key]: prev[key].filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validate form
+    const newErrors: typeof errors = {};
+    
+    if (!formData.brand.trim()) {
+      newErrors.brand = "Brand name is required";
+    }
+    
+    if (!formData.industry.trim()) {
+      newErrors.industry = "Industry is required";
+    }
+    
+    if (formData.targetAudience.length === 0) {
+      newErrors.targetAudience = "At least one target audience is required";
+    }
+    
+    if (formData.objectives.length === 0) {
+      newErrors.objectives = "At least one objective is required";
+    }
+    
+    if (formData.emotionalAppeal.length === 0) {
+      newErrors.emotionalAppeal = "At least one emotional appeal is required";
+    }
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    
+    onSubmit(formData);
+  };
+
+  const handleAddFromDropdown = (key: 'targetAudience' | 'objectives' | 'emotionalAppeal', value: string) => {
+    addTagItem(key, value);
+  };
+
+  const handleKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+    key: 'targetAudience' | 'objectives' | 'emotionalAppeal',
+    value: string
+  ) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addTagItem(key, value);
+    }
+  };
+
+  return (
+    <TransitionElement animation="slide-up" className="w-full max-w-4xl mx-auto">
+      <form 
+        onSubmit={handleFormSubmit} 
+        className="bg-white/50 backdrop-blur-lg border border-border rounded-2xl shadow-subtle p-6 md:p-8"
+      >
+        <h2 className="text-2xl md:text-3xl font-medium text-center mb-8">
+          Create Your Campaign
+        </h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="space-y-6">
+            <TransitionElement delay={100}>
+              <InputField
+                label="Brand Name"
+                id="brand"
+                name="brand"
+                placeholder="e.g. Nike, Apple, Spotify"
+                value={formData.brand}
+                onChange={handleInputChange}
+                error={errors.brand}
+                chip="Required"
+              />
+            </TransitionElement>
+            
+            <TransitionElement delay={200}>
+              <div className="space-y-1.5">
+                <label htmlFor="industry" className="text-sm font-medium">
+                  Industry
+                  <span className="ml-2 text-xs font-medium px-2 py-0.5 bg-primary/10 text-primary rounded-full">
+                    Required
+                  </span>
+                </label>
+                <select
+                  id="industry"
+                  name="industry"
+                  value={formData.industry}
+                  onChange={handleSelectChange}
+                  className={cn(
+                    "w-full h-10 px-3 bg-white/80 border rounded-md appearance-none transition-all duration-200",
+                    "hover:bg-white focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary/50",
+                    errors.industry
+                      ? "border-destructive/50 focus:ring-destructive/20"
+                      : "border-input"
+                  )}
+                >
+                  <option value="">Select Industry</option>
+                  {industries.map((industry) => (
+                    <option key={industry} value={industry}>
+                      {industry}
+                    </option>
+                  ))}
+                </select>
+                {errors.industry && (
+                  <p className="text-xs text-destructive">{errors.industry}</p>
+                )}
+              </div>
+            </TransitionElement>
+            
+            <TransitionElement delay={300}>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium flex items-center justify-between">
+                  <span className="flex items-center">
+                    Target Audience
+                    <span className="ml-2 text-xs font-medium px-2 py-0.5 bg-primary/10 text-primary rounded-full">
+                      Required
+                    </span>
+                  </span>
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => {
+                      const randomAudience = targetAudiences[Math.floor(Math.random() * targetAudiences.length)];
+                      if (!formData.targetAudience.includes(randomAudience)) {
+                        addTagItem('targetAudience', randomAudience);
+                      }
+                    }}
+                    className="text-xs text-muted-foreground hover:text-foreground h-7 px-2"
+                  >
+                    Add Random
+                  </Button>
+                </label>
+                
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {formData.targetAudience.map((audience, index) => (
+                    <span
+                      key={index}
+                      className="px-2 py-1 bg-primary/10 text-primary text-sm rounded-md flex items-center gap-1"
+                    >
+                      {audience}
+                      <button
+                        type="button"
+                        onClick={() => removeTagItem('targetAudience', index)}
+                        className="text-primary/70 hover:text-primary"
+                      >
+                        <XCircle size={16} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+                
+                <div className="relative">
+                  <input
+                    list="target-audiences"
+                    placeholder="Type or select audience"
+                    value={audienceInput}
+                    onChange={(e) => setAudienceInput(e.target.value)}
+                    onKeyDown={(e) => handleKeyDown(e, 'targetAudience', audienceInput)}
+                    className={cn(
+                      "w-full h-10 px-3 bg-white/80 border rounded-md transition-all duration-200",
+                      "hover:bg-white focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary/50",
+                      errors.targetAudience
+                        ? "border-destructive/50 focus:ring-destructive/20"
+                        : "border-input"
+                    )}
+                  />
+                  <datalist id="target-audiences">
+                    {targetAudiences.map((audience) => (
+                      <option key={audience} value={audience} />
+                    ))}
+                  </datalist>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => addTagItem('targetAudience', audienceInput)}
+                    className="absolute right-1 top-1 h-8 w-8 p-0"
+                  >
+                    +
+                  </Button>
+                </div>
+                
+                {errors.targetAudience && (
+                  <p className="text-xs text-destructive">{errors.targetAudience}</p>
+                )}
+              </div>
+            </TransitionElement>
+          </div>
+          
+          <div className="space-y-6">
+            <TransitionElement delay={400}>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium flex items-center justify-between">
+                  <span className="flex items-center">
+                    Campaign Objectives
+                    <span className="ml-2 text-xs font-medium px-2 py-0.5 bg-primary/10 text-primary rounded-full">
+                      Required
+                    </span>
+                  </span>
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => {
+                      const randomObjective = objectives[Math.floor(Math.random() * objectives.length)];
+                      if (!formData.objectives.includes(randomObjective)) {
+                        addTagItem('objectives', randomObjective);
+                      }
+                    }}
+                    className="text-xs text-muted-foreground hover:text-foreground h-7 px-2"
+                  >
+                    Add Random
+                  </Button>
+                </label>
+                
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {formData.objectives.map((objective, index) => (
+                    <span
+                      key={index}
+                      className="px-2 py-1 bg-primary/10 text-primary text-sm rounded-md flex items-center gap-1"
+                    >
+                      {objective}
+                      <button
+                        type="button"
+                        onClick={() => removeTagItem('objectives', index)}
+                        className="text-primary/70 hover:text-primary"
+                      >
+                        <XCircle size={16} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+                
+                <div className="relative">
+                  <input
+                    list="objectives-list"
+                    placeholder="Type or select objective"
+                    value={objectiveInput}
+                    onChange={(e) => setObjectiveInput(e.target.value)}
+                    onKeyDown={(e) => handleKeyDown(e, 'objectives', objectiveInput)}
+                    className={cn(
+                      "w-full h-10 px-3 bg-white/80 border rounded-md transition-all duration-200",
+                      "hover:bg-white focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary/50",
+                      errors.objectives
+                        ? "border-destructive/50 focus:ring-destructive/20"
+                        : "border-input"
+                    )}
+                  />
+                  <datalist id="objectives-list">
+                    {objectives.map((objective) => (
+                      <option key={objective} value={objective} />
+                    ))}
+                  </datalist>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => addTagItem('objectives', objectiveInput)}
+                    className="absolute right-1 top-1 h-8 w-8 p-0"
+                  >
+                    +
+                  </Button>
+                </div>
+                
+                {errors.objectives && (
+                  <p className="text-xs text-destructive">{errors.objectives}</p>
+                )}
+              </div>
+            </TransitionElement>
+            
+            <TransitionElement delay={500}>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium flex items-center justify-between">
+                  <span className="flex items-center">
+                    Emotional Appeal
+                    <span className="ml-2 text-xs font-medium px-2 py-0.5 bg-primary/10 text-primary rounded-full">
+                      Required
+                    </span>
+                  </span>
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => {
+                      const randomEmotion = emotionalAppeals[Math.floor(Math.random() * emotionalAppeals.length)];
+                      if (!formData.emotionalAppeal.includes(randomEmotion)) {
+                        addTagItem('emotionalAppeal', randomEmotion);
+                      }
+                    }}
+                    className="text-xs text-muted-foreground hover:text-foreground h-7 px-2"
+                  >
+                    Add Random
+                  </Button>
+                </label>
+                
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {formData.emotionalAppeal.map((emotion, index) => (
+                    <span
+                      key={index}
+                      className="px-2 py-1 bg-primary/10 text-primary text-sm rounded-md flex items-center gap-1"
+                    >
+                      {emotion}
+                      <button
+                        type="button"
+                        onClick={() => removeTagItem('emotionalAppeal', index)}
+                        className="text-primary/70 hover:text-primary"
+                      >
+                        <XCircle size={16} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+                
+                <div className="relative">
+                  <input
+                    list="emotional-appeals"
+                    placeholder="Type or select emotion"
+                    value={emotionalAppealInput}
+                    onChange={(e) => setEmotionalAppealInput(e.target.value)}
+                    onKeyDown={(e) => handleKeyDown(e, 'emotionalAppeal', emotionalAppealInput)}
+                    className={cn(
+                      "w-full h-10 px-3 bg-white/80 border rounded-md transition-all duration-200",
+                      "hover:bg-white focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary/50",
+                      errors.emotionalAppeal
+                        ? "border-destructive/50 focus:ring-destructive/20"
+                        : "border-input"
+                    )}
+                  />
+                  <datalist id="emotional-appeals">
+                    {emotionalAppeals.map((emotion) => (
+                      <option key={emotion} value={emotion} />
+                    ))}
+                  </datalist>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => addTagItem('emotionalAppeal', emotionalAppealInput)}
+                    className="absolute right-1 top-1 h-8 w-8 p-0"
+                  >
+                    +
+                  </Button>
+                </div>
+                
+                {errors.emotionalAppeal && (
+                  <p className="text-xs text-destructive">{errors.emotionalAppeal}</p>
+                )}
+              </div>
+            </TransitionElement>
+          </div>
+        </div>
+        
+        <div className="mt-6">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="text-sm flex items-center gap-1 text-muted-foreground mx-auto"
+          >
+            {showAdvanced ? (
+              <>
+                Hide Advanced Options <ChevronUp size={16} />
+              </>
+            ) : (
+              <>
+                Show Advanced Options <ChevronDown size={16} />
+              </>
+            )}
+          </Button>
+          
+          {showAdvanced && (
+            <TransitionElement animation="slide-down" className="mt-4">
+              <InputField
+                label="Additional Constraints or Requirements"
+                id="additionalConstraints"
+                name="additionalConstraints"
+                placeholder="Any specific themes, channels, or constraints to consider..."
+                multiline
+                rows={3}
+                value={formData.additionalConstraints}
+                onChange={handleInputChange}
+              />
+            </TransitionElement>
+          )}
+        </div>
+        
+        <div className="mt-8 flex justify-center">
+          <TransitionElement delay={600} animation="slide-up">
+            <Button 
+              type="submit" 
+              disabled={isGenerating}
+              className="w-full md:w-auto px-8 py-6 h-auto text-lg font-medium rounded-xl shadow-subtle hover:shadow-md transition-all duration-300 bg-primary text-white"
+            >
+              {isGenerating ? "Generating Campaign..." : "Generate Campaign Idea"}
+            </Button>
+          </TransitionElement>
+        </div>
+      </form>
+    </TransitionElement>
+  );
+};
+
+export default CampaignForm;
