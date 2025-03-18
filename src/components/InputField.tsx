@@ -61,7 +61,7 @@ const InputField = ({
           {label}
         </label>
         {chip && (
-          <span className="text-xs font-medium px-2 py-0.5 bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground rounded-full">
+          <span className="text-xs font-medium px-2 py-0.5 bg-primary/10 text-primary dark:bg-primary/30 dark:text-primary-foreground rounded-full">
             {chip}
           </span>
         )}
@@ -76,7 +76,7 @@ const InputField = ({
           onChange={handleChange}
           className={cn(
             "w-full px-3 py-2 rounded-lg glass-input",
-            "placeholder:text-muted-foreground/50 dark:placeholder:text-white/30",
+            "placeholder:text-muted-foreground/60 dark:placeholder:text-white/40",
             error ? "border-destructive/50 focus:ring-destructive/20" : "",
             inputClassName
           )}
@@ -90,7 +90,7 @@ const InputField = ({
           onChange={handleChange}
           className={cn(
             "w-full h-10 px-3 rounded-lg glass-input",
-            "placeholder:text-muted-foreground/50 dark:placeholder:text-white/30",
+            "placeholder:text-muted-foreground/60 dark:placeholder:text-white/40",
             error ? "border-destructive/50 focus:ring-destructive/20" : "",
             inputClassName
           )}
@@ -102,7 +102,7 @@ const InputField = ({
           "text-xs",
           error 
             ? "text-destructive dark:text-red-400" 
-            : "text-muted-foreground dark:text-white/60"
+            : "text-muted-foreground dark:text-white/70"
         )}>
           {error || helperText}
         </p>

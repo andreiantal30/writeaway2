@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import InputField from "@/components/InputField";
@@ -37,6 +36,22 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
   const [audienceInput, setAudienceInput] = useState("");
   const [objectiveInput, setObjectiveInput] = useState("");
   const [emotionalAppealInput, setEmotionalAppealInput] = useState("");
+
+  const renderTagItem = (item: string, index: number, key: 'targetAudience' | 'objectives' | 'emotionalAppeal') => (
+    <span
+      key={index}
+      className="px-2 py-1 bg-primary/15 text-primary dark:bg-primary/30 dark:text-white flex items-center gap-1 rounded-md text-sm border border-primary/20 dark:border-primary/40 shadow-sm"
+    >
+      {item}
+      <button
+        type="button"
+        onClick={() => removeTagItem(key, index)}
+        className="text-primary/80 hover:text-primary dark:text-white/80 dark:hover:text-white"
+      >
+        <XCircle size={16} />
+      </button>
+    </span>
+  );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -166,9 +181,9 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
             
             <TransitionElement delay={200}>
               <div className="space-y-1.5">
-                <label htmlFor="industry" className="text-sm font-medium text-foreground flex items-center">
+                <label htmlFor="industry" className="text-sm font-medium text-foreground dark:text-white/90 flex items-center">
                   Industry
-                  <span className="ml-2 text-xs font-medium px-2 py-0.5 bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground rounded-full">
+                  <span className="ml-2 text-xs font-medium px-2 py-0.5 bg-primary/10 text-primary dark:bg-primary/30 dark:text-primary-foreground rounded-full">
                     Required
                   </span>
                 </label>
@@ -183,7 +198,7 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
                     "text-foreground dark:text-white",
                     errors.industry
                       ? "border-destructive/50 focus:ring-destructive/20"
-                      : "border-input"
+                      : "border-input dark:border-gray-700"
                   )}
                 >
                   <option value="">Select Industry</option>
@@ -194,7 +209,7 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
                   ))}
                 </select>
                 {errors.industry && (
-                  <p className="text-xs text-destructive">{errors.industry}</p>
+                  <p className="text-xs text-destructive dark:text-red-400">{errors.industry}</p>
                 )}
               </div>
             </TransitionElement>
@@ -206,10 +221,10 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
             
             <TransitionElement delay={300}>
               <div className="space-y-1.5">
-                <label className="text-sm font-medium flex items-center justify-between text-foreground">
+                <label className="text-sm font-medium flex items-center justify-between text-foreground dark:text-white/90">
                   <span className="flex items-center">
                     Target Audience
-                    <span className="ml-2 text-xs font-medium px-2 py-0.5 bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground rounded-full">
+                    <span className="ml-2 text-xs font-medium px-2 py-0.5 bg-primary/10 text-primary dark:bg-primary/30 dark:text-primary-foreground rounded-full">
                       Required
                     </span>
                   </span>
@@ -223,28 +238,16 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
                         addTagItem('targetAudience', randomAudience);
                       }
                     }}
-                    className="text-xs text-muted-foreground hover:text-foreground h-7 px-2"
+                    className="text-xs text-muted-foreground hover:text-foreground dark:text-white/70 dark:hover:text-white h-7 px-2"
                   >
                     Add Random
                   </Button>
                 </label>
                 
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {formData.targetAudience.map((audience, index) => (
-                    <span
-                      key={index}
-                      className="px-2 py-1 bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground text-sm rounded-md flex items-center gap-1"
-                    >
-                      {audience}
-                      <button
-                        type="button"
-                        onClick={() => removeTagItem('targetAudience', index)}
-                        className="text-primary/70 hover:text-primary dark:text-primary-foreground/70 dark:hover:text-primary-foreground"
-                      >
-                        <XCircle size={16} />
-                      </button>
-                    </span>
-                  ))}
+                <div className="flex flex-wrap gap-2 mb-2 min-h-8">
+                  {formData.targetAudience.map((audience, index) => 
+                    renderTagItem(audience, index, 'targetAudience')
+                  )}
                 </div>
                 
                 <div className="relative">
@@ -260,7 +263,7 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
                       "text-foreground dark:text-white dark:placeholder:text-white/50",
                       errors.targetAudience
                         ? "border-destructive/50 focus:ring-destructive/20"
-                        : "border-input"
+                        : "border-input dark:border-gray-700"
                     )}
                   />
                   <datalist id="target-audiences">
@@ -280,7 +283,12 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
                 </div>
                 
                 {errors.targetAudience && (
-                  <p className="text-xs text-destructive">{errors.targetAudience}</p>
+                  <p className="text-xs text-destructive dark:text-red-400">{errors.targetAudience}</p>
+                )}
+                {formData.targetAudience.length === 0 && (
+                  <p className="text-xs text-muted-foreground dark:text-white/60">
+                    At least one target audience is required
+                  </p>
                 )}
               </div>
             </TransitionElement>
@@ -289,10 +297,10 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
           <div className="space-y-6">
             <TransitionElement delay={400}>
               <div className="space-y-1.5">
-                <label className="text-sm font-medium flex items-center justify-between text-foreground">
+                <label className="text-sm font-medium flex items-center justify-between text-foreground dark:text-white/90">
                   <span className="flex items-center">
                     Campaign Objectives
-                    <span className="ml-2 text-xs font-medium px-2 py-0.5 bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground rounded-full">
+                    <span className="ml-2 text-xs font-medium px-2 py-0.5 bg-primary/10 text-primary dark:bg-primary/30 dark:text-primary-foreground rounded-full">
                       Required
                     </span>
                   </span>
@@ -306,28 +314,16 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
                         addTagItem('objectives', randomObjective);
                       }
                     }}
-                    className="text-xs text-muted-foreground hover:text-foreground h-7 px-2"
+                    className="text-xs text-muted-foreground hover:text-foreground dark:text-white/70 dark:hover:text-white h-7 px-2"
                   >
                     Add Random
                   </Button>
                 </label>
                 
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {formData.objectives.map((objective, index) => (
-                    <span
-                      key={index}
-                      className="px-2 py-1 bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground text-sm rounded-md flex items-center gap-1"
-                    >
-                      {objective}
-                      <button
-                        type="button"
-                        onClick={() => removeTagItem('objectives', index)}
-                        className="text-primary/70 hover:text-primary dark:text-primary-foreground/70 dark:hover:text-primary-foreground"
-                      >
-                        <XCircle size={16} />
-                      </button>
-                    </span>
-                  ))}
+                <div className="flex flex-wrap gap-2 mb-2 min-h-8">
+                  {formData.objectives.map((objective, index) => 
+                    renderTagItem(objective, index, 'objectives')
+                  )}
                 </div>
                 
                 <div className="relative">
@@ -343,7 +339,7 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
                       "text-foreground dark:text-white dark:placeholder:text-white/50",
                       errors.objectives
                         ? "border-destructive/50 focus:ring-destructive/20"
-                        : "border-input"
+                        : "border-input dark:border-gray-700"
                     )}
                   />
                   <datalist id="objectives-list">
@@ -363,17 +359,22 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
                 </div>
                 
                 {errors.objectives && (
-                  <p className="text-xs text-destructive">{errors.objectives}</p>
+                  <p className="text-xs text-destructive dark:text-red-400">{errors.objectives}</p>
+                )}
+                {formData.objectives.length === 0 && (
+                  <p className="text-xs text-muted-foreground dark:text-white/60">
+                    At least one objective is required
+                  </p>
                 )}
               </div>
             </TransitionElement>
             
             <TransitionElement delay={500}>
               <div className="space-y-1.5">
-                <label className="text-sm font-medium flex items-center justify-between text-foreground">
+                <label className="text-sm font-medium flex items-center justify-between text-foreground dark:text-white/90">
                   <span className="flex items-center">
                     Emotional Appeal
-                    <span className="ml-2 text-xs font-medium px-2 py-0.5 bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground rounded-full">
+                    <span className="ml-2 text-xs font-medium px-2 py-0.5 bg-primary/10 text-primary dark:bg-primary/30 dark:text-primary-foreground rounded-full">
                       Required
                     </span>
                   </span>
@@ -387,28 +388,16 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
                         addTagItem('emotionalAppeal', randomEmotion);
                       }
                     }}
-                    className="text-xs text-muted-foreground hover:text-foreground h-7 px-2"
+                    className="text-xs text-muted-foreground hover:text-foreground dark:text-white/70 dark:hover:text-white h-7 px-2"
                   >
                     Add Random
                   </Button>
                 </label>
                 
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {formData.emotionalAppeal.map((emotion, index) => (
-                    <span
-                      key={index}
-                      className="px-2 py-1 bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground text-sm rounded-md flex items-center gap-1"
-                    >
-                      {emotion}
-                      <button
-                        type="button"
-                        onClick={() => removeTagItem('emotionalAppeal', index)}
-                        className="text-primary/70 hover:text-primary dark:text-primary-foreground/70 dark:hover:text-primary-foreground"
-                      >
-                        <XCircle size={16} />
-                      </button>
-                    </span>
-                  ))}
+                <div className="flex flex-wrap gap-2 mb-2 min-h-8">
+                  {formData.emotionalAppeal.map((emotion, index) => 
+                    renderTagItem(emotion, index, 'emotionalAppeal')
+                  )}
                 </div>
                 
                 <div className="relative">
@@ -424,7 +413,7 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
                       "text-foreground dark:text-white dark:placeholder:text-white/50",
                       errors.emotionalAppeal
                         ? "border-destructive/50 focus:ring-destructive/20"
-                        : "border-input"
+                        : "border-input dark:border-gray-700"
                     )}
                   />
                   <datalist id="emotional-appeals">
@@ -444,7 +433,12 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
                 </div>
                 
                 {errors.emotionalAppeal && (
-                  <p className="text-xs text-destructive">{errors.emotionalAppeal}</p>
+                  <p className="text-xs text-destructive dark:text-red-400">{errors.emotionalAppeal}</p>
+                )}
+                {formData.emotionalAppeal.length === 0 && (
+                  <p className="text-xs text-muted-foreground dark:text-white/60">
+                    At least one emotional appeal is required
+                  </p>
                 )}
               </div>
             </TransitionElement>
@@ -457,7 +451,7 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
             variant="ghost"
             size="sm"
             onClick={() => setShowAdvanced(!showAdvanced)}
-            className="text-sm flex items-center gap-1 text-muted-foreground mx-auto hover:text-foreground"
+            className="text-sm flex items-center gap-1 text-muted-foreground mx-auto hover:text-foreground dark:text-white/70 dark:hover:text-white"
           >
             {showAdvanced ? (
               <>
