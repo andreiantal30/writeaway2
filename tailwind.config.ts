@@ -77,6 +77,10 @@ export default {
       fontFamily: {
         sans: ['SF Pro Display', 'system-ui', 'sans-serif'],
       },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'gradient-dark': 'linear-gradient(to bottom, hsl(240 10% 4%), hsl(240 10% 2%))',
+      },
       keyframes: {
 				'accordion-down': {
 					from: { height: '0' },

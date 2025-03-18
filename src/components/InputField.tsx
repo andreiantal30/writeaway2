@@ -53,7 +53,7 @@ const InputField = ({
         <label 
           htmlFor={props.id} 
           className={cn(
-            "text-sm font-medium transition-colors",
+            "text-sm font-medium transition-colors dark:text-white/90",
             focused ? "text-primary" : "text-foreground",
             labelClassName
           )}
@@ -61,7 +61,7 @@ const InputField = ({
           {label}
         </label>
         {chip && (
-          <span className="text-xs font-medium px-2 py-0.5 bg-primary/10 text-primary rounded-full">
+          <span className="text-xs font-medium px-2 py-0.5 bg-primary/10 text-primary dark:bg-primary/20 rounded-full">
             {chip}
           </span>
         )}
@@ -76,7 +76,7 @@ const InputField = ({
           onChange={handleChange}
           className={cn(
             "w-full px-3 py-2 rounded-lg glass-input",
-            "placeholder:text-muted-foreground/50",
+            "placeholder:text-muted-foreground/50 dark:placeholder:text-white/30",
             error ? "border-destructive/50 focus:ring-destructive/20" : "",
             inputClassName
           )}
@@ -90,7 +90,7 @@ const InputField = ({
           onChange={handleChange}
           className={cn(
             "w-full h-10 px-3 rounded-lg glass-input",
-            "placeholder:text-muted-foreground/50",
+            "placeholder:text-muted-foreground/50 dark:placeholder:text-white/30",
             error ? "border-destructive/50 focus:ring-destructive/20" : "",
             inputClassName
           )}
@@ -101,8 +101,8 @@ const InputField = ({
         <p className={cn(
           "text-xs",
           error 
-            ? "text-destructive" 
-            : "text-muted-foreground"
+            ? "text-destructive dark:text-red-400" 
+            : "text-muted-foreground dark:text-white/60"
         )}>
           {error || helperText}
         </p>
