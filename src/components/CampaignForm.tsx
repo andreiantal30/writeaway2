@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import InputField from "@/components/InputField";
@@ -7,6 +6,7 @@ import { industries, emotionalAppeals, objectives, targetAudiences } from "@/lib
 import { CampaignInput } from "@/lib/generateCampaign";
 import TransitionElement from "./TransitionElement";
 import { ChevronDown, ChevronUp, XCircle } from "lucide-react";
+import CampaignStyleSelector, { CampaignStyle } from './CampaignStyleSelector';
 
 interface CampaignFormProps {
   onSubmit: (input: CampaignInput) => void;
@@ -22,6 +22,7 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
     objectives: [],
     emotionalAppeal: [],
     additionalConstraints: "",
+    campaignStyle: undefined
   });
 
   const [errors, setErrors] = useState<{
@@ -130,6 +131,13 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
     }
   };
 
+  const handleStyleChange = (style: CampaignStyle) => {
+    setFormData(prev => ({
+      ...prev,
+      campaignStyle: style
+    }));
+  };
+
   return (
     <TransitionElement animation="slide-up" className="w-full max-w-4xl mx-auto">
       <form 
@@ -188,6 +196,11 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
                 )}
               </div>
             </TransitionElement>
+            
+            <CampaignStyleSelector
+              value={formData.campaignStyle}
+              onChange={handleStyleChange}
+            />
             
             <TransitionElement delay={300}>
               <div className="space-y-1.5">

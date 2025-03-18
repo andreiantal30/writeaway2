@@ -1,4 +1,3 @@
-
 import { Campaign, campaignData } from './campaignData';
 
 export interface CampaignInput {
@@ -8,15 +7,7 @@ export interface CampaignInput {
   objectives: string[];
   emotionalAppeal: string[];
   additionalConstraints?: string;
-}
-
-export interface GeneratedCampaign {
-  campaignName: string;
-  keyMessage: string;
-  creativeStrategy: string[];
-  executionPlan: string[];
-  expectedOutcomes: string[];
-  referenceCampaigns: Campaign[];
+  campaignStyle?: "digital" | "experiential" | "social";
 }
 
 // Helper function to get random items from an array
@@ -69,49 +60,77 @@ const findSimilarCampaigns = (input: CampaignInput): Campaign[] => {
 
 // Create execution plan based on input and reference campaigns
 const createExecutionPlan = (input: CampaignInput, referenceCampaigns: Campaign[]): string[] => {
-  const executionPlans = [
-    // Digital focused
+  const digitalPlans = [
     `Social media campaign across ${getRandomItems(['Instagram', 'TikTok', 'Twitter', 'Facebook', 'LinkedIn', 'YouTube'], 3).join(', ')}`,
-    `Influencer partnerships with ${input.targetAudience[0]} influencers`,
     `Interactive website experience with user-generated content`,
     `Email marketing campaign with personalized stories`,
-    
-    // Traditional media
-    `30-second TV commercial highlighting the key message`,
-    `Print advertisements in ${input.targetAudience[0]}-focused publications`,
-    `Out-of-home advertising in major metropolitan areas`,
-    `Radio spots during ${input.targetAudience[0]}-focused programming`,
-    
-    // Experiential
-    `Pop-up experiences in key markets`,
-    `Immersive in-store activations`,
-    `Brand partnerships with complementary ${input.industry} companies`,
-    `Interactive AR/VR experience accessible via mobile app`,
-    
-    // Content-focused
-    `Documentary-style content series`,
-    `Podcast series exploring ${input.emotionalAppeal[0]} stories`,
+    `Mobile app engagement campaign`,
+    `Digital storytelling series`,
+    `Virtual reality experience`,
     `Interactive data visualization`,
     `User-generated content competition`,
-    
-    // Community-focused
-    `Community-building events in key markets`,
-    `Charitable initiative supporting ${input.emotionalAppeal[0]}-related causes`,
     `Online community platform for ${input.targetAudience[0]}`,
-    `Ambassador program for passionate ${input.brand} customers`
+    `Digital ambassador program`
   ];
-  
-  // Get features from reference campaigns and add some of them
+
+  const experientialPlans = [
+    `Pop-up experiences in key markets`,
+    `Immersive in-store activations`,
+    `Live event series`,
+    `Interactive installations`,
+    `Brand experience centers`,
+    `Guerrilla marketing campaign`,
+    `Experiential retail activation`,
+    `Community-building events`,
+    `Interactive art installations`,
+    `Product demonstration experiences`
+  ];
+
+  const socialPlans = [
+    `Influencer partnerships with ${input.targetAudience[0]} creators`,
+    `TikTok challenge campaign`,
+    `Instagram Stories takeover series`,
+    `Social media content series`,
+    `Community hashtag campaign`,
+    `User-generated content contest`,
+    `Social media live streaming events`,
+    `Social-first video series`,
+    `Platform-specific content strategy`,
+    `Social media ambassador program`
+  ];
+
+  let primaryPlans: string[] = [];
+  let secondaryPlans: string[] = [];
+
+  // Select plans based on campaign style
+  switch (input.campaignStyle) {
+    case 'digital':
+      primaryPlans = digitalPlans;
+      secondaryPlans = [...socialPlans, ...experientialPlans];
+      break;
+    case 'experiential':
+      primaryPlans = experientialPlans;
+      secondaryPlans = [...digitalPlans, ...socialPlans];
+      break;
+    case 'social':
+      primaryPlans = socialPlans;
+      secondaryPlans = [...digitalPlans, ...experientialPlans];
+      break;
+    default:
+      primaryPlans = [...digitalPlans, ...experientialPlans, ...socialPlans];
+  }
+
+  // Get reference features and adapt them
   const referenceFeatures = referenceCampaigns.flatMap(camp => camp.features);
   
-  // Combine some reference features with new ideas
+  // Combine primary and secondary plans with reference features
   const plans = [
-    ...getRandomItems(executionPlans, 3),
-    ...getRandomItems(referenceFeatures, 2)
+    ...getRandomItems(primaryPlans, input.campaignStyle ? 3 : 2),
+    ...getRandomItems(secondaryPlans, input.campaignStyle ? 1 : 2),
+    ...getRandomItems(referenceFeatures, 1)
   ];
   
-  // Make sure we have 3-5 execution plans
-  return plans.slice(0, Math.min(5, Math.max(3, plans.length)));
+  return [...new Set(plans)].slice(0, Math.min(5, Math.max(3, plans.length)));
 };
 
 // Generate creative strategy based on input and reference campaigns
@@ -245,3 +264,4 @@ export const generateCampaign = (input: CampaignInput): GeneratedCampaign => {
     referenceCampaigns
   };
 };
+
