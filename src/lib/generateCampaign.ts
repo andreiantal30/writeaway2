@@ -10,6 +10,15 @@ export interface CampaignInput {
   campaignStyle?: "digital" | "experiential" | "social";
 }
 
+export interface GeneratedCampaign {
+  campaignName: string;
+  keyMessage: string;
+  creativeStrategy: string[];
+  executionPlan: string[];
+  expectedOutcomes: string[];
+  referenceCampaigns: Campaign[];
+}
+
 // Helper function to get random items from an array
 const getRandomItems = <T>(arr: T[], count: number): T[] => {
   const shuffled = [...arr].sort(() => 0.5 - Math.random());
@@ -264,4 +273,3 @@ export const generateCampaign = (input: CampaignInput): GeneratedCampaign => {
     referenceCampaigns
   };
 };
-
