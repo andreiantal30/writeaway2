@@ -1,10 +1,10 @@
-
 import { useState } from "react";
 import CampaignForm from "@/components/CampaignForm";
 import CampaignResult from "@/components/CampaignResult";
 import { CampaignInput, GeneratedCampaign, generateCampaign } from "@/lib/generateCampaign";
 import TransitionElement from "@/components/TransitionElement";
 import { Sparkles } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const Index = () => {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -27,6 +27,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-950 overflow-hidden relative">
+      <ThemeToggle />
       {/* Background decorative elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute top-10 left-10 w-64 h-64 bg-blue-200/20 dark:bg-blue-500/5 rounded-full blur-3xl" />
