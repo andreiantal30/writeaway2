@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import InputField from "@/components/InputField";
@@ -142,9 +143,9 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
     <TransitionElement animation="slide-up" className="w-full max-w-4xl mx-auto">
       <form 
         onSubmit={handleFormSubmit} 
-        className="bg-white/50 backdrop-blur-lg border border-border rounded-2xl shadow-subtle p-6 md:p-8"
+        className="bg-white/50 dark:bg-gray-800/40 backdrop-blur-lg border border-border dark:border-gray-700/50 rounded-2xl shadow-subtle p-6 md:p-8"
       >
-        <h2 className="text-2xl md:text-3xl font-medium text-center mb-8">
+        <h2 className="text-2xl md:text-3xl font-medium text-center mb-8 text-foreground">
           Create Your Campaign
         </h2>
         
@@ -165,9 +166,9 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
             
             <TransitionElement delay={200}>
               <div className="space-y-1.5">
-                <label htmlFor="industry" className="text-sm font-medium">
+                <label htmlFor="industry" className="text-sm font-medium text-foreground flex items-center">
                   Industry
-                  <span className="ml-2 text-xs font-medium px-2 py-0.5 bg-primary/10 text-primary rounded-full">
+                  <span className="ml-2 text-xs font-medium px-2 py-0.5 bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground rounded-full">
                     Required
                   </span>
                 </label>
@@ -177,8 +178,9 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
                   value={formData.industry}
                   onChange={handleSelectChange}
                   className={cn(
-                    "w-full h-10 px-3 bg-white/80 border rounded-md appearance-none transition-all duration-200",
-                    "hover:bg-white focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary/50",
+                    "w-full h-10 px-3 bg-white/80 dark:bg-gray-800/60 border rounded-md appearance-none transition-all duration-200",
+                    "hover:bg-white dark:hover:bg-gray-800/80 focus:bg-white dark:focus:bg-gray-800/80 focus:ring-2 focus:ring-primary/20 focus:border-primary/50",
+                    "text-foreground dark:text-white",
                     errors.industry
                       ? "border-destructive/50 focus:ring-destructive/20"
                       : "border-input"
@@ -204,10 +206,10 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
             
             <TransitionElement delay={300}>
               <div className="space-y-1.5">
-                <label className="text-sm font-medium flex items-center justify-between">
+                <label className="text-sm font-medium flex items-center justify-between text-foreground">
                   <span className="flex items-center">
                     Target Audience
-                    <span className="ml-2 text-xs font-medium px-2 py-0.5 bg-primary/10 text-primary rounded-full">
+                    <span className="ml-2 text-xs font-medium px-2 py-0.5 bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground rounded-full">
                       Required
                     </span>
                   </span>
@@ -231,13 +233,13 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
                   {formData.targetAudience.map((audience, index) => (
                     <span
                       key={index}
-                      className="px-2 py-1 bg-primary/10 text-primary text-sm rounded-md flex items-center gap-1"
+                      className="px-2 py-1 bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground text-sm rounded-md flex items-center gap-1"
                     >
                       {audience}
                       <button
                         type="button"
                         onClick={() => removeTagItem('targetAudience', index)}
-                        className="text-primary/70 hover:text-primary"
+                        className="text-primary/70 hover:text-primary dark:text-primary-foreground/70 dark:hover:text-primary-foreground"
                       >
                         <XCircle size={16} />
                       </button>
@@ -253,8 +255,9 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
                     onChange={(e) => setAudienceInput(e.target.value)}
                     onKeyDown={(e) => handleKeyDown(e, 'targetAudience', audienceInput)}
                     className={cn(
-                      "w-full h-10 px-3 bg-white/80 border rounded-md transition-all duration-200",
-                      "hover:bg-white focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary/50",
+                      "w-full h-10 px-3 bg-white/80 dark:bg-gray-800/60 border rounded-md transition-all duration-200",
+                      "hover:bg-white dark:hover:bg-gray-800/80 focus:bg-white dark:focus:bg-gray-800/80 focus:ring-2 focus:ring-primary/20 focus:border-primary/50",
+                      "text-foreground dark:text-white dark:placeholder:text-white/50",
                       errors.targetAudience
                         ? "border-destructive/50 focus:ring-destructive/20"
                         : "border-input"
@@ -286,10 +289,10 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
           <div className="space-y-6">
             <TransitionElement delay={400}>
               <div className="space-y-1.5">
-                <label className="text-sm font-medium flex items-center justify-between">
+                <label className="text-sm font-medium flex items-center justify-between text-foreground">
                   <span className="flex items-center">
                     Campaign Objectives
-                    <span className="ml-2 text-xs font-medium px-2 py-0.5 bg-primary/10 text-primary rounded-full">
+                    <span className="ml-2 text-xs font-medium px-2 py-0.5 bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground rounded-full">
                       Required
                     </span>
                   </span>
@@ -313,13 +316,13 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
                   {formData.objectives.map((objective, index) => (
                     <span
                       key={index}
-                      className="px-2 py-1 bg-primary/10 text-primary text-sm rounded-md flex items-center gap-1"
+                      className="px-2 py-1 bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground text-sm rounded-md flex items-center gap-1"
                     >
                       {objective}
                       <button
                         type="button"
                         onClick={() => removeTagItem('objectives', index)}
-                        className="text-primary/70 hover:text-primary"
+                        className="text-primary/70 hover:text-primary dark:text-primary-foreground/70 dark:hover:text-primary-foreground"
                       >
                         <XCircle size={16} />
                       </button>
@@ -335,8 +338,9 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
                     onChange={(e) => setObjectiveInput(e.target.value)}
                     onKeyDown={(e) => handleKeyDown(e, 'objectives', objectiveInput)}
                     className={cn(
-                      "w-full h-10 px-3 bg-white/80 border rounded-md transition-all duration-200",
-                      "hover:bg-white focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary/50",
+                      "w-full h-10 px-3 bg-white/80 dark:bg-gray-800/60 border rounded-md transition-all duration-200",
+                      "hover:bg-white dark:hover:bg-gray-800/80 focus:bg-white dark:focus:bg-gray-800/80 focus:ring-2 focus:ring-primary/20 focus:border-primary/50",
+                      "text-foreground dark:text-white dark:placeholder:text-white/50",
                       errors.objectives
                         ? "border-destructive/50 focus:ring-destructive/20"
                         : "border-input"
@@ -366,10 +370,10 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
             
             <TransitionElement delay={500}>
               <div className="space-y-1.5">
-                <label className="text-sm font-medium flex items-center justify-between">
+                <label className="text-sm font-medium flex items-center justify-between text-foreground">
                   <span className="flex items-center">
                     Emotional Appeal
-                    <span className="ml-2 text-xs font-medium px-2 py-0.5 bg-primary/10 text-primary rounded-full">
+                    <span className="ml-2 text-xs font-medium px-2 py-0.5 bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground rounded-full">
                       Required
                     </span>
                   </span>
@@ -393,13 +397,13 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
                   {formData.emotionalAppeal.map((emotion, index) => (
                     <span
                       key={index}
-                      className="px-2 py-1 bg-primary/10 text-primary text-sm rounded-md flex items-center gap-1"
+                      className="px-2 py-1 bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground text-sm rounded-md flex items-center gap-1"
                     >
                       {emotion}
                       <button
                         type="button"
                         onClick={() => removeTagItem('emotionalAppeal', index)}
-                        className="text-primary/70 hover:text-primary"
+                        className="text-primary/70 hover:text-primary dark:text-primary-foreground/70 dark:hover:text-primary-foreground"
                       >
                         <XCircle size={16} />
                       </button>
@@ -415,8 +419,9 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
                     onChange={(e) => setEmotionalAppealInput(e.target.value)}
                     onKeyDown={(e) => handleKeyDown(e, 'emotionalAppeal', emotionalAppealInput)}
                     className={cn(
-                      "w-full h-10 px-3 bg-white/80 border rounded-md transition-all duration-200",
-                      "hover:bg-white focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary/50",
+                      "w-full h-10 px-3 bg-white/80 dark:bg-gray-800/60 border rounded-md transition-all duration-200",
+                      "hover:bg-white dark:hover:bg-gray-800/80 focus:bg-white dark:focus:bg-gray-800/80 focus:ring-2 focus:ring-primary/20 focus:border-primary/50",
+                      "text-foreground dark:text-white dark:placeholder:text-white/50",
                       errors.emotionalAppeal
                         ? "border-destructive/50 focus:ring-destructive/20"
                         : "border-input"
@@ -452,7 +457,7 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
             variant="ghost"
             size="sm"
             onClick={() => setShowAdvanced(!showAdvanced)}
-            className="text-sm flex items-center gap-1 text-muted-foreground mx-auto"
+            className="text-sm flex items-center gap-1 text-muted-foreground mx-auto hover:text-foreground"
           >
             {showAdvanced ? (
               <>
@@ -486,7 +491,7 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
             <Button 
               type="submit" 
               disabled={isGenerating}
-              className="w-full md:w-auto px-8 py-6 h-auto text-lg font-medium rounded-xl shadow-subtle hover:shadow-md transition-all duration-300 bg-primary text-white"
+              className="w-full md:w-auto px-8 py-6 h-auto text-lg font-medium rounded-xl shadow-subtle hover:shadow-md transition-all duration-300 bg-primary text-primary-foreground"
             >
               {isGenerating ? "Generating Campaign..." : "Generate Campaign Idea"}
             </Button>

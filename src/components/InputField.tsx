@@ -53,15 +53,15 @@ const InputField = ({
         <label 
           htmlFor={props.id} 
           className={cn(
-            "text-sm font-medium transition-colors dark:text-white/90",
-            focused ? "text-primary" : "text-foreground",
+            "text-sm font-medium transition-colors text-foreground dark:text-white/90",
+            focused ? "text-primary dark:text-primary" : "",
             labelClassName
           )}
         >
           {label}
         </label>
         {chip && (
-          <span className="text-xs font-medium px-2 py-0.5 bg-primary/10 text-primary dark:bg-primary/20 rounded-full">
+          <span className="text-xs font-medium px-2 py-0.5 bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground rounded-full">
             {chip}
           </span>
         )}
