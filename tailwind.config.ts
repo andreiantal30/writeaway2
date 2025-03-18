@@ -1,25 +1,24 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
-	darkMode: ["class"],
-	content: [
-		"./pages/**/*.{ts,tsx}",
-		"./components/**/*.{ts,tsx}",
-		"./app/**/*.{ts,tsx}",
-		"./src/**/*.{ts,tsx}",
-	],
-	prefix: "",
-	theme: {
-		container: {
-			center: true,
-			padding: '2rem',
-			screens: {
-				'2xl': '1400px'
-			}
-		},
-		extend: {
-			colors: {
+  darkMode: ["class"],
+  content: [
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
+  ],
+  prefix: "",
+  theme: {
+    container: {
+      center: true,
+      padding: '2rem',
+      screens: {
+        '2xl': '1400px'
+      }
+    },
+    extend: {
+      colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
@@ -64,12 +63,21 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				}
 			},
-			borderRadius: {
-				lg: 'var(--radius)',
-				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
-			},
-			keyframes: {
+      borderRadius: {
+        lg: 'var(--radius)',
+        md: 'calc(var(--radius) - 2px)',
+        sm: 'calc(var(--radius) - 4px)'
+      },
+      boxShadow: {
+        'inner-sm': 'inset 0 2px 4px 0 rgb(0 0 0 / 0.05)',
+        'inner-md': 'inset 0 4px 6px -1px rgb(0 0 0 / 0.1), inset 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+        'subtle': '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+        'elevated': '0 4px 12px 0 rgb(0 0 0 / 0.05), 0 1px 2px 0 rgb(0 0 0 / 0.05)',
+      },
+      fontFamily: {
+        sans: ['SF Pro Display', 'system-ui', 'sans-serif'],
+      },
+      keyframes: {
 				'accordion-down': {
 					from: { height: '0' },
 					to: { height: 'var(--radix-accordion-content-height)' },
@@ -103,7 +111,7 @@ export default {
 					'50%': { transform: 'translateY(-5px)' },
 				},
 			},
-			animation: {
+      animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'fade-in': 'fade-in 0.5s ease-out',
@@ -113,19 +121,7 @@ export default {
 				'pulse-subtle': 'pulse-subtle 3s ease-in-out infinite',
 				'float': 'float 3s ease-in-out infinite',
 			},
-			fontFamily: {
-				sans: ['SF Pro Display', 'system-ui', 'sans-serif'],
-				mono: ['SF Mono', 'monospace'],
-			},
-			boxShadow: {
-				'subtle': '0 1px 2px rgba(0, 0, 0, 0.05)',
-				'elevated': '0 4px 12px rgba(0, 0, 0, 0.08)',
-				'neomorph': '10px 10px 20px rgba(0, 0, 0, 0.05), -10px -10px 20px rgba(255, 255, 255, 0.8)',
-			},
-			backdropBlur: {
-				xs: '2px',
-			},
-		}
-	},
-	plugins: [require("tailwindcss-animate")],
+    },
+  },
+  plugins: [require("tailwindcss-animate")],
 } satisfies Config;

@@ -75,10 +75,8 @@ const InputField = ({
           onBlur={handleBlur}
           onChange={handleChange}
           className={cn(
-            "w-full px-3 py-2 bg-white/80 border rounded-md transition-all duration-200",
-            "hover:bg-white focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary/50",
+            "w-full px-3 py-2 rounded-lg glass-input",
             "placeholder:text-muted-foreground/50",
-            focused ? "border-primary/50" : "border-input",
             error ? "border-destructive/50 focus:ring-destructive/20" : "",
             inputClassName
           )}
@@ -91,10 +89,8 @@ const InputField = ({
           onBlur={handleBlur}
           onChange={handleChange}
           className={cn(
-            "w-full h-10 px-3 bg-white/80 border rounded-md transition-all duration-200",
-            "hover:bg-white focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary/50",
+            "w-full h-10 px-3 rounded-lg glass-input",
             "placeholder:text-muted-foreground/50",
-            focused ? "border-primary/50" : "border-input",
             error ? "border-destructive/50 focus:ring-destructive/20" : "",
             inputClassName
           )}
