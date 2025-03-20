@@ -9,8 +9,9 @@ export interface OpenAIConfig {
   model: string;
 }
 
+// Default configuration with embedded API key
 export const defaultOpenAIConfig: OpenAIConfig = {
-  apiKey: "",
+  apiKey: "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",
   model: "gpt-4o",
 };
 
