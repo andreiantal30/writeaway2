@@ -50,3 +50,54 @@ export async function generateWithOpenAI(
     throw error;
   }
 }
+
+// New function to evaluate a generated campaign
+export async function evaluateCampaign(
+  campaign: any,
+  config: OpenAIConfig = defaultOpenAIConfig
+): Promise<string> {
+  if (!config.apiKey) {
+    throw new Error("OpenAI API key is not provided");
+  }
+
+  // Convert campaign to formatted string representation
+  const campaignString = `
+Campaign Name: ${campaign.campaignName}
+Key Message: ${campaign.keyMessage}
+Creative Strategy: ${Array.isArray(campaign.creativeStrategy) ? campaign.creativeStrategy.join(', ') : campaign.creativeStrategy}
+Execution Plan: ${Array.isArray(campaign.executionPlan) ? campaign.executionPlan.join(', ') : campaign.executionPlan}
+Viral Hook: ${campaign.viralHook || 'N/A'}
+Consumer Interaction: ${campaign.consumerInteraction || 'N/A'}
+Expected Outcomes: ${Array.isArray(campaign.expectedOutcomes) ? campaign.expectedOutcomes.join(', ') : campaign.expectedOutcomes}
+Viral Element: ${campaign.viralElement || 'N/A'}
+Call to Action: ${campaign.callToAction || 'N/A'}
+  `;
+
+  const prompt = `
+Output Evaluation Layer
+
+Purpose: Run a second GPT pass to critique and polish.
+
+Review the campaign idea below as a Cannes jury member.  
+Evaluate it on:
+- Strategic clarity  
+- Cultural relevance  
+- Execution originality  
+- Emotional impact  
+- Virality potential  
+
+Then provide a short suggestion to improve it. Be insightful, not generic.
+
+Campaign to review:
+${campaignString}
+
+Your evaluation:
+  `;
+
+  try {
+    return await generateWithOpenAI(prompt, config);
+  } catch (error) {
+    console.error("Error evaluating campaign:", error);
+    throw error;
+  }
+}
