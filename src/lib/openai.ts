@@ -17,6 +17,9 @@ export const defaultOpenAIConfig: OpenAIConfig = {
   model: "gpt-4o",
 };
 
+// Log the API key status (not the actual key)
+console.log("OpenAI: API key from localStorage status:", localStorage.getItem(STORAGE_KEY) ? "Found" : "Not found");
+
 export async function generateWithOpenAI(
   prompt: string,
   config: OpenAIConfig = defaultOpenAIConfig
@@ -24,9 +27,12 @@ export async function generateWithOpenAI(
   const apiKey = config.apiKey || localStorage.getItem(STORAGE_KEY);
   
   if (!apiKey) {
+    console.error("OpenAI: API key is missing");
     throw new Error("OpenAI API key is not provided");
   }
 
+  console.log("OpenAI: Making API request with model:", config.model);
+  
   try {
     const response = await fetch(OPENAI_API_URL, {
       method: "POST",
@@ -44,10 +50,12 @@ export async function generateWithOpenAI(
 
     if (!response.ok) {
       const error = await response.json();
+      console.error("OpenAI API error response:", error);
       throw new Error(error.error?.message || "Error generating content with OpenAI");
     }
 
     const data = await response.json();
+    console.log("OpenAI: Received successful response");
     return data.choices[0].message.content;
   } catch (error) {
     console.error("OpenAI API error:", error);
