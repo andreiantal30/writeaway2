@@ -74,25 +74,28 @@ Call to Action: ${campaign.callToAction || 'N/A'}
   `;
 
   const prompt = `
-Output Evaluation Layer
+# Creative Director Review
 
-Purpose: Run a second GPT pass to critique and polish.
+As a seasoned creative director at a top agency, critique this campaign concept with an honest, unbiased assessment. Score each dimension on a scale of 1-10 and provide brief justification for each score.
 
-Review the campaign idea below as a Cannes jury member.  
-Evaluate it on three key dimensions:
-1. Unexpected Truth - Does the campaign reveal something surprising but recognizable? (Score 1-10)
-2. Disruptive Idea - Does the approach break category conventions? (Score 1-10)
-3. Behavior-Shifting Execution - Will this actually change how people act? (Score 1-10)
-
-For each dimension:
-- Provide a score from 1-10
-- Give a brief explanation for your score
-- Suggest one specific way to improve this dimension
-
-Campaign to review:
+## Campaign to Evaluate:
 ${campaignString}
 
-Your evaluation:
+## Evaluation Framework:
+1. Insight Quality: Is the insight emotionally sharp or culturally relevant? (Score 1–10)
+2. Core Idea: Is the core idea surprising or original? (Score 1–10)
+3. Behavior Impact: Does the execution shift behavior, thinking, or culture? (Score 1–10)
+4. Award Potential: Would this stand out at an award jury table? Why or why not?
+
+## Response Format:
+For each dimension, provide:
+- Score (1-10)
+- Brief explanation of score (1-2 sentences)
+- Quick suggestion for improvement
+
+End with a one-line verdict summarizing your overall assessment of the campaign's creative quality.
+
+Your assessment:
   `;
 
   try {
@@ -102,3 +105,4 @@ Your evaluation:
     throw error;
   }
 }
+
