@@ -1,4 +1,3 @@
-
 // OpenAI API client for generating creative campaigns
 import { toast } from "sonner";
 
@@ -55,7 +54,7 @@ export async function generateWithOpenAI(
 export async function evaluateCampaign(
   campaign: any,
   config: OpenAIConfig = defaultOpenAIConfig
-): Promise<string> {
+): Promise<any> {
   if (!config.apiKey) {
     throw new Error("OpenAI API key is not provided");
   }
@@ -82,27 +81,52 @@ As a seasoned creative director at a top agency, critique this campaign concept 
 ${campaignString}
 
 ## Evaluation Framework:
-1. Insight Quality: Is the insight emotionally sharp or culturally relevant? (Score 1–10)
-2. Core Idea: Is the core idea surprising or original? (Score 1–10)
-3. Behavior Impact: Does the execution shift behavior, thinking, or culture? (Score 1–10)
-4. Award Potential: Would this stand out at an award jury table? Why or why not?
+1. Insight Sharpness: Is the insight emotionally sharp or culturally relevant? (Score 1–10)
+2. Originality of the Idea: Is the core idea surprising or original? (Score 1–10)
+3. Execution Potential: How effectively can this be implemented across channels? (Score 1–10)
+4. Award Potential: Would this stand out at an award jury table? Why or why not? (Score 1–10)
 
 ## Response Format:
-For each dimension, provide:
-- Score (1-10)
-- Brief explanation of score (1-2 sentences)
-- Quick suggestion for improvement
+You MUST respond with a valid JSON object with NO additional text using this exact structure:
+{
+  "insightSharpness": {
+    "score": 7,
+    "comment": "Brief comment on the insight's effectiveness"
+  },
+  "ideaOriginality": {
+    "score": 8,
+    "comment": "Brief comment on the idea's originality"
+  },
+  "executionPotential": {
+    "score": 6,
+    "comment": "Brief comment on execution feasibility"
+  },
+  "awardPotential": {
+    "score": 7,
+    "comment": "Brief comment on award potential"
+  },
+  "finalVerdict": "One-line summary of your overall assessment"
+}
 
-End with a one-line verdict summarizing your overall assessment of the campaign's creative quality.
-
-Your assessment:
+Make sure to provide a concise, honest assessment of the campaign from a professional creative director's perspective.
   `;
 
   try {
-    return await generateWithOpenAI(prompt, config);
+    const response = await generateWithOpenAI(prompt, config);
+    
+    // Parse the JSON response
+    try {
+      return JSON.parse(response);
+    } catch (parseError) {
+      console.error("Error parsing evaluation response:", parseError);
+      // Fallback to returning the raw text if parsing fails
+      return {
+        rawEvaluation: response,
+        parseError: true
+      };
+    }
   } catch (error) {
     console.error("Error evaluating campaign:", error);
     throw error;
   }
 }
-
