@@ -1,5 +1,7 @@
+
 // OpenAI API client for generating creative campaigns
 import { toast } from "sonner";
+import { CampaignEvaluation } from "./campaign/types";
 
 const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 
@@ -50,11 +52,11 @@ export async function generateWithOpenAI(
   }
 }
 
-// New function to evaluate a generated campaign
+// Evaluate a generated campaign
 export async function evaluateCampaign(
   campaign: any,
   config: OpenAIConfig = defaultOpenAIConfig
-): Promise<any> {
+): Promise<CampaignEvaluation> {
   if (!config.apiKey) {
     throw new Error("OpenAI API key is not provided");
   }
@@ -116,13 +118,16 @@ Make sure to provide a concise, honest assessment of the campaign from a profess
     
     // Parse the JSON response
     try {
-      return JSON.parse(response);
+      return JSON.parse(response) as CampaignEvaluation;
     } catch (parseError) {
       console.error("Error parsing evaluation response:", parseError);
-      // Fallback to returning the raw text if parsing fails
+      // Create a default evaluation object if parsing fails
       return {
-        rawEvaluation: response,
-        parseError: true
+        insightSharpness: { score: 5, comment: "Could not evaluate insight sharpness." },
+        ideaOriginality: { score: 5, comment: "Could not evaluate idea originality." },
+        executionPotential: { score: 5, comment: "Could not evaluate execution potential." },
+        awardPotential: { score: 5, comment: "Could not evaluate award potential." },
+        finalVerdict: "Evaluation could not be processed correctly."
       };
     }
   } catch (error) {
