@@ -79,14 +79,15 @@ Output Evaluation Layer
 Purpose: Run a second GPT pass to critique and polish.
 
 Review the campaign idea below as a Cannes jury member.  
-Evaluate it on:
-- Strategic clarity  
-- Cultural relevance  
-- Execution originality  
-- Emotional impact  
-- Virality potential  
+Evaluate it on three key dimensions:
+1. Unexpected Truth - Does the campaign reveal something surprising but recognizable? (Score 1-10)
+2. Disruptive Idea - Does the approach break category conventions? (Score 1-10)
+3. Behavior-Shifting Execution - Will this actually change how people act? (Score 1-10)
 
-Then provide a short suggestion to improve it. Be insightful, not generic.
+For each dimension:
+- Provide a score from 1-10
+- Give a brief explanation for your score
+- Suggest one specific way to improve this dimension
 
 Campaign to review:
 ${campaignString}
