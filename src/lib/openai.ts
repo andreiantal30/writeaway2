@@ -4,15 +4,16 @@ import { toast } from "sonner";
 import { CampaignEvaluation } from "./campaign/types";
 
 const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
+const STORAGE_KEY = "openai_api_key";
 
 export interface OpenAIConfig {
   apiKey: string;
   model: string;
 }
 
-// Default configuration with embedded API key
+// Default configuration
 export const defaultOpenAIConfig: OpenAIConfig = {
-  apiKey: "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",
+  apiKey: localStorage.getItem(STORAGE_KEY) || "",
   model: "gpt-4o",
 };
 
@@ -20,7 +21,9 @@ export async function generateWithOpenAI(
   prompt: string,
   config: OpenAIConfig = defaultOpenAIConfig
 ): Promise<string> {
-  if (!config.apiKey) {
+  const apiKey = config.apiKey || localStorage.getItem(STORAGE_KEY);
+  
+  if (!apiKey) {
     throw new Error("OpenAI API key is not provided");
   }
 
@@ -29,7 +32,7 @@ export async function generateWithOpenAI(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${config.apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: config.model,
@@ -57,7 +60,9 @@ export async function evaluateCampaign(
   campaign: any,
   config: OpenAIConfig = defaultOpenAIConfig
 ): Promise<CampaignEvaluation> {
-  if (!config.apiKey) {
+  const apiKey = config.apiKey || localStorage.getItem(STORAGE_KEY);
+  
+  if (!apiKey) {
     throw new Error("OpenAI API key is not provided");
   }
 
@@ -114,7 +119,10 @@ Make sure to provide a concise, honest assessment of the campaign from a profess
   `;
 
   try {
-    const response = await generateWithOpenAI(prompt, config);
+    const response = await generateWithOpenAI(prompt, {
+      apiKey: apiKey,
+      model: config.model
+    });
     
     // Parse the JSON response
     try {
@@ -134,4 +142,14 @@ Make sure to provide a concise, honest assessment of the campaign from a profess
     console.error("Error evaluating campaign:", error);
     throw error;
   }
+}
+
+// Helper function to save API key to localStorage
+export function saveApiKeyToStorage(apiKey: string): void {
+  localStorage.setItem(STORAGE_KEY, apiKey);
+}
+
+// Helper function to get API key from localStorage
+export function getApiKeyFromStorage(): string {
+  return localStorage.getItem(STORAGE_KEY) || "";
 }
