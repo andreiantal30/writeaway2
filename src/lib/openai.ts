@@ -1,10 +1,18 @@
-
 // OpenAI API client for generating creative campaigns
 import { toast } from "sonner";
 import { CampaignEvaluation } from "./campaign/types";
 
 const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 const STORAGE_KEY = "openai_api_key";
+
+// Check if running in browser
+const isBrowser = typeof window !== "undefined";
+
+// Resolve API key from storage or env
+const getStoredApiKey = (): string =>
+  isBrowser
+    ? localStorage.getItem(STORAGE_KEY) || ""
+    : process.env.OPENAI_API_KEY || "";
 
 export interface OpenAIConfig {
   apiKey: string;
@@ -13,26 +21,35 @@ export interface OpenAIConfig {
 
 // Default configuration
 export const defaultOpenAIConfig: OpenAIConfig = {
-  apiKey: localStorage.getItem(STORAGE_KEY) || "",
+  apiKey: getStoredApiKey(),
   model: "gpt-4o",
 };
 
-// Log the API key status (not the actual key)
-console.log("OpenAI: API key from localStorage status:", localStorage.getItem(STORAGE_KEY) ? "Found" : "Not found");
+// Log the API key status
+console.log(
+  "OpenAI: API key source:",
+  isBrowser
+    ? localStorage.getItem(STORAGE_KEY)
+      ? "Found in localStorage"
+      : "Not found in localStorage"
+    : process.env.OPENAI_API_KEY
+    ? "Found in .env"
+    : "Not found in .env"
+);
 
 export async function generateWithOpenAI(
   prompt: string,
   config: OpenAIConfig = defaultOpenAIConfig
 ): Promise<string> {
-  const apiKey = config.apiKey || localStorage.getItem(STORAGE_KEY);
-  
+  const apiKey = config.apiKey || getStoredApiKey();
+
   if (!apiKey) {
     console.error("OpenAI: API key is missing");
     throw new Error("OpenAI API key is not provided");
   }
 
   console.log("OpenAI: Making API request with model:", config.model);
-  
+
   try {
     const response = await fetch(OPENAI_API_URL, {
       method: "POST",
@@ -51,7 +68,9 @@ export async function generateWithOpenAI(
     if (!response.ok) {
       const error = await response.json();
       console.error("OpenAI API error response:", error);
-      throw new Error(error.error?.message || "Error generating content with OpenAI");
+      throw new Error(
+        error.error?.message || "Error generating content with OpenAI"
+      );
     }
 
     const data = await response.json();
@@ -63,29 +82,39 @@ export async function generateWithOpenAI(
   }
 }
 
-// Evaluate a generated campaign
 export async function evaluateCampaign(
   campaign: any,
   config: OpenAIConfig = defaultOpenAIConfig
 ): Promise<CampaignEvaluation> {
-  const apiKey = config.apiKey || localStorage.getItem(STORAGE_KEY);
-  
+  const apiKey = config.apiKey || getStoredApiKey();
+
   if (!apiKey) {
     throw new Error("OpenAI API key is not provided");
   }
 
-  // Convert campaign to formatted string representation
   const campaignString = `
 Campaign Name: ${campaign.campaignName}
 Key Message: ${campaign.keyMessage}
-Creative Strategy: ${Array.isArray(campaign.creativeStrategy) ? campaign.creativeStrategy.join(', ') : campaign.creativeStrategy}
-Execution Plan: ${Array.isArray(campaign.executionPlan) ? campaign.executionPlan.join(', ') : campaign.executionPlan}
-Viral Hook: ${campaign.viralHook || 'N/A'}
-Consumer Interaction: ${campaign.consumerInteraction || 'N/A'}
-Expected Outcomes: ${Array.isArray(campaign.expectedOutcomes) ? campaign.expectedOutcomes.join(', ') : campaign.expectedOutcomes}
-Viral Element: ${campaign.viralElement || 'N/A'}
-Call to Action: ${campaign.callToAction || 'N/A'}
-  `;
+Creative Strategy: ${
+    Array.isArray(campaign.creativeStrategy)
+      ? campaign.creativeStrategy.join(", ")
+      : campaign.creativeStrategy
+  }
+Execution Plan: ${
+    Array.isArray(campaign.executionPlan)
+      ? campaign.executionPlan.join(", ")
+      : campaign.executionPlan
+  }
+Viral Hook: ${campaign.viralHook || "N/A"}
+Consumer Interaction: ${campaign.consumerInteraction || "N/A"}
+Expected Outcomes: ${
+    Array.isArray(campaign.expectedOutcomes)
+      ? campaign.expectedOutcomes.join(", ")
+      : campaign.expectedOutcomes
+  }
+Viral Element: ${campaign.viralElement || "N/A"}
+Call to Action: ${campaign.callToAction || "N/A"}
+`;
 
   const prompt = `
 # Creative Director Review
@@ -124,26 +153,36 @@ You MUST respond with a valid JSON object with NO additional text using this exa
 }
 
 Make sure to provide a concise, honest assessment of the campaign from a professional creative director's perspective.
-  `;
+`;
 
   try {
     const response = await generateWithOpenAI(prompt, {
       apiKey: apiKey,
-      model: config.model
+      model: config.model,
     });
-    
-    // Parse the JSON response
+
     try {
       return JSON.parse(response) as CampaignEvaluation;
     } catch (parseError) {
       console.error("Error parsing evaluation response:", parseError);
-      // Create a default evaluation object if parsing fails
       return {
-        insightSharpness: { score: 5, comment: "Could not evaluate insight sharpness." },
-        ideaOriginality: { score: 5, comment: "Could not evaluate idea originality." },
-        executionPotential: { score: 5, comment: "Could not evaluate execution potential." },
-        awardPotential: { score: 5, comment: "Could not evaluate award potential." },
-        finalVerdict: "Evaluation could not be processed correctly."
+        insightSharpness: {
+          score: 5,
+          comment: "Could not evaluate insight sharpness.",
+        },
+        ideaOriginality: {
+          score: 5,
+          comment: "Could not evaluate idea originality.",
+        },
+        executionPotential: {
+          score: 5,
+          comment: "Could not evaluate execution potential.",
+        },
+        awardPotential: {
+          score: 5,
+          comment: "Could not evaluate award potential.",
+        },
+        finalVerdict: "Evaluation could not be processed correctly.",
       };
     }
   } catch (error) {
@@ -152,12 +191,16 @@ Make sure to provide a concise, honest assessment of the campaign from a profess
   }
 }
 
-// Helper function to save API key to localStorage
+// Save API key (browser only)
 export function saveApiKeyToStorage(apiKey: string): void {
-  localStorage.setItem(STORAGE_KEY, apiKey);
+  if (isBrowser) {
+    localStorage.setItem(STORAGE_KEY, apiKey);
+    toast.success("OpenAI API key saved!");
+  }
 }
 
-// Helper function to get API key from localStorage
+// Get API key (browser only)
 export function getApiKeyFromStorage(): string {
-  return localStorage.getItem(STORAGE_KEY) || "";
+  return isBrowser ? localStorage.getItem(STORAGE_KEY) || "" : "";
 }
+
