@@ -1,7 +1,6 @@
 
 // Re-export everything from specific modules (with more precise exports to avoid conflicts)
-export { generateCampaign } from './generateCampaign';
-export { 
+export type { 
   CampaignInput, 
   GeneratedCampaign,
   CampaignVersion,
@@ -9,6 +8,8 @@ export {
   FeedbackCriterion,
   InsightScores
 } from './types';
+
+export { generateCampaign } from './generateCampaign';
 
 // Re-export other campaign modules
 export * from './campaignMatcher';

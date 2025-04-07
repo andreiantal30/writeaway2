@@ -100,7 +100,7 @@ const EnhancedCampaignResult: React.FC<EnhancedCampaignResultProps> = ({
               <div className="space-y-4">
                 <p className="text-md">Implementation strategy to bring the idea to life:</p>
                 <ul className="list-decimal pl-5 space-y-2">
-                  {campaign.creativeStrategy.map((strategy, index) => (
+                  {campaign.creativeStrategy && campaign.creativeStrategy.map((strategy, index) => (
                     <li key={index} className="text-md">{strategy}</li>
                   ))}
                 </ul>
