@@ -3,6 +3,8 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const dataSourcesRouter = require('./api/data-sources');
+const cdPassRouter = require('./server/cdPass');
+const disruptivePassRouter = require('./server/disruptivePass');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,51 +15,33 @@ app.use(express.json());
 
 // API routes
 app.use('/api', dataSourcesRouter);
+app.use('/api', cdPassRouter);
+app.use('/api', disruptivePassRouter);
 
 // OpenAI proxy endpoint (to keep API key server-side)
 app.post('/api/generate-campaign', async (req, res) => {
   try {
-    const { input, referenceCampaigns, creativeInsights, creativeDevices, culturalTrends } = req.body;
+    const { input, openAIConfig } = req.body;
     
     // Import the necessary modules
-    const { createCampaignPrompt } = require('./lib/campaign/campaignPromptBuilder');
-    const { createOpenAIClient } = require('./lib/openai/client');
-    const { extractJsonFromResponse } = require('./utils/formatters');
+    const { generateCampaign } = require('./lib/campaign/generateCampaign');
     
-    // Create the prompt
-    const prompt = createCampaignPrompt(
-      input,
-      referenceCampaigns,
-      creativeInsights,
-      creativeDevices,
-      culturalTrends
-    );
-    
-    // Create OpenAI client (API key managed server-side)
-    const openai = createOpenAIClient();
-    
-    // Generate campaign with OpenAI
-    const completion = await openai.chat.completions.create({
-      messages: [{ role: 'user', content: prompt }],
-      model: 'gpt-4o',
-      temperature: 0.7,
-    });
-    
-    if (!completion.choices || completion.choices.length === 0) {
-      throw new Error("No response from OpenAI");
+    // Generate campaign using server-side API key
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: "OpenAI API key not configured" });
     }
     
-    const content = completion.choices[0].message.content;
+    // Create config with server-side API key
+    const config = {
+      apiKey,
+      model: openAIConfig?.model || 'gpt-4o'
+    };
     
-    if (!content) {
-      throw new Error("Empty response from OpenAI");
-    }
+    // Generate campaign
+    const campaign = await generateCampaign(input, config);
     
-    // Extract and parse JSON from the response
-    const jsonString = extractJsonFromResponse(content);
-    const campaignData = JSON.parse(jsonString);
-    
-    res.json(campaignData);
+    res.json(campaign);
   } catch (error) {
     console.error("Error generating campaign:", error);
     res.status(500).json({ error: error.message || "Failed to generate campaign" });

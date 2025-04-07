@@ -2,14 +2,17 @@
 type CampaignOutput = {
   campaignName: string;
   keyMessage: string;
-  creativeStrategy: string[];
+  strategy: string;
   executionPlan: string[];
-  viralHook: string;
-  consumerInteraction: string;
-  expectedOutcomes: string[];
   viralElement: string;
+  prHeadline: string;
+  consumerInteraction: string;
   callToAction: string;
-  creativeInsights: string[];
+  creativeInsights: {
+    surfaceInsight: string;
+    emotionalUndercurrent: string;
+    creativeUnlock: string;
+  };
 };
 
 import OpenAI from 'openai';
@@ -30,6 +33,10 @@ Use techniques like:
 - Revealing hidden tensions
 - Forcing participation
 - Creating friction
+- Adding elements of surprise or misdirection
+- Introducing unexpected contexts or contrasts
+
+First, identify the weakest elements of the campaign that could be improved, then add a bold genre-breaking twist that would elevate it to award-winning status.
 
 Return the improved campaign in the same JSON format, rewriting only what's needed.
 
@@ -42,7 +49,7 @@ ${JSON.stringify(campaign, null, 2)}
     const response = await openai.chat.completions.create({
       model: 'gpt-4o',
       messages: [{ role: 'user', content: prompt }],
-      temperature: 0.75,
+      temperature: 0.85, // Higher temperature for more creative results
     });
 
     const raw = response.choices?.[0]?.message?.content || '{}';

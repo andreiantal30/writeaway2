@@ -1,8 +1,6 @@
 
 import { StorytellingOutput } from './storytellingGenerator';
-import { Campaign } from '../campaignData';
-import { PersonaType } from '@/types/persona';
-import { CreativeLens } from '@/utils/creativeLenses';
+import { ReferenceCampaign } from '../../types/campaign';
 
 export interface CampaignInput {
   brand: string;
@@ -37,8 +35,8 @@ export interface CampaignInput {
     | "loyalty-community"
     | "stunt"
     | "UGC";
-  persona?: PersonaType;
-  creativeLens?: CreativeLens;
+  persona?: string;
+  creativeLens?: string;
 }
 
 export interface FeedbackCriterion {
@@ -54,6 +52,24 @@ export interface CampaignEvaluation {
   finalVerdict: string;
 }
 
+export interface InsightScores {
+  insight1: {
+    contradiction: number;
+    irony: number;
+    tension: number;
+  };
+  insight2: {
+    contradiction: number;
+    irony: number;
+    tension: number;
+  };
+  insight3: {
+    contradiction: number;
+    irony: number;
+    tension: number;
+  };
+}
+
 export interface CampaignVersion {
   id: string;
   versionTag: string;
@@ -64,17 +80,18 @@ export interface CampaignVersion {
 export interface GeneratedCampaign {
   campaignName: string;
   keyMessage: string;
-  creativeStrategy: string[];
+  strategy: string;
   executionPlan: string[];
-  expectedOutcomes: string[];
-  viralHook?: string;
-  consumerInteraction?: string;
-  referenceCampaigns: Campaign[];
+  viralElement: string;
+  prHeadline: string;
+  consumerInteraction: string;
+  callToAction: string;
+  creativeInsights: any;
+  referenceCampaigns?: ReferenceCampaign[];
   storytelling?: StorytellingOutput;
-  viralElement?: string;
-  callToAction?: string;
-  emotionalAppeal?: string[];
   evaluation?: CampaignEvaluation;
-  creativeInsights?: string[];
-  versionTag?: string; // Added for version tracking
+  narrativeAnchor?: string;
+  executionFilterRationale?: string;
+  insightScores?: InsightScores;
+  versionTag?: string;
 }

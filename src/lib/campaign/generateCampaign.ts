@@ -1,20 +1,22 @@
 
 import { toast } from "sonner";
-import { Campaign } from '../campaignData';
 import { OpenAIConfig, defaultOpenAIConfig, generateWithOpenAI } from '../openai';
-import { CampaignInput, GeneratedCampaign, CampaignEvaluation, CampaignVersion } from './types';
+import { CampaignInput, GeneratedCampaign, ReferenceCampaign } from '../../types/campaign';
 import { findSimilarCampaigns } from './campaignMatcher';
 import { generateCreativeInsights } from './creativeInsightGenerator';
 import { createCampaignPrompt } from './campaignPromptBuilder';
-import { extractJsonFromResponse } from './utils';
-import { getCreativeDevicesForStyle } from '@/data/creativeDevices';
-import { getCachedCulturalTrends } from '@/data/culturalTrends';
+import { extractJsonFromResponse } from '../../utils/formatters';
+import { getCreativeDevicesForStyle } from '../../data/creativeDevices';
+import { getCachedCulturalTrends } from '../../data/culturalTrends';
 import { generateStorytellingNarrative } from './storytellingGenerator';
 import { evaluateCampaign } from './evaluateCampaign';
 import { applyStrategyBooster } from './strategyBooster';
 import { addNarrativeAnchor } from './narrativeAnchor';
 import { applyExecutionFilters } from './executionFilters';
 
+/**
+ * Apply Creative Director pass to improve campaign quality
+ */
 const applyCreativeDirectorPass = async (rawOutput: any) => {
   try {
     const res = await fetch('/api/cd-pass', {
@@ -36,6 +38,92 @@ const applyCreativeDirectorPass = async (rawOutput: any) => {
 };
 
 /**
+ * Apply Cannes Spike to add award-worthy tactics if missing
+ */
+const applyCannesSpike = async (campaign: Partial<GeneratedCampaign>, openAIConfig: OpenAIConfig) => {
+  // Only apply if not already present in executionPlan
+  const hasCannesWorthy = campaign.executionPlan?.some(item => 
+    item.toLowerCase().includes("disrupt") || 
+    item.toLowerCase().includes("innovate") || 
+    item.toLowerCase().includes("first-ever")
+  );
+  
+  if (!hasCannesWorthy && campaign.executionPlan) {
+    try {
+      const prompt = `
+You are an award-winning creative director reviewing this campaign execution plan:
+${campaign.executionPlan.join('\n')}
+
+Add ONE bold, Cannes Lions worthy tactic that would elevate this campaign to award-winning status. 
+It should be unexpected, culturally relevant, and technically innovative. 
+Return ONLY the new tactic as plain text, no explanation or commentary.
+`;
+      
+      const response = await generateWithOpenAI(prompt, openAIConfig);
+      
+      if (response && response.trim()) {
+        campaign.executionPlan.push(response.trim());
+        console.log("🏆 Cannes Spike added");
+      }
+    } catch (err) {
+      console.error("⚠️ Cannes Spike failed:", err);
+    }
+  }
+  
+  return campaign;
+};
+
+/**
+ * Apply insight scoring to analyze quality of insights
+ */
+const applyInsightScoring = async (campaign: Partial<GeneratedCampaign>, openAIConfig: OpenAIConfig) => {
+  if (!campaign.creativeInsights) return campaign;
+  
+  try {
+    const insights = [
+      campaign.creativeInsights.surfaceInsight,
+      campaign.creativeInsights.emotionalUndercurrent,
+      campaign.creativeInsights.creativeUnlock
+    ];
+    
+    const prompt = `
+Analyze these creative insights for contradiction, irony, and tension - elements that make insights powerful:
+1. ${insights[0]}
+2. ${insights[1]}
+3. ${insights[2]}
+
+For each insight, score it from 1-10 on these criteria:
+- Contradiction: Does it reveal opposing forces?
+- Irony: Does it highlight unexpected truths?
+- Tension: Does it create cognitive dissonance?
+
+Return ONLY a JSON object with scores, no explanation:
+{
+  "insight1": {"contradiction": 7, "irony": 5, "tension": 8},
+  "insight2": {"contradiction": 4, "irony": 6, "tension": 5},
+  "insight3": {"contradiction": 9, "irony": 8, "tension": 9}
+}`;
+
+    const response = await generateWithOpenAI(prompt, openAIConfig);
+    const cleanedResponse = extractJsonFromResponse(response);
+    
+    try {
+      const scores = JSON.parse(cleanedResponse);
+      console.log("📊 Insight scores calculated:", scores);
+      
+      // Add scores to the campaign object
+      campaign.insightScores = scores;
+    } catch (err) {
+      console.error("Error parsing insight scores:", err);
+    }
+  } catch (err) {
+    console.error("⚠️ Insight scoring failed:", err);
+  }
+  
+  return campaign;
+};
+
+/**
  * Main function to generate a campaign using AI
  */
 export const generateCampaign = async (
@@ -47,7 +135,7 @@ export const generateCampaign = async (
     const creativeInsights = await generateCreativeInsights(input, openAIConfig);
     console.log("Generated Creative Insights:", creativeInsights);
     
-    // Find similar reference campaigns - now returns up to 5 diverse references
+    // Find similar reference campaigns
     const referenceCampaigns = await findSimilarCampaigns(input, openAIConfig);
     
     console.log("Matched Reference Campaigns:", 
@@ -58,7 +146,7 @@ export const generateCampaign = async (
       }))
     );
 
-    // Select creative devices based on campaign style - increased to 3
+    // Select creative devices based on campaign style
     const creativeDevices = getCreativeDevicesForStyle(input.campaignStyle, 3);
     console.log("Selected Creative Devices:", creativeDevices.map(d => d.name));
     
@@ -68,14 +156,17 @@ export const generateCampaign = async (
     // Give priority to non-tech trends for variety
     const prioritized = [
       ...culturalTrends.filter(t =>
-        !t.platformTags.some(tag => tag.toLowerCase().includes("ai") || tag.toLowerCase().includes("ar") || tag.toLowerCase().includes("vr") || tag.toLowerCase().includes("metaverse"))
+        !t.platformTags.some(tag => tag.toLowerCase().includes("ai") || 
+                                   tag.toLowerCase().includes("ar") || 
+                                   tag.toLowerCase().includes("vr"))
       ),
       ...culturalTrends.filter(t =>
-        t.platformTags.some(tag => tag.toLowerCase().includes("ai") || tag.toLowerCase().includes("ar"))
+        t.platformTags.some(tag => tag.toLowerCase().includes("ai") || 
+                                  tag.toLowerCase().includes("ar"))
       )
     ];
     
-    // Shuffle and take 3 from the reordered list (increased from 2)
+    // Shuffle and take 3 from the reordered list
     const relevantTrends = prioritized
       .sort(() => Math.random() - 0.5)
       .slice(0, 3);
@@ -100,7 +191,9 @@ export const generateCampaign = async (
     const cleanedResponse = extractJsonFromResponse(response);
     const generatedContent = JSON.parse(cleanedResponse);
 
-    // Apply Creative Director refinement
+    // ===== POST-GENERATION LAYERS =====
+    
+    // 1. Apply Creative Director refinement
     let improvedContent = generatedContent;
     try {
       improvedContent = await applyCreativeDirectorPass(generatedContent);
@@ -109,16 +202,19 @@ export const generateCampaign = async (
       console.error("⚠️ CD pass failed:", err);
     }
 
-    // Apply Strategy Booster
+    // 2. Apply Strategy Booster
     improvedContent = await applyStrategyBooster(improvedContent, input, openAIConfig);
     
-    // Add Narrative Anchor
+    // 3. Add Narrative Anchor
     improvedContent = await addNarrativeAnchor(improvedContent, input, openAIConfig);
     
-    // Apply Execution Filters
+    // 4. Apply Execution Filters (reduces to 4-5 boldest ideas)
     improvedContent = await applyExecutionFilters(improvedContent, input, openAIConfig);
+    
+    // 5. Apply Cannes Spike (adds award-worthy tactic if missing)
+    improvedContent = await applyCannesSpike(improvedContent, openAIConfig);
 
-    // Inject Disruptive Device via API
+    // 6. Inject Disruptive Device via API
     let finalContent = improvedContent;
     try {
       const res = await fetch('/api/disruptive-pass', {
@@ -136,14 +232,16 @@ export const generateCampaign = async (
       console.log("🎯 Disruptive twist added");
     } catch (err) {
       console.error("⚠️ Disruptive device injection failed:", err);
-      // Use the previous content if the disruptive pass fails
       toast.error("Disruptive enhancement failed, using base campaign");
     }
+    
+    // 7. Apply Insight Scoring
+    finalContent = await applyInsightScoring(finalContent, openAIConfig);
 
     const campaign: GeneratedCampaign = {
       ...finalContent,
       referenceCampaigns,
-      creativeInsights
+      creativeInsights: creativeInsights
     };
     
     // Generate storytelling narrative
@@ -166,7 +264,7 @@ export const generateCampaign = async (
     
     // Generate campaign evaluation
     try {
-      const evaluation: CampaignEvaluation = await evaluateCampaign(campaign, openAIConfig);
+      const evaluation = await evaluateCampaign(campaign, openAIConfig);
       campaign.evaluation = evaluation;
     } catch (error) {
       console.error("Error evaluating campaign:", error);
@@ -179,5 +277,5 @@ export const generateCampaign = async (
   }
 };
 
-// Re-export types for backwards compatibility
-export type { CampaignInput, GeneratedCampaign, CampaignVersion };
+// Export types for backwards compatibility
+export type { CampaignInput, GeneratedCampaign };

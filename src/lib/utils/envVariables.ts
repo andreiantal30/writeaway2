@@ -9,11 +9,6 @@ export function getEnvVariable(key: string): string | undefined {
     return process.env[key];
   }
   
-  // For edge function environments or similar
-  if (typeof Deno !== 'undefined' && Deno.env) {
-    return Deno.env.get(key);
-  }
-  
   // Return undefined if not found or not in a server environment
   return undefined;
 }

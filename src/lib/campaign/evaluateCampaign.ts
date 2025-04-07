@@ -1,7 +1,22 @@
 
 import { OpenAIConfig, generateWithOpenAI } from '../openai';
-import { GeneratedCampaign, CampaignEvaluation } from './types';
-import { extractJsonFromResponse } from './utils';
+import { GeneratedCampaign } from '../../types/campaign';
+import { extractJsonFromResponse } from '../../utils/formatters';
+
+// Interface for feedback criterion
+export interface FeedbackCriterion {
+  score: number;
+  comment: string;
+}
+
+// Interface for campaign evaluation
+export interface CampaignEvaluation {
+  insightSharpness: FeedbackCriterion;
+  ideaOriginality: FeedbackCriterion;
+  executionPotential: FeedbackCriterion;
+  awardPotential: FeedbackCriterion;
+  finalVerdict: string;
+}
 
 /**
  * Evaluate a generated campaign against standard creative metrics
@@ -15,10 +30,11 @@ export async function evaluateCampaign(
 You are an experienced creative director at a top advertising agency. You've been asked to evaluate the following campaign proposal:
 
 Campaign Name: ${campaign.campaignName}
-Key Message: ${campaign.keyMessage}
-Creative Strategy: ${campaign.creativeStrategy.join(", ")}
+Key Message: ${campaign.keyMessage || 'N/A'}
+Creative Strategy: ${campaign.strategy}
 Execution Plan: ${campaign.executionPlan.join(", ")}
-Expected Outcomes: ${campaign.expectedOutcomes.join(", ")}
+Viral Element: ${campaign.viralElement}
+Call to Action: ${campaign.callToAction}
 
 Please evaluate this campaign on the following criteria, with a score from 1-10 and a brief comment for each:
 

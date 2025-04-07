@@ -1,3 +1,4 @@
+
 import OpenAI from 'openai';
 
 export interface OpenAIConfig {
@@ -9,6 +10,24 @@ export const defaultOpenAIConfig: OpenAIConfig = {
   apiKey: '',
   model: 'gpt-4o'
 };
+
+// Storage functions for API key
+export function saveApiKeyToStorage(apiKey: string): void {
+  try {
+    localStorage.setItem('openai_api_key', apiKey);
+  } catch (error) {
+    console.error('Error saving API key to storage:', error);
+  }
+}
+
+export function getApiKeyFromStorage(): string | null {
+  try {
+    return localStorage.getItem('openai_api_key');
+  } catch (error) {
+    console.error('Error getting API key from storage:', error);
+    return null;
+  }
+}
 
 /**
  * Generate content using OpenAI
@@ -45,5 +64,3 @@ export async function generateWithOpenAI(prompt: string, config: OpenAIConfig): 
     throw error;
   }
 }
-
-export { defaultOpenAIConfig, OpenAIConfig, generateWithOpenAI };

@@ -1,15 +1,15 @@
 
-import { CampaignInput } from './types';
+import { CampaignInput } from '../../types/campaign';
 import { generateWithOpenAI, OpenAIConfig } from '../openai';
-import { extractJsonFromResponse } from './utils';
+import { extractJsonFromResponse } from '../../utils/formatters';
 
 /**
  * Generate creative insights for campaign generation
  */
 export async function generateCreativeInsights(
   input: CampaignInput,
-  config: OpenAIConfig = { apiKey: '', model: 'gpt-4o' }
-): Promise<string[]> {
+  config: OpenAIConfig
+): Promise<any> {
   try {
     const currentYear = new Date().getFullYear();
     const audienceString = input.targetAudience.join(', ');
@@ -18,8 +18,8 @@ export async function generateCreativeInsights(
     const prompt = `
 ### Creative Insight Builder
 
-Generate 3 powerful insights about the target audience that will unlock creative potential for this campaign. 
-These should be tensions, truths, or emotional realities that the target audience experiences in ${currentYear}.
+Generate powerful insights about the target audience that will unlock creative potential for this campaign. 
+These should capture tensions, truths, or emotional realities that the target audience experiences in ${currentYear}.
 
 **Target Audience:** ${audienceString}
 **Brand:** ${input.brand}
@@ -27,15 +27,18 @@ These should be tensions, truths, or emotional realities that the target audienc
 **Campaign Objectives:** ${objectivesString}
 **Emotional Appeal to Tap Into:** ${input.emotionalAppeal.join(', ')}
 
-For each insight:
-1. Focus on a specific tension or truth that the audience feels
-2. Make it specific, not generic
-3. Connect it to the brand's ability to solve or provoke this tension
-4. Phrase it as a simple, powerful statement that could inspire creative work
+Create three layers of insights:
+1. Surface Insight: The obvious, superficial observation
+2. Emotional Undercurrent: The deeper emotional truth behind the surface
+3. Creative Unlock: The surprising twist that creates tension and opportunity
 
-Format your response as a JSON array of exactly 3 insights:
+Format your response as a JSON object:
 \`\`\`json
-["Insight statement 1", "Insight statement 2", "Insight statement 3"]
+{
+  "surfaceInsight": "Clear statement of what's observable",
+  "emotionalUndercurrent": "Deeper emotional truth statement",
+  "creativeUnlock": "Surprising twist that creates opportunity"
+}
 \`\`\`
 
 The best insights will reveal something that feels true but hasn't been overly exploited in marketing.
@@ -46,18 +49,25 @@ The best insights will reveal something that feels true but hasn't been overly e
     
     try {
       const insights = JSON.parse(cleanedResponse);
-      if (Array.isArray(insights) && insights.length > 0) {
-        return insights.slice(0, 3);
-      }
+      return insights;
     } catch (error) {
       console.error("Error parsing creative insights:", error);
+      
+      // Provide fallback insights if parsing fails
+      return {
+        surfaceInsight: "The audience seeks authentic connections in an increasingly digital world.",
+        emotionalUndercurrent: "Beneath the surface, there's a fear of missing meaningful human experiences.",
+        creativeUnlock: "The most shareable moments are those that bridge digital convenience with analog emotion."
+      };
     }
-    
-    return ["The audience seeks authentic connections in an increasingly digital world.",
-            "They value brands that understand their specific needs rather than generic solutions.",
-            "They want to feel seen and validated through their brand choices."];
   } catch (error) {
     console.error("Error generating creative insights:", error);
-    return [];
+    
+    // Provide fallback insights if API call fails
+    return {
+      surfaceInsight: "The audience seeks authentic connections in an increasingly digital world.",
+      emotionalUndercurrent: "Beneath the surface, there's a fear of missing meaningful human experiences.",
+      creativeUnlock: "The most shareable moments are those that bridge digital convenience with analog emotion."
+    };
   }
 }
