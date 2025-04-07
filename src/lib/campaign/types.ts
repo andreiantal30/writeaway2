@@ -1,5 +1,5 @@
 
-import { StorytellingOutput } from '../storytellingGenerator';
+import { StorytellingOutput } from './storytellingGenerator';
 import { Campaign } from '../campaignData';
 import { PersonaType } from '@/types/persona';
 import { CreativeLens } from '@/utils/creativeLenses';
