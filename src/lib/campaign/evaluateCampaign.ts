@@ -1,6 +1,6 @@
 
 import { OpenAIConfig, generateWithOpenAI } from '../openai';
-import { GeneratedCampaign } from '../../types/campaign';
+import { GeneratedCampaign } from './types';
 import { extractJsonFromResponse } from '../../utils/formatters';
 
 // Interface for feedback criterion

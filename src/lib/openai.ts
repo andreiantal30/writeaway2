@@ -64,3 +64,6 @@ export async function generateWithOpenAI(prompt: string, config: OpenAIConfig): 
     throw error;
   }
 }
+
+// Export everything from evaluateCampaign to maintain compatibility
+export * from './campaign/evaluateCampaign';

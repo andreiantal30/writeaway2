@@ -1,7 +1,16 @@
 
-// Re-export everything from campaign modules
-export * from './generateCampaign';
-export * from './types';
+// Re-export everything from specific modules (with more precise exports to avoid conflicts)
+export { generateCampaign } from './generateCampaign';
+export { 
+  CampaignInput, 
+  GeneratedCampaign,
+  CampaignVersion,
+  CampaignEvaluation,
+  FeedbackCriterion,
+  InsightScores
+} from './types';
+
+// Re-export other campaign modules
 export * from './campaignMatcher';
 export * from './creativeInsightGenerator';
 export * from './storytellingGenerator';

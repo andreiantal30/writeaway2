@@ -1,6 +1,5 @@
 
 import { StorytellingOutput } from './storytellingGenerator';
-import { ReferenceCampaign } from '../../types/campaign';
 
 export interface CampaignInput {
   brand: string;
@@ -12,29 +11,7 @@ export interface CampaignInput {
   brandPersonality?: string;
   differentiator?: string;
   culturalInsights?: string;
-  campaignStyle?: 
-    | "digital" 
-    | "experiential" 
-    | "social" 
-    | "influencer" 
-    | "guerrilla" 
-    | "ugc" 
-    | "brand-activism" 
-    | "branded-entertainment" 
-    | "retail-activation" 
-    | "product-placement" 
-    | "data-personalization" 
-    | "real-time" 
-    | "event-based" 
-    | "ooh-ambient" 
-    | "ai-generated" 
-    | "co-creation" 
-    | "stunt-marketing" 
-    | "ar-vr" 
-    | "performance" 
-    | "loyalty-community"
-    | "stunt"
-    | "UGC";
+  campaignStyle?: string; // Changed from enum to string for compatibility
   persona?: string;
   creativeLens?: string;
 }
@@ -77,17 +54,28 @@ export interface CampaignVersion {
   campaign: GeneratedCampaign;
 }
 
+// Complete GeneratedCampaign type that merges all properties needed across the app
 export interface GeneratedCampaign {
+  // Core campaign elements
   campaignName: string;
-  keyMessage: string;
+  keyMessage: string; // Added to match components expecting this field
+  brand: string; // Added to match components expecting this field
   strategy: string;
   executionPlan: string[];
   viralElement: string;
+  viralHook?: string; // Legacy support
   prHeadline: string;
   consumerInteraction: string;
   callToAction: string;
+  
+  // Creative elements
   creativeInsights: any;
-  referenceCampaigns?: ReferenceCampaign[];
+  emotionalAppeal?: string[]; // Added for UI components
+  creativeStrategy?: string[]; // Added for UI components
+  
+  // Campaign extensions
+  expectedOutcomes?: string[]; // Added for UI components
+  referenceCampaigns?: any[];
   storytelling?: StorytellingOutput;
   evaluation?: CampaignEvaluation;
   narrativeAnchor?: string;
