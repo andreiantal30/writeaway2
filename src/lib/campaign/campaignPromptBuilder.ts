@@ -1,13 +1,18 @@
-import { CampaignInput } from './types';
-import { Campaign } from '../campaignData';
-import { formatCampaignForPrompt } from '@/utils/formatCampaignForPrompt';
-import { getCreativePatternGuidance } from '@/utils/matchReferenceCampaigns';
-import { getCreativeLensById } from '@/utils/creativeLenses';
-import { CreativeDevice, formatCreativeDevicesForPrompt } from '@/data/creativeDevices';
-import { CulturalTrend } from '@/data/culturalTrends';
-import { PersonaType } from '@/types/persona';
 
-function getPersonaInstructions(persona: PersonaType): string {
+import { formatCampaignForPrompt } from '../../utils/formatters';
+import { getCreativeLensById } from '../../utils/creativeLenses';
+import { formatCreativeDevicesForPrompt } from '../../data/creativeDevices';
+import { 
+  CampaignInput, 
+  ReferenceCampaign, 
+  CreativeDevice, 
+  CulturalTrend 
+} from '../../types/campaign';
+
+/**
+ * Get persona instructions based on the selected persona type
+ */
+function getPersonaInstructions(persona: string): string {
   const personaMap: Record<string, string> = {
     "unfiltered-director": `
 ### Strategist Persona: Unfiltered Creative Director
@@ -50,14 +55,19 @@ As a tech innovator, your job is to use emerging technologies to solve brand pro
   return personaMap[persona] || personaMap["unfiltered-director"];
 }
 
+/**
+ * Creates a campaign generation prompt based on input parameters
+ */
 export const createCampaignPrompt = (
   input: CampaignInput,
-  referenceCampaigns: Campaign[],
+  referenceCampaigns: ReferenceCampaign[],
   creativeInsights: string[] = [],
   creativeDevices: CreativeDevice[] = [],
   culturalTrends: CulturalTrend[] = []
 ): string => {
-  const referenceCampaignsText = referenceCampaigns.map(c => formatCampaignForPrompt(c)).join('\n');
+  const referenceCampaignsText = referenceCampaigns
+    .map(c => formatCampaignForPrompt(c))
+    .join('\n');
 
   const insightsBlock = creativeInsights.length > 0 ? `
 #### **Creative Insights**
@@ -71,12 +81,10 @@ These are not campaign themes. Do NOT use them as the core idea.
 They're just cultural backdrops—like set design for your story.
 ${culturalTrends.slice(0, 3).map((trend, index) => `${index + 1}. "${trend.title}": ${trend.description}`).join('\n')}` : '';
 
-  const referencePrompt = `
+  const referencePrompt = referenceCampaignsText ? `
 Use these real-world awarded campaigns for inspiration. Study their emotional appeal, cultural angle, and structure—but do not copy:
 ${referenceCampaignsText}
-`;
-
-  const awardPatterns = getCreativePatternGuidance();
+` : '';
 
   const campaignStyleDescription = input.campaignStyle || 'Any';
   const styleDescriptions: Record<string, string> = {
@@ -104,13 +112,13 @@ ${referenceCampaignsText}
   };
 
   const campaignStyle = styleDescriptions[input.campaignStyle || ''] || campaignStyleDescription;
-  const personaInstructions = getPersonaInstructions(input.persona || "unfiltered-director" as PersonaType)
+  const personaInstructions = getPersonaInstructions(input.persona || "unfiltered-director");
 
   const creativeLens = input.creativeLens ? getCreativeLensById(input.creativeLens) : null;
   const creativeLensInstructions = creativeLens ? `
 ### Creative Lens: ${creativeLens.name}
 ${creativeLens.description}
-Use this perspective to shape the campaign’s voice, concept, and cultural relevance.
+Use this perspective to shape the campaign's voice, concept, and cultural relevance.
 ` : '';
 
   const creativeDevicesBlock = formatCreativeDevicesForPrompt(creativeDevices);
@@ -120,7 +128,7 @@ Use this perspective to shape the campaign’s voice, concept, and cultural rele
 Ask yourself:
 - What would Gen Z screenshot?
 - What would spark comments or controversy?
-- What’s the twist, the meme, the moment?
+- What's the twist, the meme, the moment?
 
 Pressure-test your idea. It must break through.
 `;
@@ -136,7 +144,7 @@ ${creativeLensInstructions}
 - Target Audience: ${input.targetAudience.join(', ')}
 - Personality: ${input.brandPersonality || 'Flexible'}
 - Differentiator: ${input.differentiator || 'N/A'}
-- Market Trends: ${input.culturalInsights || 'N/A'}
+- Additional Context: ${input.additionalConstraints || 'N/A'}
 - Emotional Appeal: ${input.emotionalAppeal.join(', ')}
 
 ${insightsBlock}
@@ -147,13 +155,8 @@ ${provocationBlock}
 #### Campaign Format
 - Objective: ${input.objectives.join(', ')}
 - Style: ${campaignStyle}
-- Constraints: ${input.additionalConstraints || 'None'}
 
-#### Award-Winning Inspiration
 ${referencePrompt}
-
-#### Pattern Library
-${awardPatterns}
 
 ---
 
@@ -161,15 +164,18 @@ ${awardPatterns}
 \`\`\`json
 {
   "campaignName": "Bold Campaign Name",
-  "keyMessage": "Sharp, emotional one-liner",
-  "creativeStrategy": ["Tactic 1", "Tactic 2", "Tactic 3"],
+  "brand": "${input.brand}",
+  "strategy": "Overall campaign strategy and approach",
   "executionPlan": ["Execution 1", "Execution 2", "Execution 3", "Execution 4", "Execution 5"],
-  "viralHook": "What makes it spread",
+  "viralElement": "What makes it spread",
+  "prHeadline": "News-worthy headline for press coverage",
   "consumerInteraction": "How people participate",
-  "expectedOutcomes": ["Outcome 1", "Outcome 2", "Outcome 3", "Outcome 4"],
-  "viralElement": "One specific viral moment",
   "callToAction": "Clear audience prompt",
-  "creativeInsights": ["Used Insight 1", "Used Insight 2"]
+  "creativeInsights": {
+    "surfaceInsight": "Obvious surface-level insight",
+    "emotionalUndercurrent": "Deeper emotional truth",
+    "creativeUnlock": "Creative insight that unlocks the idea"
+  }
 }
 \`\`\`
 

@@ -54,9 +54,8 @@ export const creativeLenses: LensDetails[] = [
   }
 ];
 
-export const getCreativeLensById = (id: CreativeLens | undefined): LensDetails | undefined => {
-  if (!id) return undefined;
-  return creativeLenses.find(lens => lens.id === id);
+export const getCreativeLensById = (id: string): LensDetails | null => {
+  return creativeLenses.find(lens => lens.id === id) || null;
 };
 
 // Add a function to get a random creative lens

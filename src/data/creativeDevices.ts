@@ -1,110 +1,112 @@
-export interface CreativeDevice {
-  name: string;
-  description: string;
-  exampleUsage?: string;
-}
+
+import { CreativeDevice } from '../types/campaign';
 
 export const creativeDevices: CreativeDevice[] = [
   {
-    name: "Flip the Familiar",
-    description: "Take a common behavior, ritual, or truth and turn it upside down to spark surprise or tension.",
-    exampleUsage: "Everyone flexes wins online — a campaign that celebrates failure instead."
+    id: "unexpected-mashup",
+    name: "Unexpected Mashup",
+    description: "Combine two seemingly unrelated concepts, cultural formats, or product categories.",
+    examples: [
+      "Burger King's 'Moldy Whopper' (food + decay)",
+      "Spotify's 'Wrapped' (personal data + year in review)",
+      "Nike's 'Breaking2' (sports + science documentary)"
+    ],
+    applicableTo: ["digital", "social", "experiential", "branded-entertainment"]
   },
   {
-    name: "Hyper-Targeting",
-    description: "Create media or assets designed for one person or a hyper-specific micro-audience.",
-    exampleUsage: "Spotify made a campaign that addressed only one fan of a specific artist."
+    id: "participation-mechanics",
+    name: "Participation Mechanics",
+    description: "Create a framework that invites consumer co-creation or interaction.",
+    examples: [
+      "ALS Ice Bucket Challenge",
+      "Share a Coke campaign",
+      "Dove 'Real Beauty Sketches'"
+    ],
+    applicableTo: ["social", "UGC", "experiential", "guerrilla"]
   },
   {
-    name: "Disappearing Content",
-    description: "Build FOMO by making content, products, or experiences temporary, like stories or drops.",
-    exampleUsage: "A limited filter that disappears after 48 hours — users must act or miss out."
+    id: "subversive-placement",
+    name: "Subversive Placement",
+    description: "Position the brand message in unexpected contexts or media spaces.",
+    examples: [
+      "Fearless Girl on Wall Street",
+      "KFC 'FCK' apology ad",
+      "Carlsberg's 'Probably Not' reverse campaign"
+    ],
+    applicableTo: ["ooh-ambient", "stunt", "guerrilla", "real-time"]
   },
   {
-    name: "Unexpected Use of Tech",
-    description: "Use technology in a way that wasn't originally intended, surprising users with its recontextualization.",
-    exampleUsage: "Using CAPTCHA tests to crowdsource poetry."
+    id: "format-disruption",
+    name: "Format Disruption",
+    description: "Break the conventions of a familiar media format or channel.",
+    examples: [
+      "Skittles Super Bowl ad shown to only one person",
+      "Domino's pothole fixing campaign",
+      "Old Spice's interactive YouTube experience"
+    ],
+    applicableTo: ["digital", "social", "branded-entertainment", "stunt"]
   },
   {
-    name: "Outsourced Copywriting",
-    description: "Let your audience generate the headlines, taglines, or full creative for the brand.",
-    exampleUsage: "TikTok users write the campaign slogan in real-time."
-  },
-  {
-    name: "Brand as Utility",
-    description: "Transform your brand into a useful tool or service that solves a real problem.",
-    exampleUsage: "A sports brand creates an app that turns city maps into running routes."
-  },
-  {
-    name: "Cultural Hijacking",
-    description: "Insert your brand into an existing cultural moment, trend, or conversation.",
-    exampleUsage: "A food brand creates content that piggybacks on a viral dance challenge."
-  },
-  {
-    name: "Media Hacking",
-    description: "Use traditional media in non-traditional ways that subvert expectations.",
-    exampleUsage: "Using billboards as physical Instagram frames that people can pose with."
-  },
-  {
-    name: "Reality Distortion",
-    description: "Create illusions, tricks, or perceptual shifts that make people question what they're seeing.",
-    exampleUsage: "A 3D street art installation that appears to create a portal in the ground."
-  },
-  {
-    name: "Participatory Storytelling",
-    description: "Let your audience help shape or create the narrative as it unfolds.",
-    exampleUsage: "A brand story that evolves based on audience votes or contributions on social media."
+    id: "emotional-contrast",
+    name: "Emotional Contrast",
+    description: "Create a dramatic shift in emotion to heighten audience impact.",
+    examples: [
+      "Sandy Hook Promise 'Back to School Essentials'",
+      "Always 'Like a Girl'",
+      "Thai Life Insurance 'Unsung Hero'"
+    ],
+    applicableTo: ["digital", "branded-entertainment", "social", "brand-activism"]
   }
 ];
 
-function shuffle<T>(array: T[]): T[] {
-  return [...array].sort(() => 0.5 - Math.random());
-}
-
-export function getCreativeDevicesForStyle(campaignStyle?: string, count: number = 2): CreativeDevice[] {
-  const styleDeviceMap: Record<string, string[]> = {
-    "digital": ["Unexpected Use of Tech", "Disappearing Content", "Participatory Storytelling"],
-    "experiential": ["Reality Distortion", "Media Hacking", "Brand as Utility"],
-    "social": ["Cultural Hijacking", "Outsourced Copywriting", "Participatory Storytelling"],
-    "influencer": ["Hyper-Targeting", "Outsourced Copywriting", "Cultural Hijacking"],
-    "guerrilla": ["Media Hacking", "Reality Distortion", "Flip the Familiar"],
-    "stunt": ["Reality Distortion", "Cultural Hijacking", "Media Hacking"],
-    "UGC": ["Outsourced Copywriting", "Participatory Storytelling", "Hyper-Targeting"],
-    "brand-activism": ["Flip the Familiar", "Media Hacking", "Brand as Utility"],
-    "branded-entertainment": ["Participatory Storytelling", "Cultural Hijacking", "Reality Distortion"],
-    "retail-activation": ["Reality Distortion", "Brand as Utility", "Media Hacking"],
-    "data-personalization": ["Hyper-Targeting", "Brand as Utility", "Unexpected Use of Tech"],
-    "real-time": ["Cultural Hijacking", "Participatory Storytelling", "Disappearing Content"],
-    "ooh-ambient": ["Reality Distortion", "Media Hacking", "Flip the Familiar"],
-    "ar-vr": ["Unexpected Use of Tech", "Reality Distortion", "Brand as Utility"]
-  };
-
-  let matches = campaignStyle && styleDeviceMap[campaignStyle]
-    ? shuffle(
-        creativeDevices.filter(d => styleDeviceMap[campaignStyle!].includes(d.name))
-      ).slice(0, count)
-    : [];
-
-  const remaining = count - matches.length;
-  if (remaining > 0) {
-    const remainingDevices = shuffle(
-      creativeDevices.filter(d => !matches.some(m => m.name === d.name))
-    ).slice(0, remaining);
-    matches = [...matches, ...remainingDevices];
+/**
+ * Get creative devices based on campaign style
+ */
+export function getCreativeDevicesForStyle(
+  style: string | undefined,
+  count: number = 2
+): CreativeDevice[] {
+  // If no style specified, return random devices
+  if (!style) {
+    return shuffleArray([...creativeDevices]).slice(0, count);
   }
-
-  return matches;
+  
+  // Filter devices applicable to the specified style
+  const applicableDevices = creativeDevices.filter(device => 
+    device.applicableTo.some(s => s.toLowerCase() === style.toLowerCase())
+  );
+  
+  // If no applicable devices found, return random devices
+  if (applicableDevices.length === 0) {
+    return shuffleArray([...creativeDevices]).slice(0, count);
+  }
+  
+  // Return random applicable devices
+  return shuffleArray(applicableDevices).slice(0, Math.min(count, applicableDevices.length));
 }
 
+/**
+ * Format creative devices for prompt inclusion
+ */
 export function formatCreativeDevicesForPrompt(devices: CreativeDevice[]): string {
-  if (!devices.length) return "";
+  if (devices.length === 0) return '';
+  
   return `
-#### **Creative Devices to Consider**
-
-Consider using the following creative mechanics in your execution:
-${devices.map(d => `- **${d.name}**: ${d.description}`).join('\n')}`;
+#### **Creative Devices**
+Consider incorporating these creative techniques:
+${devices.map((device, i) => `${i + 1}. **${device.name}**: ${device.description}
+   Examples: ${device.examples[0]}`).join('\n')}
+  `.trim();
 }
 
-export function getRandomCreativeDevices(count: number = 2): CreativeDevice[] {
-  return shuffle(creativeDevices).slice(0, count);
+/**
+ * Shuffle an array using Fisher-Yates algorithm
+ */
+function shuffleArray<T>(array: T[]): T[] {
+  const newArray = [...array];
+  for (let i = newArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+  }
+  return newArray;
 }
