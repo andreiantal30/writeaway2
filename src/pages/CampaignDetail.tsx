@@ -106,14 +106,14 @@ const CampaignDetail: React.FC<CampaignDetailProps> = ({ id }) => {
       )}
       
       <CampaignHeader 
-        title={campaign.campaign.campaignName} 
+        campaignName={campaign.campaign.campaignName} 
         brand={campaign.brand} 
         industry={campaign.industry}
       />
       
       <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
         <CampaignMeta 
-          data={campaign} 
+          campaign={campaign} 
         />
         <CampaignActions 
           campaign={campaign} 

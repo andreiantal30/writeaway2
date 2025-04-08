@@ -11,9 +11,9 @@ const EMOTIONAL_WARMTH_PATTERN = /hope|connection|joy|pride|resilience|community
  * Check if a campaign has sufficient emotional warmth in its storytelling
  */
 export const hasEmotionalWarmth = (campaign: GeneratedCampaign): boolean => {
-  if (!campaign.storytelling?.narrative) return false;
+  if (!campaign.storytelling?.fullNarrative) return false;
   
-  return EMOTIONAL_WARMTH_PATTERN.test(campaign.storytelling.narrative);
+  return EMOTIONAL_WARMTH_PATTERN.test(campaign.storytelling.fullNarrative);
 };
 
 /**
@@ -34,14 +34,14 @@ export const applyEmotionalRebalance = async (
   
   try {
     // Only rebalance if storytelling exists
-    if (campaign.storytelling?.narrative) {
+    if (campaign.storytelling?.fullNarrative) {
       const prompt = `
 You are a gifted storyteller whose task is to maintain the emotional balance in brand stories.
 
 The following campaign storytelling narrative is impactful but lacks emotional warmth:
 
 ---
-${campaign.storytelling.narrative}
+${campaign.storytelling.fullNarrative}
 ---
 
 Please rewrite this narrative to maintain all of its strategic boldness, disruption, and powerful insights, but add elements of emotional connection.
@@ -63,7 +63,7 @@ Output only the revised narrative text with no additional commentary.
         ...campaign,
         storytelling: {
           ...campaign.storytelling,
-          narrative: enhancedNarrative.trim()
+          fullNarrative: enhancedNarrative.trim()
         }
       };
     }

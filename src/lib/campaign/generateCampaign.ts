@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 import { OpenAIConfig, defaultOpenAIConfig, generateWithOpenAI } from '../openai';
 import { CampaignInput, GeneratedCampaign, CreativeInsights } from './types';
@@ -154,6 +153,60 @@ const applyDisruptivePass = async (campaign: Partial<GeneratedCampaign>) => {
 };
 
 /**
+ * Check if campaign needs disruption based on insight safety and execution flatness
+ * and add disruptive element if needed
+ */
+const applyWeaknessBasedDisruption = async (campaign: Partial<GeneratedCampaign>, openAIConfig: OpenAIConfig) => {
+  try {
+    // Check if insights or execution plan are too safe/flat
+    const isInsightSafe = (campaign.insightScores?.insight1?.tension || 0) < 5;
+    const isExecutionFlat = (campaign.executionPlan || []).length < 3;
+    const needsDisruption = isInsightSafe || isExecutionFlat;
+    
+    console.log("Disruption Triggered:", {
+      isInsightSafe,
+      isExecutionFlat
+    });
+    
+    if (needsDisruption) {
+      const disruptionPrompt = `
+This campaign lacks tension or boldness. Here's the current version:
+
+Strategy:
+${campaign.strategy}
+
+Execution Plan:
+${campaign.executionPlan?.join('\n')}
+
+Insight:
+${campaign.creativeInsights?.surfaceInsight}
+
+Now inject ONE unexpected twist that would make this idea feel rebellious, culture-poking, or emotionally raw. Return ONLY the new execution as plain text.
+`;
+
+      const disruption = await generateWithOpenAI(disruptionPrompt, openAIConfig);
+      if (disruption && disruption.trim()) {
+        if (!campaign.executionPlan) {
+          campaign.executionPlan = [];
+        }
+        campaign.executionPlan.push(disruption.trim());
+        
+        // Add to CD modifications tracking if it exists
+        if (!campaign._cdModifications) {
+          campaign._cdModifications = [];
+        }
+        campaign._cdModifications.push("Injected strategic disruption based on weakness");
+        console.log("⚔️ Weakness-based disruption injected");
+      }
+    }
+  } catch (error) {
+    console.error("Error applying weakness-based disruption:", error);
+  }
+  
+  return campaign;
+};
+
+/**
  * Main function to generate a campaign using AI
  */
 export const generateCampaign = async (
@@ -168,7 +221,7 @@ export const generateCampaign = async (
     // Find similar reference campaigns
     const referenceCampaignsResponse = await findSimilarCampaigns(input, openAIConfig);
     // Cast to ReferenceCampaign[] to fix type error
-    const referenceCampaigns = referenceCampaignsResponse as ReferenceCampaign[];
+    const referenceCampaigns = referenceCampaignsResponse as unknown as ReferenceCampaign[];
     
     console.log("Matched Reference Campaigns:", 
       referenceCampaigns.map(c => ({
@@ -266,19 +319,23 @@ export const generateCampaign = async (
     campaign = await applyExecutionFilters(campaign, input, openAIConfig);
     console.log("✅ Execution filters applied");
     
-    // ===== 5. Apply Cannes Spike (adds award-worthy tactic if missing) =====
+    // ===== 5. NEW: Apply Weakness-Based Disruption =====
+    campaign = await applyWeaknessBasedDisruption(campaign, openAIConfig);
+    console.log("✅ Weakness-based disruption check applied");
+    
+    // ===== 6. Apply Cannes Spike (adds award-worthy tactic if missing) =====
     campaign = await applyCannesSpike(campaign, openAIConfig);
     console.log("✅ Cannes spike applied if needed");
 
-    // ===== 6. Inject Disruptive Device via API =====
+    // ===== 7. Inject Disruptive Device via API =====
     campaign = await applyDisruptivePass(campaign);
     console.log("✅ Disruptive pass applied");
 
-    // ===== 7. Apply Creative Director refinement =====
+    // ===== 8. Apply Creative Director refinement =====
     campaign = await applyCreativeDirectorPass(campaign);
     console.log("✅ Creative Director pass applied");
 
-    // ===== 8. Calculate Bravery Matrix =====
+    // ===== 9. Calculate Bravery Matrix =====
     const braveryScores = calculateBraveryMatrix(campaign as GeneratedCampaign);
     console.log("✅ Bravery matrix calculated:", braveryScores);
     campaign.braveryScores = braveryScores;
@@ -348,8 +405,7 @@ export const generateCampaign = async (
       console.error("Error evaluating campaign:", error);
     }
 
-    // ===== 9. Apply Emotional Rebalance (NEW STEP) =====
-    // Add this after the disruptive pass to ensure we don't lose warmth
+    // ===== 10. Apply Emotional Rebalance =====
     try {
       const emotionallyBalancedCampaign = await applyEmotionalRebalance(finalCampaign, openAIConfig);
       console.log("✅ Emotional rebalance applied");
