@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -37,7 +38,13 @@ const CampaignDetailView: React.FC<CampaignDetailViewProps> = ({ campaign }) => 
       protagonistDescription: campaign.campaign.storytelling.protagonist || '',
       conflictDescription: campaign.campaign.storytelling.conflict || '',
       resolutionDescription: campaign.campaign.storytelling.resolution || '',
-      brandValueConnection: ''
+      brandValueConnection: '',
+      hook: campaign.campaign.storytelling.hook,
+      protagonist: campaign.campaign.storytelling.protagonist,
+      conflict: campaign.campaign.storytelling.conflict,
+      journey: campaign.campaign.storytelling.journey,
+      resolution: campaign.campaign.storytelling.resolution,
+      fullNarrative: campaign.campaign.storytelling.fullNarrative
     };
   };
   

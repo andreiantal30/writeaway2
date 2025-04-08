@@ -4,7 +4,7 @@ export interface CampaignInput {
   brand: string;
   industry: string;
   targetAudience: string[];
-  objectives?: string[];
+  objectives: string[]; // Changed from optional to required to match usage
   emotionalAppeal: string[];
   campaignStyle?: string;
   brandPersonality?: string;
