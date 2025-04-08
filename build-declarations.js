@@ -26,8 +26,29 @@ fs.writeFileSync(
   JSON.stringify(tsconfigBuild, null, 2)
 );
 
+// Clean up any previous build artifacts
+console.log('🧹 Cleaning previous build artifacts...');
+try {
+  if (fs.existsSync('dist')) {
+    fs.rmSync('dist', { recursive: true, force: true });
+    console.log('✅ Removed dist directory');
+  }
+  
+  // Remove any stray declaration files in the root
+  const files = fs.readdirSync('.');
+  files.forEach(file => {
+    if (file.endsWith('.d.ts')) {
+      fs.unlinkSync(file);
+      console.log(`✅ Removed ${file}`);
+    }
+  });
+} catch (err) {
+  console.error('Error cleaning build artifacts:', err);
+}
+
 // Run the TypeScript compiler using this config
-exec('npx tsc -p tsconfig.build.json', (error, stdout, stderr) => {
+console.log('🔨 Building declaration files...');
+exec('npx tsc --build tsconfig.build.json', (error, stdout, stderr) => {
   if (error) {
     console.error(`❌ Error generating declaration files: ${error.message}`);
     console.error(stderr);
@@ -35,5 +56,5 @@ exec('npx tsc -p tsconfig.build.json', (error, stdout, stderr) => {
   }
   
   console.log('✅ Declaration files generated successfully!');
-  console.log(stdout);
+  if (stdout) console.log(stdout);
 });
