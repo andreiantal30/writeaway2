@@ -41,20 +41,23 @@ export interface BraveryScores {
   totalScore: number;
 }
 
-// Storytelling output interface
+// Storytelling output interface - updated to ensure all required fields are present
 export interface StorytellingOutput {
+  // Required core fields
   narrative: string;
+  hook: string;
+  protagonist: string;
+  conflict: string;
+  journey: string;
+  resolution: string;
+  fullNarrative: string;
+  
+  // Extended fields (optional)
   storyNarrative?: string;
   protagonistDescription?: string;
   conflictDescription?: string;
   resolutionDescription?: string;
   brandValueConnection?: string;
-  hook?: string;
-  protagonist?: string;
-  conflict?: string;
-  journey?: string;
-  resolution?: string;
-  fullNarrative?: string;
   audienceRelevance?: string;
 }
 

@@ -16,7 +16,7 @@ const StorytellingNarrative: React.FC<StorytellingNarrativeProps> = ({ storytell
   if (!storytelling) return null;
 
   // Use the narrative field for the main display with fallbacks
-  const narrativeText = storytelling.fullNarrative || storytelling.narrative || storytelling.storyNarrative || '';
+  const narrativeText = storytelling.fullNarrative || storytelling.narrative || '';
   
   // Check if we have detailed story elements to show in expanded view
   const hasExpandedDetails = !!(

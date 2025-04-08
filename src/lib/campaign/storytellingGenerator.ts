@@ -59,36 +59,38 @@ Return a JSON object with these keys: hook, protagonist, conflict, journey, reso
       storytellingData = { narrative: response.trim() };
     }
     
-    // Build the output ensuring all fields are present
+    // Build the output ensuring all required fields are present with defaults if missing
     const result: StorytellingOutput = {
+      // Required core fields with fallbacks
       narrative: storytellingData.fullNarrative || storytellingData.narrative || response.trim(),
-      hook: storytellingData.hook || '',
-      protagonist: storytellingData.protagonist || '',
-      conflict: storytellingData.conflict || '',
-      journey: storytellingData.journey || '',
-      resolution: storytellingData.resolution || '',
+      hook: storytellingData.hook || "Discover a new perspective.",
+      protagonist: storytellingData.protagonist || input.targetAudience[0] || "The consumer",
+      conflict: storytellingData.conflict || "Navigating challenges in a complex world.",
+      journey: storytellingData.journey || "A transformation through discovery and experience.",
+      resolution: storytellingData.resolution || `${input.brand} provides the solution.`,
       fullNarrative: storytellingData.fullNarrative || response.trim(),
-      // Additional context fields if available
-      protagonistDescription: storytellingData.protagonistDescription || storytellingData.protagonist || '',
-      conflictDescription: storytellingData.conflictDescription || storytellingData.conflict || '',
-      resolutionDescription: storytellingData.resolutionDescription || storytellingData.resolution || '',
-      brandValueConnection: storytellingData.brandValueConnection || '',
-      audienceRelevance: storytellingData.audienceRelevance || '',
-      storyNarrative: storytellingData.storyNarrative || storytellingData.fullNarrative || response.trim()
+      
+      // Additional context fields
+      storyNarrative: storytellingData.storyNarrative || storytellingData.fullNarrative || response.trim(),
+      protagonistDescription: storytellingData.protagonistDescription || storytellingData.protagonist || "",
+      conflictDescription: storytellingData.conflictDescription || storytellingData.conflict || "",
+      resolutionDescription: storytellingData.resolutionDescription || storytellingData.resolution || "",
+      brandValueConnection: storytellingData.brandValueConnection || "",
+      audienceRelevance: storytellingData.audienceRelevance || ""
     };
 
     return result;
   } catch (error) {
     console.error("Failed to generate storytelling narrative:", error);
-    // Return a minimal valid object in case of error
+    // Return a valid object with defaults in case of error
     return { 
       narrative: "An error occurred while generating the storytelling narrative.",
-      hook: "",
-      protagonist: "",
-      conflict: "",
-      journey: "",
-      resolution: "",
-      fullNarrative: "",
+      hook: "Discover something unexpected.",
+      protagonist: input.targetAudience[0] || "The audience",
+      conflict: "Facing everyday challenges.",
+      journey: "A path of discovery and growth.",
+      resolution: `${input.brand} offers a solution.`,
+      fullNarrative: "An error occurred while generating the full storytelling narrative.",
       protagonistDescription: "",
       conflictDescription: "",
       resolutionDescription: "",
