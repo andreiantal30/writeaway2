@@ -69,4 +69,5 @@ router.post('/generate', async (req: Request, res: Response): Promise<void> => {
   }
 });
 
+// Export the router directly
 export default router;
