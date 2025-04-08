@@ -1,5 +1,5 @@
 
-import { Router } from 'express';
+import express, { Router, Request, Response } from 'express';
 import { CampaignInput } from '../types/campaign';
 import { generateCampaign } from '../lib/campaign/generateCampaign';
 
@@ -9,7 +9,7 @@ const router = Router();
  * API endpoint for generating a campaign
  * Keeps OpenAI API key on the server side for security
  */
-router.post('/generateCampaign', async (req, res) => {
+router.post('/generateCampaign', async (req: Request, res: Response) => {
   try {
     const input: CampaignInput = req.body.input;
     
