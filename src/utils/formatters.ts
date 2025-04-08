@@ -24,7 +24,10 @@ ${campaign.awards?.length ? `**Awards:** ${campaign.awards.join(', ')}` : ''}
  * Handles various formats returned by GPT including markdown code blocks
  */
 export function extractJsonFromResponse(text: string): string {
-  if (!text) return "{}";
+  if (!text) {
+    console.log("Warning: Empty response received");
+    return "{}";
+  }
   
   try {
     // First attempt: Look for content between JSON code blocks
@@ -32,20 +35,24 @@ export function extractJsonFromResponse(text: string): string {
     const match = text.match(jsonRegex);
     
     if (match && match[1]) {
+      console.log("Extracted JSON from code block");
       return match[1].trim();
     }
     
     // Second attempt: Look for content that looks like JSON
     const jsonObjectMatch = text.match(/\{[\s\S]*\}/);
     if (jsonObjectMatch) {
+      console.log("Extracted JSON from response body");
       return jsonObjectMatch[0].trim();
     }
     
     // If all else fails, return the original text
     console.log("Warning: Could not extract JSON format, returning raw text");
+    console.log("First 100 chars of text:", text.substring(0, 100));
     return text.trim();
   } catch (error) {
     console.error("Error extracting JSON from response:", error);
+    console.error("First 100 chars of problematic text:", text.substring(0, 100));
     return "{}";
   }
 }
@@ -55,11 +62,23 @@ export function extractJsonFromResponse(text: string): string {
  * Returns a default value if parsing fails
  */
 export function safeJsonParse<T>(jsonString: string, defaultValue: T): T {
+  if (!jsonString || jsonString.trim() === '') {
+    console.warn("Empty JSON string provided to parser");
+    return defaultValue;
+  }
+  
   try {
-    return JSON.parse(jsonString) as T;
+    // Try to clean up common JSON issues before parsing
+    let cleanedJson = jsonString.trim();
+    
+    // Replace any potential dangling commas which are common in LLM outputs
+    cleanedJson = cleanedJson.replace(/,\s*}/g, '}').replace(/,\s*\]/g, ']');
+    
+    // Try to parse the cleaned JSON
+    return JSON.parse(cleanedJson) as T;
   } catch (error) {
     console.error("Error parsing JSON:", error);
-    console.log("Problematic JSON string:", jsonString);
+    console.error("Problematic JSON string:", jsonString.substring(0, 200) + (jsonString.length > 200 ? '...' : ''));
     return defaultValue;
   }
 }

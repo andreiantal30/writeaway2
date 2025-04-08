@@ -1,15 +1,17 @@
 
-import express, { Request, Response, Router } from 'express';
+import { Router } from 'express';
 import { generateCampaign } from '../lib/campaign/generateCampaign';
 import { CampaignInput } from '../types/campaign';
-import { applyEmotionalRebalance } from '../lib/campaign/emotionalRebalance';
-import { calculateBraveryMatrix } from '../lib/campaign/calculateBraveryMatrix';
 
 const router = Router();
 
-// Fixed: Use proper router.post pattern with improved error handling
-router.post('/generate', async (req: Request, res: Response) => {
+router.post('/generate', async (req, res) => {
   try {
+    console.log('Generate campaign request received:', {
+      ...req.body,
+      openAIKey: req.body.openAIKey ? '[REDACTED]' : undefined
+    });
+    
     const input = req.body as CampaignInput;
     
     if (!input) {
@@ -20,15 +22,29 @@ router.post('/generate', async (req: Request, res: Response) => {
     if (!input.brand || !input.industry || !input.targetAudience || !input.emotionalAppeal) {
       return res.status(400).json({ 
         error: 'Missing required fields in campaign input',
+        message: 'The campaign input is missing required fields',
         requiredFields: ['brand', 'industry', 'targetAudience', 'emotionalAppeal'] 
       });
     }
     
-    const campaign = await generateCampaign(input);
+    // Extract OpenAI config from request if passed
+    const openAIConfig = req.body.openAIKey ? {
+      apiKey: req.body.openAIKey,
+      model: req.body.model || 'gpt-4o'
+    } : undefined;
+    
+    // Generate the campaign
+    const campaign = await generateCampaign(input, openAIConfig);
     
     if (!campaign) {
-      return res.status(500).json({ error: 'Failed to generate campaign - empty result returned' });
+      return res.status(500).json({ 
+        error: 'Failed to generate campaign',
+        message: 'Empty result returned from campaign generator'
+      });
     }
+    
+    // Log successful generation (without sensitive data)
+    console.log('Campaign generated successfully for:', input.brand);
     
     return res.json(campaign);
   } catch (error) {

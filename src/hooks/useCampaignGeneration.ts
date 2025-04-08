@@ -107,29 +107,53 @@ export function useCampaignGeneration(openAIConfig: OpenAIConfig) {
     try {
       toast.info("Generating campaign...", { duration: 3000 });
       
+      // Include the API key in the request payload to authenticate on the server side
+      const payload = {
+        ...input,
+        openAIKey: openAIConfig.apiKey,
+        model: openAIConfig.model
+      };
+      
+      console.log("Sending campaign generation request with payload:", {
+        ...payload,
+        openAIKey: "[REDACTED]" // Log without exposing the actual API key
+      });
+      
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(input),
+        body: JSON.stringify(payload),
       });
       
       if (!response.ok) {
         let errorData;
         try {
           errorData = await response.json();
+          console.error("Server error response:", errorData);
         } catch (jsonError) {
+          console.error("Failed to parse error response:", jsonError);
+          console.error("Response status:", response.status);
+          console.error("Response text:", await response.text());
           throw new Error(`Server error (${response.status}): Unable to parse response`);
         }
         
-        throw new Error(errorData.error || `Server error (${response.status}): Failed to generate campaign`);
+        throw new Error(errorData.error || `Server error (${response.status}): ${errorData.message || 'Failed to generate campaign'}`);
       }
+      
+      // Get response as text first to check if it's valid JSON
+      const responseText = await response.text();
+      console.log("Response received, length:", responseText.length);
       
       let campaign: GeneratedCampaign;
       try {
-        campaign = await response.json();
+        // Try to parse the JSON response
+        campaign = JSON.parse(responseText);
+        console.log("Campaign successfully parsed from JSON");
       } catch (jsonError) {
+        console.error("Failed to parse campaign response:", jsonError);
+        console.error("Raw response:", responseText.substring(0, 200) + "...");
         throw new Error("Failed to parse campaign response from server");
       }
       
@@ -140,19 +164,21 @@ export function useCampaignGeneration(openAIConfig: OpenAIConfig) {
           timestamp: Date.now(),
           campaign: { ...campaign }
         }]);
-      }
-      
-      setGeneratedCampaign(campaign);
-      
-      if (campaign && input.brand && input.industry) {
-        const savedCampaign = saveCampaignToLibrary(campaign, input.brand, input.industry);
-        if (savedCampaign) {
-          toast.success("Campaign automatically saved to your library");
+        
+        setGeneratedCampaign(campaign);
+        
+        if (campaign && input.brand && input.industry) {
+          const savedCampaign = saveCampaignToLibrary(campaign, input.brand, input.industry);
+          if (savedCampaign) {
+            toast.success("Campaign automatically saved to your library");
+          }
         }
+        
+        initializeChat(campaign, input);
+        return true;
+      } else {
+        throw new Error("Received empty campaign response from server");
       }
-      
-      initializeChat(campaign, input);
-      return true;
     } catch (error) {
       console.error("Error generating campaign:", error);
       toast.error(error instanceof Error ? error.message : "Failed to generate campaign");

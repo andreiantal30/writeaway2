@@ -1,13 +1,13 @@
 
-import express, { Request, Response, Router } from 'express';
+import { Router } from 'express';
 import * as newsApi from '../lib/fetchNewsFromServer';
 import { fetchAndGenerateRedditTrends } from '../lib/fetchRedditTrends';
 
 const router = Router();
 
-// Fixed: Use proper router.get pattern with improved error handling
-router.get('/news-trends', async (req: Request, res: Response) => {
+router.get('/news-trends', async (req, res) => {
   try {
+    console.log('News trends API request received');
     // Check for a fetchNewsFromServer function instead of getNewsTrends
     if (typeof newsApi.fetchNewsFromServer === 'function') {
       const trends = await newsApi.fetchNewsFromServer();
@@ -26,8 +26,9 @@ router.get('/news-trends', async (req: Request, res: Response) => {
   }
 });
 
-router.get('/reddit-trends', async (req: Request, res: Response) => {
+router.get('/reddit-trends', async (req, res) => {
   try {
+    console.log('Reddit trends API request received');
     // Use fetchAndGenerateRedditTrends which is the correct exported function
     const trends = await fetchAndGenerateRedditTrends();
     return res.json(trends);
