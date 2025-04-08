@@ -7,9 +7,9 @@ const router = Router();
 
 router.get('/news-trends', async (req: Request, res: Response) => {
   try {
-    // Check if getNewsTrends exists, if not use fallback
-    if (typeof newsApi.getNewsTrends === 'function') {
-      const trends = await newsApi.getNewsTrends();
+    // Check for a fetchNewsFromServer function instead of getNewsTrends
+    if (typeof newsApi.fetchNewsFromServer === 'function') {
+      const trends = await newsApi.fetchNewsFromServer();
       return res.json(trends);
     } else {
       // Fallback if the function doesn't exist
@@ -23,9 +23,9 @@ router.get('/news-trends', async (req: Request, res: Response) => {
 
 router.get('/reddit-trends', async (req: Request, res: Response) => {
   try {
-    // Check if getRedditTrends exists, if not use fallback
-    if (typeof redditApi.getRedditTrends === 'function') {
-      const trends = await redditApi.getRedditTrends();
+    // Check for a fetchRedditTrends function
+    if (typeof redditApi.fetchRedditTrends === 'function') {
+      const trends = await redditApi.fetchRedditTrends();
       return res.json(trends);
     } else {
       // Fallback if the function doesn't exist
