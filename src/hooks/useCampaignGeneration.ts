@@ -1,3 +1,4 @@
+
 import { useState, useRef } from "react";
 import { CampaignInput, GeneratedCampaign, CampaignVersion } from "@/lib/generateCampaign";
 import { OpenAIConfig } from "@/lib/openai";
@@ -126,6 +127,7 @@ export function useCampaignGeneration(openAIConfig: OpenAIConfig) {
       });
       
       if (!response.ok) {
+        // Clone the response before consuming it to avoid "body already read" errors
         const clonedResponse = response.clone();
         
         let errorData;
