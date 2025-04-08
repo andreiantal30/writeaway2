@@ -1,20 +1,10 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { SavedCampaign } from '@/lib/campaignStorage';
-import { StorytellingOutput } from '@/types/campaign';
-import { 
-  Target, 
-  MessageSquare, 
-  Sparkles, 
-  ListChecks, 
-  Share2, 
-  Lightbulb,
-  Newspaper,
-  Flame,
-  FileText
-} from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { StorytellingOutput } from '../../types/campaign';
 import StorytellingNarrative from '@/components/StorytellingNarrative';
 import BraveryMatrix from '@/components/CampaignResult/BraveryMatrix';
 
@@ -25,7 +15,6 @@ interface CampaignDetailViewProps {
 const CampaignDetailView: React.FC<CampaignDetailViewProps> = ({ campaign }) => {
   const [tab, setTab] = useState("overview");
   
-  // Helper to safely access storytelling properties
   const getStorytelling = (): StorytellingOutput | null => {
     if (!campaign.campaign.storytelling) return null;
     
@@ -40,6 +29,39 @@ const CampaignDetailView: React.FC<CampaignDetailViewProps> = ({ campaign }) => 
   };
   
   const storytelling = getStorytelling();
+  
+  const StorytellingSection = ({ storytelling }: { storytelling?: StorytellingOutput }) => {
+    if (!storytelling) return null;
+    
+    return (
+      <div className="space-y-4">
+        <div>
+          <h3 className="text-lg font-semibold">Hook</h3>
+          <p>{storytelling.hook}</p>
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold">Protagonist</h3>
+          <p>{storytelling.protagonist}</p>
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold">Conflict</h3>
+          <p>{storytelling.conflict}</p>
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold">Journey</h3>
+          <p>{storytelling.journey}</p>
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold">Resolution</h3>
+          <p>{storytelling.resolution}</p>
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold">Full Narrative</h3>
+          <p>{storytelling.fullNarrative}</p>
+        </div>
+      </div>
+    );
+  };
   
   return (
     <div className="space-y-6">

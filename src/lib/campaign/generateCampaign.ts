@@ -1,6 +1,6 @@
 import { toast } from "sonner";
 import { OpenAIConfig, defaultOpenAIConfig, generateWithOpenAI } from '../openai';
-import { CampaignInput, GeneratedCampaign, CreativeInsights } from './types';
+import { CampaignInput, GeneratedCampaign, CreativeInsights, StorytellingOutput } from './types';
 import { findSimilarCampaigns } from './campaignMatcher';
 import { generateCreativeInsights } from './creativeInsightGenerator';
 import { createCampaignPrompt } from './campaignPromptBuilder';
@@ -385,7 +385,7 @@ export const generateCampaign = async (
       };
       
       const storytelling = await generateStorytellingNarrative(storytellingInput, openAIConfig);
-      finalCampaign.storytelling = storytelling as StorytellingOutput;
+      finalCampaign.storytelling = storytelling;
     } catch (error) {
       console.error("Error generating storytelling content:", error);
       toast.error("Error generating storytelling content");
