@@ -46,9 +46,9 @@ try {
   console.error('Error cleaning build artifacts:', err);
 }
 
-// Run the TypeScript compiler using this config
+// Run the TypeScript compiler using this config with the --force flag
 console.log('🔨 Building declaration files...');
-exec('npx tsc --build tsconfig.build.json', (error, stdout, stderr) => {
+exec('npx tsc --build tsconfig.build.json --force', (error, stdout, stderr) => {
   if (error) {
     console.error(`❌ Error generating declaration files: ${error.message}`);
     console.error(stderr);
