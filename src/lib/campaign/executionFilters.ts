@@ -1,6 +1,6 @@
 
 import { OpenAIConfig, generateWithOpenAI } from '../openai';
-import { CampaignInput, GeneratedCampaign } from '../../types/campaign';
+import { CampaignInput, GeneratedCampaign } from './types';
 import { extractJsonFromResponse } from '../../utils/formatters';
 
 /**
@@ -62,7 +62,14 @@ Format your response as JSON:
       if (result.selectedTactics && Array.isArray(result.selectedTactics) && result.selectedTactics.length > 0) {
         // Replace the execution plan with the filtered selection
         campaign.executionPlan = result.selectedTactics;
-        campaign.executionFilterRationale = result.explanation;
+        
+        // Add the execution filter rationale to campaign object
+        if (!('executionFilterRationale' in campaign)) {
+          campaign.executionFilterRationale = result.explanation;
+        } else {
+          campaign.executionFilterRationale = result.explanation;
+        }
+        
         console.log("Execution filter applied:", result.explanation);
       }
     } catch (error) {

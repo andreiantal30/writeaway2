@@ -54,12 +54,19 @@ export interface CampaignVersion {
   campaign: GeneratedCampaign;
 }
 
-// Complete GeneratedCampaign type that merges all properties needed across the app
+// Creative insights structure
+export interface CreativeInsights {
+  surfaceInsight: string;
+  emotionalUndercurrent: string;
+  creativeUnlock: string;
+}
+
+// The final generated campaign output - standardized across backend and frontend
 export interface GeneratedCampaign {
   // Core campaign elements
   campaignName: string;
-  keyMessage: string; // Added to match components expecting this field
-  brand: string; // Added to match components expecting this field
+  keyMessage: string;
+  brand: string;
   strategy: string;
   executionPlan: string[];
   viralElement: string;
@@ -69,12 +76,12 @@ export interface GeneratedCampaign {
   callToAction: string;
   
   // Creative elements
-  creativeInsights: any;
-  emotionalAppeal?: string[]; // Added for UI components
-  creativeStrategy?: string[]; // Added for UI components
+  creativeInsights: CreativeInsights;
+  emotionalAppeal: string[]; // Required for UI components
+  creativeStrategy: string[]; // Required for UI components
   
   // Campaign extensions
-  expectedOutcomes?: string[]; // Added for UI components
+  expectedOutcomes?: string[]; // Optional but used in UI components
   referenceCampaigns?: any[];
   storytelling?: StorytellingOutput;
   evaluation?: CampaignEvaluation;

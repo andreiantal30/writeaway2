@@ -12,6 +12,7 @@ export interface CampaignInput {
   additionalConstraints?: string;
   creativeLens?: string;
   persona?: string;
+  culturalInsights?: string;
 }
 
 // Creative insights structure
@@ -21,18 +22,16 @@ export interface CreativeInsights {
   creativeUnlock: string;
 }
 
-// The final generated campaign output
-export interface GeneratedCampaign {
-  campaignName: string;
-  brand: string;
-  strategy: string;
-  executionPlan: string[];
-  viralElement: string;
-  prHeadline: string;
-  consumerInteraction: string;
-  callToAction: string;
-  creativeInsights: CreativeInsights;
-}
+// Import the standardized campaign type from the campaign module
+import { GeneratedCampaign, CampaignEvaluation, CampaignVersion, InsightScores } from '../lib/campaign/types';
+
+// Re-export the imported types for backward compatibility
+export type { 
+  GeneratedCampaign,
+  CampaignEvaluation,
+  CampaignVersion,
+  InsightScores
+};
 
 // Reference campaign format
 export interface ReferenceCampaign {

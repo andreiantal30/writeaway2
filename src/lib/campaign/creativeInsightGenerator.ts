@@ -1,7 +1,8 @@
 
-import { CampaignInput } from '../../types/campaign';
+import { CampaignInput } from '../campaign/types';
 import { generateWithOpenAI, OpenAIConfig } from '../openai';
 import { extractJsonFromResponse } from '../../utils/formatters';
+import { CreativeInsights } from '../campaign/types';
 
 /**
  * Generate creative insights for campaign generation
@@ -9,7 +10,7 @@ import { extractJsonFromResponse } from '../../utils/formatters';
 export async function generateCreativeInsights(
   input: CampaignInput,
   config: OpenAIConfig
-): Promise<any> {
+): Promise<CreativeInsights> {
   try {
     const currentYear = new Date().getFullYear();
     const audienceString = input.targetAudience.join(', ');
@@ -48,7 +49,7 @@ The best insights will reveal something that feels true but hasn't been overly e
     const cleanedResponse = extractJsonFromResponse(response);
     
     try {
-      const insights = JSON.parse(cleanedResponse);
+      const insights = JSON.parse(cleanedResponse) as CreativeInsights;
       return insights;
     } catch (error) {
       console.error("Error parsing creative insights:", error);

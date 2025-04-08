@@ -1,6 +1,6 @@
 
 import { OpenAIConfig, generateWithOpenAI } from '../openai';
-import { CampaignInput, GeneratedCampaign } from '../../types/campaign';
+import { CampaignInput, GeneratedCampaign } from './types';
 
 /**
  * Add narrative anchor to the campaign content
@@ -37,7 +37,12 @@ Make it under 100 words.
     
     if (response && response.trim()) {
       // Add the narrative anchor to the campaign
-      campaign.narrativeAnchor = response.trim();
+      if (!('narrativeAnchor' in campaign)) {
+        campaign.narrativeAnchor = response.trim();
+      } else {
+        campaign.narrativeAnchor = response.trim();
+      }
+      
       console.log("Narrative anchor added");
     }
     

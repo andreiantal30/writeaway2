@@ -1,7 +1,7 @@
 
 import { toast } from "sonner";
 import { OpenAIConfig, defaultOpenAIConfig, generateWithOpenAI } from '../openai';
-import { CampaignInput, GeneratedCampaign, ReferenceCampaign } from '../../types/campaign';
+import { CampaignInput, GeneratedCampaign, ReferenceCampaign, CreativeInsights } from './types';
 import { findSimilarCampaigns } from './campaignMatcher';
 import { generateCreativeInsights } from './creativeInsightGenerator';
 import { createCampaignPrompt } from './campaignPromptBuilder';
@@ -238,10 +238,30 @@ export const generateCampaign = async (
     // 7. Apply Insight Scoring
     finalContent = await applyInsightScoring(finalContent, openAIConfig);
 
+    // Ensure all required fields are present in the final campaign
     const campaign: GeneratedCampaign = {
-      ...finalContent,
+      // Core fields from generated content
+      campaignName: finalContent.campaignName || "Untitled Campaign",
+      keyMessage: finalContent.keyMessage || improviseKeyMessage(input),
+      brand: input.brand,
+      strategy: finalContent.strategy || "",
+      executionPlan: finalContent.executionPlan || [],
+      viralElement: finalContent.viralElement || finalContent.viralHook || "",
+      prHeadline: finalContent.prHeadline || "",
+      consumerInteraction: finalContent.consumerInteraction || "",
+      callToAction: finalContent.callToAction || "",
+      
+      // Additional fields
+      creativeInsights: creativeInsights,
+      emotionalAppeal: input.emotionalAppeal,
+      creativeStrategy: finalContent.creativeStrategy || [],
       referenceCampaigns,
-      creativeInsights: creativeInsights
+      expectedOutcomes: finalContent.expectedOutcomes || [],
+      
+      // Optional enhancement fields
+      narrativeAnchor: finalContent.narrativeAnchor,
+      executionFilterRationale: finalContent.executionFilterRationale,
+      insightScores: finalContent.insightScores
     };
     
     // Generate storytelling narrative
@@ -276,6 +296,11 @@ export const generateCampaign = async (
     throw error;
   }
 };
+
+// Fallback function to create a key message if missing from API response
+function improviseKeyMessage(input: CampaignInput): string {
+  return `${input.brand} helps ${input.targetAudience[0] || 'people'} experience ${input.emotionalAppeal[0] || 'connection'} in the ${input.industry} industry.`;
+}
 
 // Export types for backwards compatibility
 export type { CampaignInput, GeneratedCampaign };

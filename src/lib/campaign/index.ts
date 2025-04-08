@@ -6,7 +6,8 @@ export type {
   CampaignVersion,
   CampaignEvaluation,
   FeedbackCriterion,
-  InsightScores
+  InsightScores,
+  CreativeInsights
 } from './types';
 
 export { generateCampaign } from './generateCampaign';
