@@ -1,3 +1,8 @@
+// Import CampaignVersion type to ensure it's available
+import { CampaignVersion, GeneratedCampaign } from '@/lib/campaign/types';
+
+// Re-export for backwards compatibility
+export type { CampaignVersion, GeneratedCampaign };
 
 // Campaign input collected from the user
 export interface CampaignInput {
