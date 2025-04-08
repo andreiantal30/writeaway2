@@ -162,8 +162,10 @@ export const generateCampaign = async (
     const creativeInsights = await generateCreativeInsights(input, openAIConfig);
     console.log("Generated Creative Insights:", creativeInsights);
     
-    // Find similar reference campaigns - cast to ReferenceCampaign[] to fix type error
-    const referenceCampaigns = await findSimilarCampaigns(input, openAIConfig) as unknown as ReferenceCampaign[];
+    // Find similar reference campaigns
+    const referenceCampaignsResponse = await findSimilarCampaigns(input, openAIConfig);
+    // Cast to ReferenceCampaign[] to fix type error
+    const referenceCampaigns = referenceCampaignsResponse as unknown as ReferenceCampaign[];
     
     console.log("Matched Reference Campaigns:", 
       referenceCampaigns.map(c => ({

@@ -121,13 +121,6 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
     onSubmit(formData);
   };
 
-  const handleStyleChange = (style: CampaignStyle) => {
-    setFormData(prev => ({
-      ...prev,
-      campaignStyle: style
-    }));
-  };
-  
   const handlePersonaChange = (personaId: PersonaType) => {
     setFormData(prev => ({
       ...prev,
@@ -139,6 +132,13 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
     setFormData(prev => ({
       ...prev,
       creativeLens: lensId
+    }));
+  };
+
+  const handleStyleChange = (style: CampaignStyle) => {
+    setFormData(prev => ({
+      ...prev,
+      campaignStyle: style
     }));
   };
 
@@ -155,14 +155,14 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
         
         <div className="mt-8 mb-10">
           <PersonaSelector 
-            selectedPersona={formData.persona} 
+            selectedPersona={formData.persona as PersonaType} 
             onChange={handlePersonaChange} 
           />
         </div>
         
         <div className="my-8">
           <CreativeLensSelector
-            selectedLens={formData.creativeLens}
+            selectedLens={formData.creativeLens as CreativeLens}
             onChange={handleCreativeLensChange}
           />
         </div>
@@ -183,7 +183,7 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
             />
             
             <StyleSelection
-              value={formData.campaignStyle}
+              value={formData.campaignStyle as CampaignStyle}
               onChange={handleStyleChange}
             />
             

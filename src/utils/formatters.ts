@@ -1,5 +1,5 @@
 
-// Import from the same-cased path as used elsewhere in the project
+// Import from the proper casing path
 import { ReferenceCampaign } from '@/types/campaign';
 
 /**
