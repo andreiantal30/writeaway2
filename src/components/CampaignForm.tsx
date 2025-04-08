@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import InputField from "@/components/InputField";
@@ -200,7 +201,7 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
             </TransitionElement>
             
             <CampaignStyleSelector
-              value={formData.campaignStyle}
+              value={formData.campaignStyle as CampaignStyle}
               onChange={handleStyleChange}
             />
             

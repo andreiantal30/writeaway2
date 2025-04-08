@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 import { OpenAIConfig, defaultOpenAIConfig, generateWithOpenAI } from '../openai';
 import { CampaignInput, GeneratedCampaign, CreativeInsights } from './types';
@@ -49,18 +48,15 @@ Return ONLY a JSON object with scores, no explanation:
     const response = await generateWithOpenAI(prompt, openAIConfig);
     const cleanedResponse = extractJsonFromResponse(response);
     
-    // Default scores if parsing fails
     const defaultScores = {
       insight1: {contradiction: 5, irony: 5, tension: 5},
       insight2: {contradiction: 5, irony: 5, tension: 5},
       insight3: {contradiction: 5, irony: 5, tension: 5}
     };
     
-    // Use safe JSON parse with fallback
     const scores = safeJsonParse(cleanedResponse, defaultScores);
     console.log("📊 Insight scores calculated:", scores);
     
-    // Add scores to the campaign object
     campaign.insightScores = scores;
   } catch (err) {
     console.error("⚠️ Insight scoring failed:", err);
@@ -73,7 +69,6 @@ Return ONLY a JSON object with scores, no explanation:
  * Apply Cannes Spike to add award-worthy tactics if missing
  */
 const applyCannesSpike = async (campaign: Partial<GeneratedCampaign>, openAIConfig: OpenAIConfig) => {
-  // Only apply if not already present in executionPlan
   if (!campaign.executionPlan) return campaign;
   
   const hasCannesWorthy = campaign.executionPlan.some(item => 
@@ -167,8 +162,8 @@ export const generateCampaign = async (
     const creativeInsights = await generateCreativeInsights(input, openAIConfig);
     console.log("Generated Creative Insights:", creativeInsights);
     
-    // Find similar reference campaigns
-    const referenceCampaigns = await findSimilarCampaigns(input, openAIConfig);
+    // Find similar reference campaigns - cast to ReferenceCampaign[] to fix type error
+    const referenceCampaigns = await findSimilarCampaigns(input, openAIConfig) as unknown as ReferenceCampaign[];
     
     console.log("Matched Reference Campaigns:", 
       referenceCampaigns.map(c => ({
@@ -240,7 +235,7 @@ export const generateCampaign = async (
     let generatedContent = safeJsonParse(cleanedResponse, defaultCampaign);
 
     // ===== POST-GENERATION LAYERS (NEW SEQUENCE) =====
-    
+
     // Initialize a campaign object with the required fields
     let campaign: Partial<GeneratedCampaign> = {
       ...generatedContent,

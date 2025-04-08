@@ -1,3 +1,4 @@
+
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { CampaignInput, GeneratedCampaign } from "@/lib/campaign/types";
@@ -135,33 +136,17 @@ export function useCampaignRegeneration(
               : [result];
           }
         } else if (targetSection === "viralElement") {
-          if ('viralElement' in updatedCampaign) {
-            updatedCampaign.viralElement = result;
-          } else {
-            updatedCampaign.viralHook = result;
-          }
+          updatedCampaign.viralElement = result;
         } else if (targetSection === "callToAction") {
-          if ('callToAction' in updatedCampaign) {
-            updatedCampaign.callToAction = result;
-          } else {
-            updatedCampaign.consumerInteraction = result;
-          }
+          updatedCampaign.callToAction = result;
         } else if (targetSection === "emotionalAppeal") {
           try {
             const parsedResult = JSON.parse(result);
-            if ('emotionalAppeal' in updatedCampaign) {
-              updatedCampaign.emotionalAppeal = Array.isArray(parsedResult) ? parsedResult : [result];
-            } else {
-              const message = "Emotional appeal was updated but will be applied on next generation";
-              toast.info(message);
-              console.log("Emotional appeal update:", result);
-            }
+            updatedCampaign.emotionalAppeal = Array.isArray(parsedResult) ? parsedResult : [result];
           } catch {
-            if ('emotionalAppeal' in updatedCampaign) {
-              updatedCampaign.emotionalAppeal = result.includes('\n') 
-                ? result.split('\n').filter(line => line.trim()) 
-                : [result];
-            }
+            updatedCampaign.emotionalAppeal = result.includes('\n') 
+              ? result.split('\n').filter(line => line.trim()) 
+              : [result];
           }
         }
         

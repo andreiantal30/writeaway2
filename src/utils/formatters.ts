@@ -1,5 +1,6 @@
 
-import { ReferenceCampaign } from '../types/campaign';
+// Import from the same-cased path as used elsewhere in the project
+import { ReferenceCampaign } from '@/types/campaign';
 
 /**
  * Formats a campaign for inclusion in a prompt

@@ -128,10 +128,10 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, isGenerating }) =
     }));
   };
   
-  const handlePersonaChange = (personaId: string) => {
+  const handlePersonaChange = (personaId: PersonaType) => {
     setFormData(prev => ({
       ...prev,
-      persona: personaId as PersonaType
+      persona: personaId
     }));
   };
 
