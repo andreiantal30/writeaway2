@@ -7,6 +7,7 @@ import { calculateBraveryMatrix } from '../lib/campaign/calculateBraveryMatrix';
 
 const router = Router();
 
+// Fix: Use router.post instead of directly passing handler
 router.post('/generate', async (req: Request, res: Response) => {
   try {
     const input = req.body as CampaignInput;

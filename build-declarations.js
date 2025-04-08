@@ -12,7 +12,8 @@ const tsconfigBuild = {
   "compilerOptions": {
     "declaration": true,
     "emitDeclarationOnly": true,
-    "outDir": "./dist/types"
+    "outDir": "./dist/types",
+    "skipLibCheck": true
   },
   "include": ["src/**/*", "server/**/*"],
   "exclude": ["node_modules", "dist"]

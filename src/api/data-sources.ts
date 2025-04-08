@@ -5,6 +5,7 @@ import * as redditApi from '../lib/fetchRedditTrends';
 
 const router = Router();
 
+// Fix: Use router.get instead of directly passing handler to app.use
 router.get('/news-trends', async (req: Request, res: Response) => {
   try {
     // Check for a fetchNewsFromServer function instead of getNewsTrends
