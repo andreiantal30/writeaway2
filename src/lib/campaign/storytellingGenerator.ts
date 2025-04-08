@@ -1,5 +1,6 @@
 
 import { generateWithOpenAI, OpenAIConfig } from '../openai';
+import { StorytellingOutput } from './types';
 
 export interface StorytellingInput {
   brand: string;
@@ -8,16 +9,6 @@ export interface StorytellingInput {
   emotionalAppeal: string[];
   campaignName: string;
   keyMessage: string;
-}
-
-export interface StorytellingOutput {
-  narrative: string;
-  storyNarrative?: string;
-  protagonistDescription?: string;
-  conflictDescription?: string;
-  resolutionDescription?: string;
-  brandValueConnection?: string;
-  audienceRelevance?: string;
 }
 
 /**
@@ -32,6 +23,14 @@ You're a top-tier brand storyteller tasked with creating a powerful narrative.
 
 Your task is to turn a campaign idea into a human, emotionally resonant narrative that could be used in a voiceover, manifesto film, or about section of a case study. 
 
+Please structure your output as a complete storytelling framework with these components:
+1. Hook - A compelling opening line that draws attention (10-15 words)
+2. Protagonist - Who is the main character or focus (a person, group, or concept)
+3. Conflict - What tension, challenge or problem exists
+4. Journey - The experiences, transformation or path that occurs
+5. Resolution - How the brand helps resolve the conflict
+6. Full Narrative - A complete 150-200 word narrative that weaves all elements together
+
 Tone: authentic, vivid, emotionally insightful — not cheesy or generic. Use sensory language, compelling metaphors, and rhythm to create a narrative that resonates with the target audience.
 
 Here's the campaign input:
@@ -43,23 +42,49 @@ Here's the campaign input:
 - Campaign Name: ${input.campaignName}
 - Key Message: ${input.keyMessage}
 
-Create a story that:
-- Opens with an emotionally resonant hook
-- Builds tension or curiosity
-- Contains vivid, sensory details
-- Has an authentic human voice
-- Connects to deeper emotional truths
-- Resolves in a way that reinforces the key message
-- Is between 150-200 words
-
-Please return only the storytelling narrative as plain text. Do NOT include explanations, formatting, or headings.
+Return a JSON object with these keys: hook, protagonist, conflict, journey, resolution, fullNarrative
 `;
 
   try {
     const response = await generateWithOpenAI(prompt, openAIConfig);
-    return { narrative: response.trim() };
+    let storytellingData = {};
+    
+    try {
+      // Try to parse as JSON first
+      storytellingData = JSON.parse(response.trim());
+    } catch (parseError) {
+      // If not JSON, use the entire response as the narrative
+      console.warn("Failed to parse storytelling response as JSON:", parseError);
+      storytellingData = { narrative: response.trim() };
+    }
+    
+    // Build the output ensuring all fields are present
+    const result: StorytellingOutput = {
+      narrative: storytellingData.fullNarrative || storytellingData.narrative || response.trim(),
+      hook: storytellingData.hook || '',
+      protagonist: storytellingData.protagonist || '',
+      conflict: storytellingData.conflict || '',
+      journey: storytellingData.journey || '',
+      resolution: storytellingData.resolution || '',
+      fullNarrative: storytellingData.fullNarrative || response.trim(),
+      // Additional context fields if available
+      protagonistDescription: storytellingData.protagonist || '',
+      conflictDescription: storytellingData.conflict || '',
+      resolutionDescription: storytellingData.resolution || ''
+    };
+
+    return result;
   } catch (error) {
     console.error("Failed to generate storytelling narrative:", error);
-    throw error;
+    // Return a minimal valid object in case of error
+    return { 
+      narrative: "An error occurred while generating the storytelling narrative.",
+      hook: "",
+      protagonist: "",
+      conflict: "",
+      journey: "",
+      resolution: "",
+      fullNarrative: ""
+    };
   }
 }

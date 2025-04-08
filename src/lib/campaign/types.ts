@@ -71,6 +71,7 @@ export interface StorytellingOutput {
   journey?: string;
   resolution?: string;
   fullNarrative?: string;
+  audienceRelevance?: string;
 }
 
 // Complete generated campaign with all components

@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { StorytellingOutput } from '@/lib/campaign/storytellingGenerator';
+import { StorytellingOutput } from '@/lib/campaign/types';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChevronDown, ChevronUp, BookOpen } from 'lucide-react';
@@ -15,11 +15,16 @@ const StorytellingNarrative: React.FC<StorytellingNarrativeProps> = ({ storytell
 
   if (!storytelling) return null;
 
-  // Use narrative as the main field from storytelling output
-  const narrativeText = storytelling.narrative || '';
+  // Use the narrative field for the main display
+  const narrativeText = storytelling.fullNarrative || storytelling.narrative || '';
   
   // Check if we have detailed story elements to show in expanded view
   const hasExpandedDetails = !!(
+    storytelling.hook ||
+    storytelling.protagonist ||
+    storytelling.conflict ||
+    storytelling.journey ||
+    storytelling.resolution ||
     storytelling.protagonistDescription || 
     storytelling.conflictDescription || 
     storytelling.resolutionDescription ||
@@ -62,29 +67,43 @@ const StorytellingNarrative: React.FC<StorytellingNarrativeProps> = ({ storytell
           
           {isExpanded && (
             <div className="mt-6 grid grid-cols-1 md:grid-cols-12 gap-6">
-              {/* Left column */}
+              {/* Left column - Story Elements */}
               <div className="md:col-span-5 space-y-6">
-                {storytelling.protagonistDescription && (
+                {storytelling.hook && (
                   <div>
-                    <h4 className="text-lg font-semibold mb-2">Protagonist</h4>
-                    <p>{storytelling.protagonistDescription}</p>
+                    <h4 className="text-lg font-semibold mb-2">Hook</h4>
+                    <p>{storytelling.hook}</p>
                   </div>
                 )}
                 
-                {storytelling.conflictDescription && (
+                {(storytelling.protagonist || storytelling.protagonistDescription) && (
+                  <div>
+                    <h4 className="text-lg font-semibold mb-2">Protagonist</h4>
+                    <p>{storytelling.protagonistDescription || storytelling.protagonist}</p>
+                  </div>
+                )}
+                
+                {(storytelling.conflict || storytelling.conflictDescription) && (
                   <div>
                     <h4 className="text-lg font-semibold mb-2">Conflict</h4>
-                    <p>{storytelling.conflictDescription}</p>
+                    <p>{storytelling.conflictDescription || storytelling.conflict}</p>
                   </div>
                 )}
               </div>
               
-              {/* Right column */}
+              {/* Right column - Journey and Resolution */}
               <div className="md:col-span-7 space-y-6">
-                {storytelling.resolutionDescription && (
+                {storytelling.journey && (
+                  <div>
+                    <h4 className="text-lg font-semibold mb-2">Journey</h4>
+                    <p>{storytelling.journey}</p>
+                  </div>
+                )}
+                
+                {(storytelling.resolution || storytelling.resolutionDescription) && (
                   <div>
                     <h4 className="text-lg font-semibold mb-2">Resolution</h4>
-                    <p>{storytelling.resolutionDescription}</p>
+                    <p>{storytelling.resolutionDescription || storytelling.resolution}</p>
                   </div>
                 )}
                 
