@@ -10,6 +10,7 @@ import newsApiRouter from "./newsApi";     // ✅ NewsAPI route
 import cdPassRoute from "./cdPass";        // ✅ Creative Director Pass route
 import disruptivePassRoute from './disruptivePass'; // ✅ Disruptive Pass route
 import generateCampaignRouter from "../src/api/generateCampaign"; // ✅ Campaign generation route
+import dataSourcesRouter from "../src/api/data-sources"; // ✅ Data sources route
 
 const app = express();
 const port = 8090;
@@ -32,6 +33,7 @@ app.use('/api', newsApiRouter);   // → /api/news
 app.use('/api', cdPassRoute);     // → /api/cd-pass
 app.use('/api', disruptivePassRoute); // → /api/disruptive-pass
 app.use('/api', generateCampaignRouter); // → /api/generateCampaign
+app.use('/api', dataSourcesRouter); // → /api/news-trends and /api/reddit-trends
 
 // Optional: Health check route
 app.get("/api/health", (_req, res) => {

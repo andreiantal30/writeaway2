@@ -13,7 +13,8 @@ const tsconfigBuild = {
     "declaration": true,
     "emitDeclarationOnly": true,
     "outDir": "./dist/types",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "composite": true // Add composite flag
   },
   "include": ["src/**/*", "server/**/*"],
   "exclude": ["node_modules", "dist"]

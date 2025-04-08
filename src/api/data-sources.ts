@@ -1,11 +1,11 @@
 
 import express, { Request, Response, Router } from 'express';
 import * as newsApi from '../lib/fetchNewsFromServer';
-import * as redditApi from '../lib/fetchRedditTrends';
+import { fetchAndGenerateRedditTrends } from '../lib/fetchRedditTrends';
 
 const router = Router();
 
-// Fix: Use router.get instead of directly passing handler to app.use
+// Fix: Use router.get instead of directly passing handler
 router.get('/news-trends', async (req: Request, res: Response) => {
   try {
     // Check for a fetchNewsFromServer function instead of getNewsTrends
@@ -25,13 +25,8 @@ router.get('/news-trends', async (req: Request, res: Response) => {
 router.get('/reddit-trends', async (req: Request, res: Response) => {
   try {
     // Use fetchAndGenerateRedditTrends which is the correct exported function
-    if (typeof redditApi.fetchAndGenerateRedditTrends === 'function') {
-      const trends = await redditApi.fetchAndGenerateRedditTrends();
-      return res.json(trends);
-    } else {
-      // Fallback if the function doesn't exist
-      return res.json({ message: "Reddit trends API not implemented" });
-    }
+    const trends = await fetchAndGenerateRedditTrends();
+    return res.json(trends);
   } catch (error) {
     console.error('Error fetching Reddit trends:', error);
     return res.status(500).json({ error: 'Failed to fetch Reddit trends' });
