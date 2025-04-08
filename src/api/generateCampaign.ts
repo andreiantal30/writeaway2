@@ -51,8 +51,9 @@ router.post('/generate', async (req: Request, res: Response): Promise<void> => {
     // Log successful generation (without sensitive data)
     console.log('Campaign generated successfully for:', input.brand);
     
-    // Just send the response using res.json, no stringification needed
-    res.json(campaign);
+    // Always set the content type to application/json for consistent handling
+    res.setHeader('Content-Type', 'application/json');
+    res.status(200).json(campaign);
   } catch (error) {
     // Improved error handling with more details
     console.error('Error generating campaign:', error);
@@ -69,5 +70,5 @@ router.post('/generate', async (req: Request, res: Response): Promise<void> => {
   }
 });
 
-// Export the router directly
+// Export the router as default
 export default router;

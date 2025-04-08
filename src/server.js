@@ -5,7 +5,7 @@ const cors = require('cors');
 const path = require('path');
 const cdPassRouter = require('./server/cdPass');
 const disruptivePassRouter = require('./server/disruptivePass');
-const generateCampaignRouter = require('./src/api/generateCampaign');
+const generateCampaignRouter = require('./src/api/generateCampaign').default; // Use default export
 const dataSourcesRouter = require('./src/api/data-sources');
 
 const app = express();

@@ -49,29 +49,37 @@ export function useGenerateCampaign(
       });
       
       if (!response.ok) {
-        // Clone the response before consuming it to avoid "body already read" errors
+        // IMPORTANT: Clone the response FIRST before attempting to read it
         const clonedResponse = response.clone();
         
-        let errorData;
+        let errorMessage = `Server error (${response.status})`;
+        
         try {
-          errorData = await response.json();
+          // Attempt to parse error as JSON from the original response
+          const errorData = await response.json();
+          errorMessage = errorData?.error || errorData?.message || errorMessage;
           console.error("Server error response:", errorData);
         } catch (jsonError) {
+          // JSON parsing failed, try to get the text content from the cloned response
           console.error("Failed to parse error response as JSON:", jsonError);
           
           try {
             const errorText = await clonedResponse.text();
             console.error("Response status:", clonedResponse.status);
             console.error("Response text:", errorText);
-            throw new Error(`Server error (${clonedResponse.status}): ${errorText || 'Unable to parse response'}`);
+            errorMessage = `${errorMessage}: ${errorText || 'Unable to parse response'}`;
           } catch (textError) {
             console.error("Failed to get response text:", textError);
-            throw new Error(`Server error (${clonedResponse.status}): Unable to parse response`);
+            errorMessage = `${errorMessage}: Unable to parse response`;
           }
         }
         
-        throw new Error(errorData?.error || errorData?.message || `Server error (${response.status}): Failed to generate campaign`);
+        throw new Error(errorMessage);
       }
+      
+      // Clone the response before trying to parse it as JSON
+      // This ensures we have a backup copy if JSON parsing fails
+      const responseClone = response.clone();
       
       // Ensure we have a valid JSON response
       let responseData;
@@ -81,20 +89,24 @@ export function useGenerateCampaign(
       } catch (parseError) {
         console.error("Error parsing JSON response:", parseError);
         
-        // Try to recover by getting the raw text
-        const clonedResponse = response.clone();
-        const rawText = await clonedResponse.text();
-        console.log("Raw response text (first 200 chars):", rawText.substring(0, 200));
-        
-        // Check if it might be wrapped in backticks or other formatting
-        const cleanedText = rawText.replace(/```(?:json)?\s*|\s*```$/g, '').trim();
-        
+        // Try to recover by getting the raw text from the cloned response
         try {
-          responseData = JSON.parse(cleanedText);
-          console.log("Successfully parsed cleaned JSON text");
-        } catch (secondParseError) {
-          console.error("Failed to parse cleaned response:", secondParseError);
-          throw new Error("Could not parse campaign response from server");
+          const rawText = await responseClone.text();
+          console.log("Raw response text (first 200 chars):", rawText.substring(0, 200));
+          
+          // Check if it might be wrapped in backticks or other formatting
+          const cleanedText = rawText.replace(/```(?:json)?\s*|\s*```$/g, '').trim();
+          
+          try {
+            responseData = JSON.parse(cleanedText);
+            console.log("Successfully parsed cleaned JSON text");
+          } catch (secondParseError) {
+            console.error("Failed to parse cleaned response:", secondParseError);
+            throw new Error("Could not parse campaign response from server");
+          }
+        } catch (textError) {
+          console.error("Failed to get response text:", textError);
+          throw new Error("Could not read campaign response from server");
         }
       }
       
