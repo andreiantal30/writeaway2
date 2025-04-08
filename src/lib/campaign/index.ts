@@ -1,14 +1,17 @@
 
 // Re-export everything from specific modules (with more precise exports to avoid conflicts)
 export type { 
-  CampaignInput, 
   GeneratedCampaign,
   CampaignVersion,
   CampaignEvaluation,
   InsightScores,
   CreativeInsights,
-  BraveryScores
+  BraveryScores,
+  StorytellingOutput
 } from './types';
+
+// Re-export CampaignInput from the central location
+export type { CampaignInput } from '../types/campaign';
 
 export { generateCampaign } from './generateCampaign';
 export { calculateBraveryMatrix } from './calculateBraveryMatrix';

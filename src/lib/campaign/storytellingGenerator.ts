@@ -1,6 +1,7 @@
 
 import { generateWithOpenAI, OpenAIConfig } from '../openai';
 import { StorytellingOutput } from './types';
+import { CampaignInput } from '../../types/campaign';
 
 export interface StorytellingInput {
   brand: string;

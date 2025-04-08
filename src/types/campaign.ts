@@ -4,7 +4,7 @@ export interface CampaignInput {
   brand: string;
   industry: string;
   targetAudience: string[];
-  objectives: string[]; // Changed from optional to required to match usage
+  objectives: string[]; // Required to match usage in the codebase
   emotionalAppeal: string[];
   campaignStyle?: string;
   brandPersonality?: string;
@@ -15,33 +15,16 @@ export interface CampaignInput {
   culturalInsights?: string;
 }
 
-// Creative insights structure
-export interface CreativeInsights {
-  surfaceInsight: string;
-  emotionalUndercurrent: string;
-  creativeUnlock: string;
-}
-
-// Import the standardized campaign type from the campaign module
-import { GeneratedCampaign, CampaignEvaluation, CampaignVersion, InsightScores } from '../lib/campaign/types';
-
-// StorytellingOutput interface
-export interface StorytellingOutput {
-  hook: string;
-  protagonist: string;
-  conflict: string;
-  journey: string;
-  resolution: string;
-  fullNarrative: string;
-}
-
-// Re-export the imported types for backward compatibility
-export type { 
-  GeneratedCampaign,
-  CampaignEvaluation,
-  CampaignVersion,
-  InsightScores
-};
+// Re-export the standardized campaign interfaces from the campaign module to avoid circular dependencies
+import { 
+  GeneratedCampaign, 
+  CampaignEvaluation, 
+  CampaignVersion, 
+  InsightScores,
+  CreativeInsights,
+  StorytellingOutput,
+  BraveryScores 
+} from '../lib/campaign/types';
 
 // Reference campaign format
 export interface ReferenceCampaign {
@@ -79,3 +62,14 @@ export interface CulturalTrend {
   category: string;
   addedOn: Date;
 }
+
+// Re-export types for backward compatibility
+export type { 
+  GeneratedCampaign,
+  CampaignEvaluation,
+  CampaignVersion,
+  InsightScores,
+  CreativeInsights,
+  StorytellingOutput,
+  BraveryScores
+};

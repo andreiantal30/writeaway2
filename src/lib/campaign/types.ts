@@ -1,21 +1,5 @@
 
-import { ReferenceCampaign } from "../../types/campaign";
-
-// Input for generating a campaign
-export interface CampaignInput {
-  brand: string;
-  industry: string;
-  targetAudience: string[];
-  emotionalAppeal: string[];
-  objectives: string[]; // Changed from optional to required to match usage in the codebase
-  campaignStyle?: string;
-  brandPersonality?: string;
-  differentiator?: string;
-  additionalConstraints?: string;
-  creativeLens?: string;
-  persona?: string;
-  culturalInsights?: string;
-}
+import { ReferenceCampaign, CampaignInput } from "../../types/campaign";
 
 // Creative insights generated for a campaign
 export interface CreativeInsights {
@@ -102,3 +86,6 @@ export interface GeneratedCampaign {
   viralHook?: string; // Added for compatibility with existing code
   _cdModifications?: string[]; // For tracking creative director modifications
 }
+
+// Exporting the CampaignInput type from the central location
+export type { CampaignInput };
