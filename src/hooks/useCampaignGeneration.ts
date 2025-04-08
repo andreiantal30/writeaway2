@@ -152,10 +152,37 @@ export function useCampaignGeneration(openAIConfig: OpenAIConfig) {
       }
       
       // Ensure we have a valid JSON response
-      const responseData = await response.json();
-      console.log("Campaign response successfully parsed from JSON");
+      let responseData;
+      try {
+        responseData = await response.json();
+        console.log("Campaign response successfully parsed from JSON");
+      } catch (parseError) {
+        console.error("Error parsing JSON response:", parseError);
+        
+        // Try to recover by getting the raw text
+        const clonedResponse = response.clone();
+        const rawText = await clonedResponse.text();
+        console.log("Raw response text (first 200 chars):", rawText.substring(0, 200));
+        
+        // Check if it might be wrapped in backticks or other formatting
+        const cleanedText = rawText.replace(/```(?:json)?\s*|\s*```$/g, '').trim();
+        
+        try {
+          responseData = JSON.parse(cleanedText);
+          console.log("Successfully parsed cleaned JSON text");
+        } catch (secondParseError) {
+          console.error("Failed to parse cleaned response:", secondParseError);
+          throw new Error("Could not parse campaign response from server");
+        }
+      }
       
       if (responseData) {
+        // Validate critical fields before accepting response
+        if (!responseData.campaignName || !responseData.strategy || !responseData.executionPlan) {
+          console.error("Campaign response missing critical fields:", responseData);
+          throw new Error("Campaign response is missing required fields");
+        }
+        
         setCampaignVersions([{
           id: uuidv4(),
           versionTag: "original",

@@ -36,10 +36,12 @@ router.post('/generate', async (req, res) => {
     // Generate the campaign
     const campaign = await generateCampaign(input, openAIConfig);
     
-    if (!campaign) {
+    // Validate that the campaign contains all required fields
+    if (!campaign || !campaign.campaignName || !campaign.strategy || !campaign.executionPlan) {
       return res.status(500).json({ 
-        error: 'Failed to generate campaign',
-        message: 'Empty result returned from campaign generator'
+        error: 'Invalid campaign output',
+        message: 'The generated campaign is missing required fields',
+        requiredFields: ['campaignName', 'strategy', 'executionPlan']
       });
     }
     

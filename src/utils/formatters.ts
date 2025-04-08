@@ -31,6 +31,7 @@ export function extractJsonFromResponse(text: string): string {
   
   try {
     // First attempt: Remove markdown code block syntax completely
+    // Support both ```json and ``` without language specifier
     const strippedMarkdown = text.replace(/```(?:json)?\s*|```$/gm, '').trim();
     
     // Second attempt: Look for content between JSON code blocks if still present

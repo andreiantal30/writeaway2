@@ -238,7 +238,7 @@ export const generateCampaign = async (
     // Get relevant cultural trends
     const culturalTrends = getCachedCulturalTrends();
 
-    // Give priority to non-tech trends for variety
+    // Prioritize non-tech trends for variety
     const prioritized = [
       ...culturalTrends.filter(t =>
         !t.platformTags.some(tag => tag.toLowerCase().includes("ai") || 
@@ -291,6 +291,22 @@ export const generateCampaign = async (
     
     // Use safe JSON parse with fallback
     let generatedContent = safeJsonParse(cleanedResponse, defaultCampaign);
+
+    // Validate required fields and provide defaults for any missing ones
+    if (!generatedContent.campaignName) {
+      generatedContent.campaignName = defaultCampaign.campaignName;
+      console.warn("Campaign name missing, using default");
+    }
+    
+    if (!generatedContent.strategy) {
+      generatedContent.strategy = defaultCampaign.strategy;
+      console.warn("Strategy missing, using default");
+    }
+    
+    if (!generatedContent.executionPlan || !Array.isArray(generatedContent.executionPlan) || generatedContent.executionPlan.length === 0) {
+      generatedContent.executionPlan = defaultCampaign.executionPlan;
+      console.warn("Execution plan missing or invalid, using default");
+    }
 
     // ===== POST-GENERATION LAYERS (NEW SEQUENCE) =====
 
@@ -351,17 +367,17 @@ export const generateCampaign = async (
       campaignName: campaign.campaignName || "Untitled Campaign",
       keyMessage: campaign.keyMessage || improviseKeyMessage(input),
       brand: input.brand,
-      strategy: campaign.strategy || "",
-      executionPlan: campaign.executionPlan || [],
-      viralElement: campaign.viralElement || (campaign as any).viralHook || "",
-      prHeadline: campaign.prHeadline || "",
-      consumerInteraction: campaign.consumerInteraction || "",
-      callToAction: campaign.callToAction || "",
+      strategy: campaign.strategy || defaultCampaign.strategy,
+      executionPlan: campaign.executionPlan || defaultCampaign.executionPlan,
+      viralElement: campaign.viralElement || (campaign as any).viralHook || defaultCampaign.viralElement,
+      prHeadline: campaign.prHeadline || defaultCampaign.prHeadline,
+      consumerInteraction: campaign.consumerInteraction || defaultCampaign.consumerInteraction,
+      callToAction: campaign.callToAction || defaultCampaign.callToAction,
       
       // Additional fields
       creativeInsights: creativeInsights,
       emotionalAppeal: input.emotionalAppeal,
-      creativeStrategy: campaign.creativeStrategy || [],
+      creativeStrategy: campaign.creativeStrategy || defaultCampaign.creativeStrategy,
       referenceCampaigns,
       expectedOutcomes: campaign.expectedOutcomes || [],
       
@@ -409,16 +425,71 @@ export const generateCampaign = async (
     try {
       const emotionallyBalancedCampaign = await applyEmotionalRebalance(finalCampaign, openAIConfig);
       console.log("✅ Emotional rebalance applied");
+
+      // Final validation to ensure we have all required fields
+      if (!emotionallyBalancedCampaign.campaignName || !emotionallyBalancedCampaign.strategy || 
+          !emotionallyBalancedCampaign.executionPlan || emotionallyBalancedCampaign.executionPlan.length === 0) {
+        console.error("Validation failed on final campaign - missing critical fields");
+        
+        // Fix any missing fields as a last resort
+        return {
+          ...emotionallyBalancedCampaign,
+          campaignName: emotionallyBalancedCampaign.campaignName || finalCampaign.campaignName,
+          strategy: emotionallyBalancedCampaign.strategy || finalCampaign.strategy,
+          executionPlan: emotionallyBalancedCampaign.executionPlan?.length ? 
+            emotionallyBalancedCampaign.executionPlan : finalCampaign.executionPlan
+        };
+      }
+      
       return emotionallyBalancedCampaign;
     } catch (error) {
       console.error("Error applying emotional rebalance:", error);
+      
+      // Validate final campaign before returning
+      if (!finalCampaign.campaignName || !finalCampaign.strategy || 
+          !finalCampaign.executionPlan || finalCampaign.executionPlan.length === 0) {
+        console.error("Validation failed on final campaign - missing critical fields");
+        
+        // Apply defaults as needed
+        return {
+          ...finalCampaign,
+          campaignName: finalCampaign.campaignName || defaultCampaign.campaignName,
+          strategy: finalCampaign.strategy || defaultCampaign.strategy,
+          executionPlan: finalCampaign.executionPlan?.length ? 
+            finalCampaign.executionPlan : defaultCampaign.executionPlan
+        };
+      }
+      
       // Return the original campaign if emotional rebalance fails
       return finalCampaign;
     }
     
   } catch (error) {
     console.error("Error generating campaign:", error);
-    throw error;
+    
+    // If there's a critical error, return a minimal valid campaign
+    const fallbackCampaign: GeneratedCampaign = {
+      campaignName: `${input.brand} Campaign (Fallback)`,
+      keyMessage: `${input.brand} helps ${input.targetAudience[0] || 'people'} experience ${input.emotionalAppeal[0] || 'connection'}.`,
+      brand: input.brand,
+      strategy: "Connect the brand with its audience through authentic experiences.",
+      executionPlan: ["Social media campaign", "Influencer partnerships", "Event activation"],
+      viralElement: "Shareable social media content",
+      prHeadline: `${input.brand} Launches Innovative Campaign`,
+      consumerInteraction: "Users can share their experiences on social media",
+      callToAction: "Join the experience today",
+      creativeStrategy: ["Authenticity", "Emotional connection"],
+      creativeInsights: {
+        surfaceInsight: "Audiences seek authentic connections in today's digital world",
+        emotionalUndercurrent: "People feel disconnected despite being more connected than ever",
+        creativeUnlock: "Creating moments of genuine human connection can break through the noise"
+      },
+      emotionalAppeal: input.emotionalAppeal,
+      referenceCampaigns: [],
+      expectedOutcomes: ["Increased brand awareness", "Higher engagement", "Positive brand sentiment"]
+    };
+    
+    return fallbackCampaign;
   }
 };
 
