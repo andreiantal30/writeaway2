@@ -1,7 +1,7 @@
 
-import express from 'express';
+import { Router } from 'express';
 
-const router = express.Router();
+const router = Router();
 
 // Define API route handlers
 router.get('/news-trends', (req, res) => {

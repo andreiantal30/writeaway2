@@ -1,15 +1,15 @@
 
-import express from 'express';
-import { CampaignInput } from '../lib/campaign/types';
+import { Router } from 'express';
+import { CampaignInput } from '../types/campaign';
 import { generateCampaign } from '../lib/campaign/generateCampaign';
 
-const router = express.Router();
+const router = Router();
 
 /**
  * API endpoint for generating a campaign
  * Keeps OpenAI API key on the server side for security
  */
-router.post('/generateCampaign', (req, res) => {
+router.post('/generateCampaign', async (req, res) => {
   try {
     const input: CampaignInput = req.body.input;
     
@@ -35,17 +35,16 @@ router.post('/generateCampaign', (req, res) => {
     };
     
     // Generate campaign
-    generateCampaign(input, openAIConfig)
-      .then(campaign => {
-        // Return generated campaign
-        return res.json(campaign);
-      })
-      .catch(error => {
-        console.error("Error generating campaign:", error);
-        return res.status(500).json({ 
-          error: error instanceof Error ? error.message : "Failed to generate campaign" 
-        });
+    try {
+      const campaign = await generateCampaign(input, openAIConfig);
+      // Return generated campaign
+      return res.json(campaign);
+    } catch (error) {
+      console.error("Error generating campaign:", error);
+      return res.status(500).json({ 
+        error: error instanceof Error ? error.message : "Failed to generate campaign" 
       });
+    }
   } catch (error) {
     console.error("Error generating campaign:", error);
     return res.status(500).json({ 

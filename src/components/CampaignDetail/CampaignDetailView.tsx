@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { SavedCampaign } from '@/lib/campaignStorage';
+import { StorytellingOutput } from '@/types/campaign';
 import { 
   Target, 
   MessageSquare, 
@@ -26,12 +27,16 @@ const CampaignDetailView: React.FC<CampaignDetailViewProps> = ({ campaign }) => 
   const [tab, setTab] = useState("overview");
   
   // Helper to safely access storytelling properties
-  const getStorytelling = () => {
+  const getStorytelling = (): StorytellingOutput | null => {
     if (!campaign.campaign.storytelling) return null;
     
     return {
-      narrative: campaign.campaign.storytelling.fullNarrative || '',
-      ...campaign.campaign.storytelling
+      hook: campaign.campaign.storytelling.hook || '',
+      protagonist: campaign.campaign.storytelling.protagonist || '',
+      conflict: campaign.campaign.storytelling.conflict || '',
+      journey: campaign.campaign.storytelling.journey || '',
+      resolution: campaign.campaign.storytelling.resolution || '',
+      fullNarrative: campaign.campaign.storytelling.fullNarrative || ''
     };
   };
   

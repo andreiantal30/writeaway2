@@ -12,8 +12,14 @@ import { useEffect } from "react";
 
 // Wrapper component to extract the ID parameter and pass it to CampaignDetail
 const CampaignDetailWrapper = () => {
-  const { id } = useParams();
-  return <CampaignDetail id={id || ""} />;
+  const { id } = useParams<{ id: string }>();
+  
+  if (!id) {
+    console.error("Campaign ID is missing from URL params");
+    return <NotFound />;
+  }
+  
+  return <CampaignDetail id={id} />;
 };
 
 function App() {

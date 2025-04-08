@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, Flame } from 'lucide-react';
-import { getSavedCampaignById, removeSavedCampaign, toggleFavoriteStatus } from '@/lib/campaignStorage';
+import { ArrowLeft, Loader2 } from 'lucide-react';
+import { getSavedCampaignById, removeSavedCampaign, toggleFavoriteStatus, SavedCampaign } from '@/lib/campaignStorage';
 import CampaignDetailView from '@/components/CampaignDetail/CampaignDetailView';
 import CampaignHeader from '@/components/CampaignDetail/CampaignHeader';
 import CampaignMeta from '@/components/CampaignDetail/CampaignMeta';
@@ -16,7 +16,7 @@ interface CampaignDetailProps {
 }
 
 const CampaignDetail: React.FC<CampaignDetailProps> = ({ id }) => {
-  const [campaign, setCampaign] = useState<any>(null);
+  const [campaign, setCampaign] = useState<SavedCampaign | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const isInSidebar = true; // This page is always shown in the sidebar layout
@@ -62,8 +62,8 @@ const CampaignDetail: React.FC<CampaignDetailProps> = ({ id }) => {
       if (success) {
         // Update the local state to reflect the change
         setCampaign(prevCampaign => ({
-          ...prevCampaign,
-          favorite: !prevCampaign.favorite
+          ...prevCampaign!,
+          favorite: !prevCampaign!.favorite
         }));
       } else {
         toast.error('Failed to update favorite status');

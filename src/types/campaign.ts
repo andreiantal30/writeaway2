@@ -23,15 +23,24 @@ export interface CreativeInsights {
 }
 
 // Import the standardized campaign type from the campaign module
-import { GeneratedCampaign, CampaignEvaluation, CampaignVersion, InsightScores, StorytellingOutput } from '../lib/campaign/types';
+import { GeneratedCampaign, CampaignEvaluation, CampaignVersion, InsightScores } from '../lib/campaign/types';
+
+// StorytellingOutput interface
+export interface StorytellingOutput {
+  hook: string;
+  protagonist: string;
+  conflict: string;
+  journey: string;
+  resolution: string;
+  fullNarrative: string;
+}
 
 // Re-export the imported types for backward compatibility
 export type { 
   GeneratedCampaign,
   CampaignEvaluation,
   CampaignVersion,
-  InsightScores,
-  StorytellingOutput
+  InsightScores
 };
 
 // Reference campaign format
