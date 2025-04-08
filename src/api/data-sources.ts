@@ -1,11 +1,11 @@
 
-import express from 'express';
+import { Request, Response, Router } from 'express';
 import * as newsApi from '../lib/fetchNewsFromServer';
 import { fetchAndGenerateRedditTrends } from '../lib/fetchRedditTrends';
 
-const router = express.Router();
+const router = Router();
 
-router.get('/news-trends', async (req, res) => {
+router.get('/news-trends', async (req: Request, res: Response) => {
   try {
     console.log('News trends API request received');
     // Check for a fetchNewsFromServer function instead of getNewsTrends
@@ -26,7 +26,7 @@ router.get('/news-trends', async (req, res) => {
   }
 });
 
-router.get('/reddit-trends', async (req, res) => {
+router.get('/reddit-trends', async (req: Request, res: Response) => {
   try {
     console.log('Reddit trends API request received');
     // Use fetchAndGenerateRedditTrends which is the correct exported function

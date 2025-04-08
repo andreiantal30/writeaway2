@@ -1,11 +1,11 @@
 
-import express from 'express';
+import { Request, Response, Router } from 'express';
 import { generateCampaign } from '../lib/campaign/generateCampaign';
 import { CampaignInput } from '../types/campaign';
 
-const router = express.Router();
+const router = Router();
 
-router.post('/generate', async (req, res) => {
+router.post('/generate', async (req: Request, res: Response) => {
   try {
     console.log('Generate campaign request received:', {
       ...req.body,
