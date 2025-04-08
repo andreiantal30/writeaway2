@@ -31,7 +31,7 @@ const CampaignLeftColumn: React.FC<CampaignLeftColumnProps> = ({
           showFeedback={showFeedbackForm}
           feedbackSubmitted={feedbackSubmitted}
         />
-        <p className="text-muted-foreground italic mb-2">{campaign.keyMessage}</p>
+        <p className="text-muted-foreground italic mb-2">{campaign.keyMessage || "No insight available"}</p>
         
         <ElementRating
           element="The Idea"
@@ -42,7 +42,7 @@ const CampaignLeftColumn: React.FC<CampaignLeftColumnProps> = ({
           feedbackSubmitted={feedbackSubmitted}
           hideIfNoFeedback={true}
         />
-        <p className="font-semibold text-lg text-primary">{campaign.campaignName}</p>
+        <p className="font-semibold text-lg text-primary">{campaign.campaignName || "Untitled Campaign"}</p>
       </div>
       
       {/* Emotional Appeal Section */}
@@ -56,7 +56,7 @@ const CampaignLeftColumn: React.FC<CampaignLeftColumnProps> = ({
                 campaign.emotionalAppeal.map((appeal, index) => (
                   <li key={index} className="pl-1"><span className="ml-1">{appeal}</span></li>
                 )) : 
-                <li className="pl-1"><span className="ml-1">{campaign.emotionalAppeal}</span></li>
+                <li className="pl-1"><span className="ml-1">{String(campaign.emotionalAppeal)}</span></li>
               }
             </ul>
           </div>
@@ -70,7 +70,7 @@ const CampaignLeftColumn: React.FC<CampaignLeftColumnProps> = ({
           <div className="space-y-2">
             <h3 className="font-medium text-lg text-primary">Call to Action</h3>
             <p className="font-medium text-base border-l-4 border-primary pl-3 py-1 bg-primary/5 italic">
-              "{campaign.callToAction || campaign.consumerInteraction}"
+              "{campaign.callToAction || campaign.consumerInteraction || "No call to action specified"}"
             </p>
           </div>
         </>

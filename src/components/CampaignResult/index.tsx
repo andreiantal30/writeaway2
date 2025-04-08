@@ -73,20 +73,41 @@ const CampaignResult: React.FC<CampaignResultProps> = ({
     }
   };
   
+  // Ensure campaign has all required fields or provide defaults
+  const safeCampaign: GeneratedCampaign = {
+    ...campaign,
+    campaignName: campaign.campaignName || "Untitled Campaign",
+    keyMessage: campaign.keyMessage || "No key message available",
+    brand: campaign.brand || "Brand",
+    strategy: campaign.strategy || "No strategy available",
+    executionPlan: Array.isArray(campaign.executionPlan) ? campaign.executionPlan : [],
+    viralElement: campaign.viralElement || campaign.viralHook || "No viral element specified",
+    prHeadline: campaign.prHeadline || "No PR headline available",
+    consumerInteraction: campaign.consumerInteraction || "No consumer interaction specified",
+    callToAction: campaign.callToAction || "No call to action specified",
+    creativeInsights: campaign.creativeInsights || {
+      surfaceInsight: "No surface insight available",
+      emotionalUndercurrent: "No emotional undercurrent available",
+      creativeUnlock: "No creative unlock available"
+    },
+    emotionalAppeal: Array.isArray(campaign.emotionalAppeal) ? campaign.emotionalAppeal : [],
+    creativeStrategy: Array.isArray(campaign.creativeStrategy) ? campaign.creativeStrategy : []
+  };
+  
   return (
     <div className="space-y-6 mb-8">
       <Card className="overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 border-b">
-          <CardTitle className="text-2xl md:text-3xl">{campaign.campaignName}</CardTitle>
+          <CardTitle className="text-2xl md:text-3xl">{safeCampaign.campaignName}</CardTitle>
           <CardDescription className="text-lg md:text-xl font-medium text-foreground/90">
-            {campaign.keyMessage}
+            {safeCampaign.keyMessage}
           </CardDescription>
         </CardHeader>
         <CardContent className="p-6">
           {/* Two-column Cannes Lions layout */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
             <CampaignLeftColumn 
-              campaign={campaign} 
+              campaign={safeCampaign} 
               showFeedbackForm={showFeedbackForm}
               feedbackSubmitted={feedbackSubmitted}
               elementRatings={elementRatings}
@@ -94,7 +115,7 @@ const CampaignResult: React.FC<CampaignResultProps> = ({
             />
             
             <CampaignRightColumn 
-              campaign={campaign} 
+              campaign={safeCampaign} 
               showFeedbackForm={showFeedbackForm}
               feedbackSubmitted={feedbackSubmitted}
               elementRatings={elementRatings}

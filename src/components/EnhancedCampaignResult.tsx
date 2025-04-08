@@ -25,7 +25,7 @@ const EnhancedCampaignResult: React.FC<EnhancedCampaignResultProps> = ({
   return (
     <Card className="border shadow-md overflow-hidden">
       <CardHeader className="bg-gradient-to-r from-amber-50 to-amber-100/50 dark:from-amber-950/30 dark:to-amber-900/20 border-b">
-        <CardTitle className="text-xl font-bold text-center">{campaign.campaignName}</CardTitle>
+        <CardTitle className="text-xl font-bold text-center">{campaign.campaignName || "Untitled Campaign"}</CardTitle>
       </CardHeader>
       
       <CardContent className="p-6">
@@ -36,7 +36,7 @@ const EnhancedCampaignResult: React.FC<EnhancedCampaignResultProps> = ({
             {/* The Insight / Key Message */}
             <div className="space-y-2">
               <h3 className="text-lg font-semibold text-primary">The Insight</h3>
-              <p className="text-md">{campaign.keyMessage}</p>
+              <p className="text-md">{campaign.keyMessage || "No insight available"}</p>
             </div>
             
             <Separator className="my-4" />
@@ -44,11 +44,11 @@ const EnhancedCampaignResult: React.FC<EnhancedCampaignResultProps> = ({
             {/* The Idea / Campaign Name */}
             <div className="space-y-2">
               <h3 className="text-lg font-semibold text-primary">The Idea</h3>
-              <p className="text-md font-medium">{campaign.campaignName}</p>
+              <p className="text-md font-medium">{campaign.campaignName || "Untitled Campaign"}</p>
             </div>
             
             {/* Display Creative Insights if available */}
-            {campaign.creativeInsights && campaign.creativeInsights.length > 0 && (
+            {campaign.creativeInsights && (
               <>
                 <Separator className="my-4" />
                 <div className="space-y-2">
@@ -57,9 +57,9 @@ const EnhancedCampaignResult: React.FC<EnhancedCampaignResultProps> = ({
                     <h3 className="text-lg font-semibold text-primary">Creative Insights</h3>
                   </div>
                   <ul className="list-disc pl-5 space-y-1">
-                    {campaign.creativeInsights.map((insight, index) => (
-                      <li key={index} className="text-md italic">{insight}</li>
-                    ))}
+                    <li className="text-md italic">{campaign.creativeInsights.surfaceInsight || "No surface insight available"}</li>
+                    <li className="text-md italic">{campaign.creativeInsights.emotionalUndercurrent || "No emotional undercurrent available"}</li>
+                    <li className="text-md italic">{campaign.creativeInsights.creativeUnlock || "No creative unlock available"}</li>
                   </ul>
                 </div>
               </>
@@ -86,7 +86,7 @@ const EnhancedCampaignResult: React.FC<EnhancedCampaignResultProps> = ({
                 <Separator className="my-4" />
                 <div className="space-y-2">
                   <h3 className="text-lg font-semibold text-primary">Call to Action</h3>
-                  <p className="text-md">{campaign.callToAction || campaign.consumerInteraction}</p>
+                  <p className="text-md">{campaign.callToAction || campaign.consumerInteraction || "No call to action available"}</p>
                 </div>
               </>
             )}
@@ -100,9 +100,12 @@ const EnhancedCampaignResult: React.FC<EnhancedCampaignResultProps> = ({
               <div className="space-y-4">
                 <p className="text-md">Implementation strategy to bring the idea to life:</p>
                 <ul className="list-decimal pl-5 space-y-2">
-                  {campaign.creativeStrategy && campaign.creativeStrategy.map((strategy, index) => (
-                    <li key={index} className="text-md">{strategy}</li>
-                  ))}
+                  {campaign.creativeStrategy && Array.isArray(campaign.creativeStrategy) && campaign.creativeStrategy.length > 0 
+                    ? campaign.creativeStrategy.map((strategy, index) => (
+                      <li key={index} className="text-md">{strategy}</li>
+                    ))
+                    : <li className="text-md">Strategy details not available</li>
+                  }
                 </ul>
               </div>
             </div>
@@ -113,9 +116,12 @@ const EnhancedCampaignResult: React.FC<EnhancedCampaignResultProps> = ({
             <div className="space-y-2">
               <h3 className="text-lg font-semibold text-primary">Execution Plan</h3>
               <ol className="list-decimal pl-5 space-y-2">
-                {campaign.executionPlan.map((execution, index) => (
-                  <li key={index} className="text-md">{execution}</li>
-                ))}
+                {campaign.executionPlan && campaign.executionPlan.length > 0 
+                  ? campaign.executionPlan.map((execution, index) => (
+                    <li key={index} className="text-md">{execution}</li>
+                  ))
+                  : <li className="text-md">Execution details not available</li>
+                }
               </ol>
             </div>
             
@@ -143,9 +149,9 @@ const EnhancedCampaignResult: React.FC<EnhancedCampaignResultProps> = ({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
                     {campaign.referenceCampaigns.map((refCampaign, index) => (
                       <div key={index} className="bg-muted/40 p-3 rounded-lg border border-muted">
-                        <h4 className="font-medium text-sm">{refCampaign.name}</h4>
+                        <h4 className="font-medium text-sm">{refCampaign.name || "Unnamed Campaign"}</h4>
                         <p className="text-xs text-muted-foreground mt-1">
-                          <span className="font-medium">{refCampaign.brand}</span>
+                          <span className="font-medium">{refCampaign.brand || "Unknown Brand"}</span>
                           {refCampaign.year && (
                             <> · {refCampaign.year}</>
                           )}

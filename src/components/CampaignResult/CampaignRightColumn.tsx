@@ -32,11 +32,11 @@ const CampaignRightColumn: React.FC<CampaignRightColumnProps> = ({
           feedbackSubmitted={feedbackSubmitted}
         />
         <ul className="list-disc pl-5 space-y-2">
-          {Array.isArray(campaign.creativeStrategy) ? 
+          {Array.isArray(campaign.creativeStrategy) && campaign.creativeStrategy?.length > 0 ? 
             campaign.creativeStrategy.map((strategy, index) => (
               <li key={index}>{strategy}</li>
             )) : 
-            <li>{campaign.creativeStrategy}</li>
+            <li>{"No strategy details available"}</li>
           }
         </ul>
       </div>
@@ -54,13 +54,15 @@ const CampaignRightColumn: React.FC<CampaignRightColumnProps> = ({
           feedbackSubmitted={feedbackSubmitted}
         />
         <ol className="list-decimal pl-5 space-y-2">
-          {Array.isArray(campaign.executionPlan) ? 
+          {Array.isArray(campaign.executionPlan) && campaign.executionPlan?.length > 0 ? 
             campaign.executionPlan.map((execution, index) => (
               <li key={index} className="pl-1">
                 <span className="ml-1">{execution}</span>
               </li>
             )) : 
-            <li>{campaign.executionPlan}</li>
+            <li className="pl-1">
+              <span className="ml-1">{"No execution details available"}</span>
+            </li>
           }
         </ol>
         
@@ -68,7 +70,7 @@ const CampaignRightColumn: React.FC<CampaignRightColumnProps> = ({
         {(campaign.viralElement || campaign.viralHook) && (
           <div className="mt-4 bg-primary/5 p-3 rounded-md">
             <h4 className="font-medium text-primary mb-2">The transformation goes viral with:</h4>
-            <p className="text-sm">{campaign.viralElement || campaign.viralHook}</p>
+            <p className="text-sm">{campaign.viralElement || campaign.viralHook || "No viral element specified"}</p>
           </div>
         )}
       </div>
@@ -86,7 +88,9 @@ const CampaignRightColumn: React.FC<CampaignRightColumnProps> = ({
                     <span className="ml-1">{outcome}</span>
                   </li>
                 )) : 
-                <li>{campaign.expectedOutcomes}</li>
+                <li className="pl-1">
+                  <span className="ml-1">{"No expected outcomes available"}</span>
+                </li>
               }
             </ul>
           </div>
@@ -102,9 +106,9 @@ const CampaignRightColumn: React.FC<CampaignRightColumnProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {campaign.referenceCampaigns.map((refCampaign, index) => (
                 <div key={index} className="bg-muted/40 p-3 rounded-lg border border-muted">
-                  <h4 className="font-medium">{refCampaign.name}</h4>
+                  <h4 className="font-medium">{refCampaign.name || "Unnamed Campaign"}</h4>
                   <p className="text-sm text-muted-foreground">
-                    <span className="font-medium">{refCampaign.brand}</span>
+                    <span className="font-medium">{refCampaign.brand || "Unknown Brand"}</span>
                     {refCampaign.industry && (
                       <> · {refCampaign.industry}</>
                     )}

@@ -13,7 +13,7 @@ export async function applyExecutionFilters(
   config: OpenAIConfig
 ): Promise<Partial<GeneratedCampaign>> {
   // Skip if campaign doesn't have execution plan or has 5 or fewer items already
-  if (!campaign.executionPlan || campaign.executionPlan.length <= 5) {
+  if (!campaign.executionPlan || !Array.isArray(campaign.executionPlan) || campaign.executionPlan.length <= 5) {
     console.log("Execution filters skipped (plan already has 5 or fewer items)");
     return campaign;
   }
