@@ -1,7 +1,7 @@
 
 import { CampaignInput } from '../campaign/types';
 import { generateWithOpenAI, OpenAIConfig } from '../openai';
-import { extractJsonFromResponse } from '../../utils/formatters';
+import { extractJsonFromResponse, safeJsonParse } from '../../utils/formatters';
 import { CreativeInsights } from '../campaign/types';
 
 /**
@@ -48,19 +48,15 @@ The best insights will reveal something that feels true but hasn't been overly e
     const response = await generateWithOpenAI(prompt, config);
     const cleanedResponse = extractJsonFromResponse(response);
     
-    try {
-      const insights = JSON.parse(cleanedResponse) as CreativeInsights;
-      return insights;
-    } catch (error) {
-      console.error("Error parsing creative insights:", error);
-      
-      // Provide fallback insights if parsing fails
-      return {
-        surfaceInsight: "The audience seeks authentic connections in an increasingly digital world.",
-        emotionalUndercurrent: "Beneath the surface, there's a fear of missing meaningful human experiences.",
-        creativeUnlock: "The most shareable moments are those that bridge digital convenience with analog emotion."
-      };
-    }
+    // Default fallback insights in case parsing fails
+    const fallbackInsights: CreativeInsights = {
+      surfaceInsight: "The audience seeks authentic connections in an increasingly digital world.",
+      emotionalUndercurrent: "Beneath the surface, there's a fear of missing meaningful human experiences.",
+      creativeUnlock: "The most shareable moments are those that bridge digital convenience with analog emotion."
+    };
+    
+    // Use our safe JSON parser with fallback
+    return safeJsonParse<CreativeInsights>(cleanedResponse, fallbackInsights);
   } catch (error) {
     console.error("Error generating creative insights:", error);
     

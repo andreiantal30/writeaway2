@@ -37,12 +37,7 @@ Make it under 100 words.
     
     if (response && response.trim()) {
       // Add the narrative anchor to the campaign
-      if (!('narrativeAnchor' in campaign)) {
-        campaign.narrativeAnchor = response.trim();
-      } else {
-        campaign.narrativeAnchor = response.trim();
-      }
-      
+      campaign.narrativeAnchor = response.trim();
       console.log("Narrative anchor added");
     }
     

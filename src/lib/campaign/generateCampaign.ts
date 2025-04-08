@@ -1,11 +1,11 @@
 
 import { toast } from "sonner";
 import { OpenAIConfig, defaultOpenAIConfig, generateWithOpenAI } from '../openai';
-import { CampaignInput, GeneratedCampaign, ReferenceCampaign, CreativeInsights } from './types';
+import { CampaignInput, GeneratedCampaign, CreativeInsights } from './types';
 import { findSimilarCampaigns } from './campaignMatcher';
 import { generateCreativeInsights } from './creativeInsightGenerator';
 import { createCampaignPrompt } from './campaignPromptBuilder';
-import { extractJsonFromResponse } from '../../utils/formatters';
+import { extractJsonFromResponse, safeJsonParse } from '../../utils/formatters';
 import { getCreativeDevicesForStyle } from '../../data/creativeDevices';
 import { getCachedCulturalTrends } from '../../data/culturalTrends';
 import { generateStorytellingNarrative } from './storytellingGenerator';
@@ -13,6 +13,7 @@ import { evaluateCampaign } from './evaluateCampaign';
 import { applyStrategyBooster } from './strategyBooster';
 import { addNarrativeAnchor } from './narrativeAnchor';
 import { applyExecutionFilters } from './executionFilters';
+import { ReferenceCampaign, CulturalTrend, CreativeDevice } from '../../types/campaign';
 
 /**
  * Apply Creative Director pass to improve campaign quality
@@ -107,15 +108,19 @@ Return ONLY a JSON object with scores, no explanation:
     const response = await generateWithOpenAI(prompt, openAIConfig);
     const cleanedResponse = extractJsonFromResponse(response);
     
-    try {
-      const scores = JSON.parse(cleanedResponse);
-      console.log("📊 Insight scores calculated:", scores);
-      
-      // Add scores to the campaign object
-      campaign.insightScores = scores;
-    } catch (err) {
-      console.error("Error parsing insight scores:", err);
-    }
+    // Default scores if parsing fails
+    const defaultScores = {
+      insight1: {contradiction: 5, irony: 5, tension: 5},
+      insight2: {contradiction: 5, irony: 5, tension: 5},
+      insight3: {contradiction: 5, irony: 5, tension: 5}
+    };
+    
+    // Use safe JSON parse with fallback
+    const scores = safeJsonParse(cleanedResponse, defaultScores);
+    console.log("📊 Insight scores calculated:", scores);
+    
+    // Add scores to the campaign object
+    campaign.insightScores = scores;
   } catch (err) {
     console.error("⚠️ Insight scoring failed:", err);
   }
@@ -179,7 +184,7 @@ export const generateCampaign = async (
     const prompt = createCampaignPrompt(
       input, 
       referenceCampaigns, 
-      creativeInsights, 
+      [creativeInsights.surfaceInsight, creativeInsights.emotionalUndercurrent, creativeInsights.creativeUnlock], 
       creativeDevices,
       relevantTrends
     );
@@ -189,7 +194,23 @@ export const generateCampaign = async (
     // Generate the campaign with OpenAI
     const response = await generateWithOpenAI(prompt, openAIConfig);
     const cleanedResponse = extractJsonFromResponse(response);
-    const generatedContent = JSON.parse(cleanedResponse);
+    
+    // Default campaign if parsing fails
+    const defaultCampaign = {
+      campaignName: `${input.brand} Campaign`,
+      keyMessage: `${input.brand} helps ${input.targetAudience[0] || 'people'} experience ${input.emotionalAppeal[0] || 'connection'}.`,
+      brand: input.brand,
+      strategy: "Connect the brand with its audience through authentic experiences.",
+      executionPlan: ["Social media campaign", "Influencer partnerships", "Event activation"],
+      viralElement: "Shareable social media content",
+      prHeadline: `${input.brand} Launches Innovative Campaign`,
+      consumerInteraction: "Users can share their experiences on social media",
+      callToAction: "Join the experience today",
+      creativeStrategy: ["Authenticity", "Emotional connection"]
+    };
+    
+    // Use safe JSON parse with fallback
+    const generatedContent = safeJsonParse(cleanedResponse, defaultCampaign);
 
     // ===== POST-GENERATION LAYERS =====
     

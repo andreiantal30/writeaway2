@@ -1,22 +1,7 @@
 
 import { OpenAIConfig, generateWithOpenAI } from '../openai';
-import { GeneratedCampaign } from './types';
-import { extractJsonFromResponse } from '../../utils/formatters';
-
-// Interface for feedback criterion
-export interface FeedbackCriterion {
-  score: number;
-  comment: string;
-}
-
-// Interface for campaign evaluation
-export interface CampaignEvaluation {
-  insightSharpness: FeedbackCriterion;
-  ideaOriginality: FeedbackCriterion;
-  executionPotential: FeedbackCriterion;
-  awardPotential: FeedbackCriterion;
-  finalVerdict: string;
-}
+import { GeneratedCampaign, CampaignEvaluation } from './types';
+import { extractJsonFromResponse, safeJsonParse } from '../../utils/formatters';
 
 /**
  * Evaluate a generated campaign against standard creative metrics
@@ -60,20 +45,17 @@ Format your response as JSON with the following structure:
     const response = await generateWithOpenAI(prompt, config);
     const cleanedResponse = extractJsonFromResponse(response);
     
-    try {
-      const evaluation = JSON.parse(cleanedResponse);
-      return evaluation;
-    } catch (error) {
-      console.error("Error parsing evaluation results:", error);
-      // Return default evaluation if parsing fails
-      return {
-        insightSharpness: { score: 5, comment: "Unable to evaluate insight sharpness." },
-        ideaOriginality: { score: 5, comment: "Unable to evaluate idea originality." },
-        executionPotential: { score: 5, comment: "Unable to evaluate execution potential." },
-        awardPotential: { score: 5, comment: "Unable to evaluate award potential." },
-        finalVerdict: "Unable to provide a final verdict due to evaluation processing error."
-      };
-    }
+    // Default evaluation to use if parsing fails
+    const defaultEvaluation: CampaignEvaluation = {
+      insightSharpness: { score: 5, comment: "Unable to evaluate insight sharpness." },
+      ideaOriginality: { score: 5, comment: "Unable to evaluate idea originality." },
+      executionPotential: { score: 5, comment: "Unable to evaluate execution potential." },
+      awardPotential: { score: 5, comment: "Unable to evaluate award potential." },
+      finalVerdict: "Unable to provide a final verdict due to evaluation processing error."
+    };
+    
+    // Use safe JSON parse with fallback
+    return safeJsonParse<CampaignEvaluation>(cleanedResponse, defaultEvaluation);
   } catch (error) {
     console.error("Error evaluating campaign:", error);
     // Return default evaluation if API call fails

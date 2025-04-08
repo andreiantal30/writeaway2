@@ -19,22 +19,46 @@ ${campaign.awards?.length ? `**Awards:** ${campaign.awards.join(', ')}` : ''}
 }
 
 /**
- * Extracts JSON from a response string
+ * Extracts JSON from a response string with robust error handling
+ * Handles various formats returned by GPT including markdown code blocks
  */
 export function extractJsonFromResponse(text: string): string {
-  // Look for content between JSON code blocks
-  const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+  if (!text) return "{}";
   
-  if (jsonMatch && jsonMatch[1]) {
-    return jsonMatch[1].trim();
+  try {
+    // First attempt: Look for content between JSON code blocks
+    const jsonRegex = /```(?:json)?\s*([\s\S]*?)\s*```/;
+    const match = text.match(jsonRegex);
+    
+    if (match && match[1]) {
+      return match[1].trim();
+    }
+    
+    // Second attempt: Look for content that looks like JSON
+    const jsonObjectMatch = text.match(/\{[\s\S]*\}/);
+    if (jsonObjectMatch) {
+      return jsonObjectMatch[0].trim();
+    }
+    
+    // If all else fails, return the original text
+    console.log("Warning: Could not extract JSON format, returning raw text");
+    return text.trim();
+  } catch (error) {
+    console.error("Error extracting JSON from response:", error);
+    return "{}";
   }
-  
-  // If no code blocks found, look for content that looks like JSON
-  const jsonObjectMatch = text.match(/\{[\s\S]*\}/);
-  if (jsonObjectMatch) {
-    return jsonObjectMatch[0].trim();
+}
+
+/**
+ * Safely parses JSON with error handling
+ * Returns a default value if parsing fails
+ */
+export function safeJsonParse<T>(jsonString: string, defaultValue: T): T {
+  try {
+    return JSON.parse(jsonString) as T;
+  } catch (error) {
+    console.error("Error parsing JSON:", error);
+    console.log("Problematic JSON string:", jsonString);
+    return defaultValue;
   }
-  
-  // If all else fails, return the original text
-  return text;
 }

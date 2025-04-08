@@ -1,7 +1,7 @@
 
 import { OpenAIConfig, generateWithOpenAI } from '../openai';
 import { CampaignInput, GeneratedCampaign } from './types';
-import { extractJsonFromResponse } from '../../utils/formatters';
+import { extractJsonFromResponse, safeJsonParse } from '../../utils/formatters';
 
 /**
  * Apply execution filters to improve campaign execution plan
@@ -56,24 +56,23 @@ Format your response as JSON:
     const response = await generateWithOpenAI(prompt, config);
     const cleanedResponse = extractJsonFromResponse(response);
     
-    try {
-      const result = JSON.parse(cleanedResponse);
+    // Default fallback structure
+    const defaultResult = {
+      selectedTactics: campaign.executionPlan.slice(0, 5),
+      explanation: "Selected based on highest potential impact and memorability."
+    };
+    
+    // Use safe JSON parsing with fallback
+    const result = safeJsonParse(cleanedResponse, defaultResult);
+    
+    if (result.selectedTactics && Array.isArray(result.selectedTactics) && result.selectedTactics.length > 0) {
+      // Replace the execution plan with the filtered selection
+      campaign.executionPlan = result.selectedTactics;
       
-      if (result.selectedTactics && Array.isArray(result.selectedTactics) && result.selectedTactics.length > 0) {
-        // Replace the execution plan with the filtered selection
-        campaign.executionPlan = result.selectedTactics;
-        
-        // Add the execution filter rationale to campaign object
-        if (!('executionFilterRationale' in campaign)) {
-          campaign.executionFilterRationale = result.explanation;
-        } else {
-          campaign.executionFilterRationale = result.explanation;
-        }
-        
-        console.log("Execution filter applied:", result.explanation);
-      }
-    } catch (error) {
-      console.error("Error parsing execution filter results:", error);
+      // Add the execution filter rationale to campaign object
+      campaign.executionFilterRationale = result.explanation;
+      
+      console.log("Execution filter applied:", result.explanation);
     }
     
     return campaign;
