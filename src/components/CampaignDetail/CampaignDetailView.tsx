@@ -1,12 +1,26 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { StorytellingOutput } from '../../types/campaign';
+import { SavedCampaign } from '@/lib/campaignStorage';
+import { StorytellingOutput } from '@/lib/campaign/types';
 import StorytellingNarrative from '@/components/StorytellingNarrative';
 import BraveryMatrix from '@/components/CampaignResult/BraveryMatrix';
+import { 
+  Target, 
+  MessageSquare, 
+  Sparkles, 
+  ListChecks, 
+  Share2, 
+  Lightbulb,
+  Newspaper,
+  Flame,
+  FileText
+} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 interface CampaignDetailViewProps {
   campaign: SavedCampaign;
@@ -19,12 +33,12 @@ const CampaignDetailView: React.FC<CampaignDetailViewProps> = ({ campaign }) => 
     if (!campaign.campaign.storytelling) return null;
     
     return {
-      hook: campaign.campaign.storytelling.hook || '',
-      protagonist: campaign.campaign.storytelling.protagonist || '',
-      conflict: campaign.campaign.storytelling.conflict || '',
-      journey: campaign.campaign.storytelling.journey || '',
-      resolution: campaign.campaign.storytelling.resolution || '',
-      fullNarrative: campaign.campaign.storytelling.fullNarrative || ''
+      narrative: campaign.campaign.storytelling.fullNarrative || campaign.campaign.storytelling.narrative || '',
+      storyNarrative: campaign.campaign.storytelling.fullNarrative || '',
+      protagonistDescription: campaign.campaign.storytelling.protagonist || '',
+      conflictDescription: campaign.campaign.storytelling.conflict || '',
+      resolutionDescription: campaign.campaign.storytelling.resolution || '',
+      brandValueConnection: ''
     };
   };
   
@@ -36,29 +50,27 @@ const CampaignDetailView: React.FC<CampaignDetailViewProps> = ({ campaign }) => 
     return (
       <div className="space-y-4">
         <div>
-          <h3 className="text-lg font-semibold">Hook</h3>
-          <p>{storytelling.hook}</p>
+          <h3 className="text-lg font-semibold">Narrative</h3>
+          <p>{storytelling.narrative || storytelling.storyNarrative}</p>
         </div>
-        <div>
-          <h3 className="text-lg font-semibold">Protagonist</h3>
-          <p>{storytelling.protagonist}</p>
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold">Conflict</h3>
-          <p>{storytelling.conflict}</p>
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold">Journey</h3>
-          <p>{storytelling.journey}</p>
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold">Resolution</h3>
-          <p>{storytelling.resolution}</p>
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold">Full Narrative</h3>
-          <p>{storytelling.fullNarrative}</p>
-        </div>
+        {storytelling.protagonistDescription && (
+          <div>
+            <h3 className="text-lg font-semibold">Protagonist</h3>
+            <p>{storytelling.protagonistDescription}</p>
+          </div>
+        )}
+        {storytelling.conflictDescription && (
+          <div>
+            <h3 className="text-lg font-semibold">Conflict</h3>
+            <p>{storytelling.conflictDescription}</p>
+          </div>
+        )}
+        {storytelling.resolutionDescription && (
+          <div>
+            <h3 className="text-lg font-semibold">Resolution</h3>
+            <p>{storytelling.resolutionDescription}</p>
+          </div>
+        )}
       </div>
     );
   };
