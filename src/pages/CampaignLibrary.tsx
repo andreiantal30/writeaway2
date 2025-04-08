@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
-import { Search, ArrowLeft, Filter, Grid3X3, ListFilter, Star, StarOff, Trash2, Plus, Home } from 'lucide-react';
+import { Search, ArrowLeft, Filter, Grid3X3, ListFilter, Star, StarOff, Trash2, Plus, Home, Award, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { 
@@ -49,7 +50,7 @@ const CampaignLibrary: React.FC = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchTerm, setSearchTerm] = useState('');
   const [industryFilter, setIndustryFilter] = useState('');
-  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'az' | 'za'>('newest');
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'az' | 'za' | 'bravery' | 'insight'>('newest');
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [selectedCampaignId, setSelectedCampaignId] = useState<string | undefined>();
   const navigate = useNavigate();
@@ -118,6 +119,33 @@ const CampaignLibrary: React.FC = () => {
     navigate(`/library?id=${id}`);
   };
   
+  const getInsightScore = (campaign: SavedCampaign): number => {
+    const insightScores = campaign?.campaign?.insightScores;
+    if (!insightScores) return 0;
+    
+    // Calculate average of all insight scores
+    const scores = [
+      insightScores.insight1.contradiction + insightScores.insight1.irony + insightScores.insight1.tension,
+      insightScores.insight2.contradiction + insightScores.insight2.irony + insightScores.insight2.tension,
+      insightScores.insight3.contradiction + insightScores.insight3.irony + insightScores.insight3.tension
+    ];
+    
+    return Math.round((scores.reduce((a, b) => a + b, 0) / (scores.length * 3)) * 10) / 10;
+  };
+  
+  const getBraveryScore = (campaign: SavedCampaign): number => {
+    return campaign?.campaign?.braveryScores?.totalScore || 
+           campaign?.campaign?.evaluation?.braveryScore || 0;
+  };
+  
+  const getAwardPotential = (campaign: SavedCampaign): number => {
+    const braveryScore = getBraveryScore(campaign);
+    const overallScore = campaign?.campaign?.evaluation?.overallScore || 5;
+    
+    // Award potential is a combination of bravery and overall evaluation
+    return Math.round(((braveryScore * 0.7) + (overallScore * 0.3)) * 10) / 10;
+  };
+  
   const filteredCampaigns = campaigns
     .filter(campaign => {
       const searchLower = searchTerm.toLowerCase();
@@ -142,6 +170,10 @@ const CampaignLibrary: React.FC = () => {
           return a.campaign.campaignName.localeCompare(b.campaign.campaignName);
         case 'za':
           return b.campaign.campaignName.localeCompare(a.campaign.campaignName);
+        case 'bravery':
+          return getBraveryScore(b) - getBraveryScore(a);
+        case 'insight':
+          return getInsightScore(b) - getInsightScore(a);
         default:
           return 0;
       }
@@ -158,6 +190,22 @@ const CampaignLibrary: React.FC = () => {
       minute: '2-digit'
     };
     return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
+  // Helper function to render score badges
+  const renderScoreBadge = (score: number, label: string, icon: React.ReactNode) => {
+    let color = "bg-gray-100 text-gray-700";
+    if (score >= 8) color = "bg-green-100 text-green-700";
+    else if (score >= 6) color = "bg-blue-100 text-blue-700";
+    else if (score >= 4) color = "bg-amber-100 text-amber-700";
+    else if (score > 0) color = "bg-red-100 text-red-700";
+    
+    return (
+      <div className={`flex items-center px-2 py-1 rounded-full text-xs ${color}`}>
+        {icon}
+        <span className="ml-1">{label}: {score}</span>
+      </div>
+    );
   };
 
   if (selectedCampaignId) {
@@ -260,7 +308,7 @@ const CampaignLibrary: React.FC = () => {
                 </Select>
                 
                 <Select value={sortBy} onValueChange={(value) => setSortBy(value as any)}>
-                  <SelectTrigger className="w-[150px]">
+                  <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Sort by" />
                   </SelectTrigger>
                   <SelectContent>
@@ -268,6 +316,8 @@ const CampaignLibrary: React.FC = () => {
                     <SelectItem value="oldest">Oldest First</SelectItem>
                     <SelectItem value="az">A-Z</SelectItem>
                     <SelectItem value="za">Z-A</SelectItem>
+                    <SelectItem value="bravery">Bravery Score</SelectItem>
+                    <SelectItem value="insight">Insight Sharpness</SelectItem>
                   </SelectContent>
                 </Select>
                 
@@ -304,7 +354,10 @@ const CampaignLibrary: React.FC = () => {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8"
-                          onClick={() => handleToggleFavorite(item.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleFavorite(item.id);
+                          }}
                         >
                           {item.favorite ? (
                             <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
@@ -321,8 +374,44 @@ const CampaignLibrary: React.FC = () => {
                     </CardHeader>
                     <CardContent className="p-4 pt-2">
                       <p className="text-sm mb-3 line-clamp-2">{item.campaign.keyMessage}</p>
-                      <div className="flex flex-wrap gap-1 mt-2">
+                      
+                      <div className="flex flex-wrap gap-1 mb-3">
                         <Badge variant="outline" className="text-xs">{item.industry}</Badge>
+                      </div>
+
+                      {/* Campaign Scores */}
+                      <div className="flex flex-wrap gap-1 mt-3">
+                        {item.campaign.evaluation?.overallScore && (
+                          renderScoreBadge(
+                            item.campaign.evaluation.overallScore, 
+                            "Overall", 
+                            <span className="h-3 w-3 mr-1">•</span>
+                          )
+                        )}
+                        
+                        {getBraveryScore(item) > 0 && (
+                          renderScoreBadge(
+                            getBraveryScore(item), 
+                            "Bravery", 
+                            <Flame className="h-3 w-3 mr-1" />
+                          )
+                        )}
+                        
+                        {getAwardPotential(item) > 0 && (
+                          renderScoreBadge(
+                            getAwardPotential(item), 
+                            "Award", 
+                            <Award className="h-3 w-3 mr-1" />
+                          )
+                        )}
+                        
+                        {getInsightScore(item) > 0 && (
+                          renderScoreBadge(
+                            getInsightScore(item), 
+                            "Insight", 
+                            <Sparkles className="h-3 w-3 mr-1" />
+                          )
+                        )}
                       </div>
                     </CardContent>
                     <CardFooter className="p-4 pt-0 flex justify-between">
@@ -337,7 +426,10 @@ const CampaignLibrary: React.FC = () => {
                         variant="ghost"
                         size="sm"
                         className="text-destructive hover:text-destructive"
-                        onClick={() => handleDelete(item.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(item.id);
+                        }}
                       >
                         <Trash2 className="h-4 w-4 mr-1" />
                         Delete
@@ -354,6 +446,7 @@ const CampaignLibrary: React.FC = () => {
                     <TableHead>Campaign Name</TableHead>
                     <TableHead>Brand</TableHead>
                     <TableHead>Industry</TableHead>
+                    <TableHead>Scores</TableHead>
                     <TableHead>Created</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -385,6 +478,19 @@ const CampaignLibrary: React.FC = () => {
                       </TableCell>
                       <TableCell>{item.brand}</TableCell>
                       <TableCell>{item.industry}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {item.campaign.evaluation?.overallScore && (
+                            <Badge variant="outline">{item.campaign.evaluation.overallScore}/10</Badge>
+                          )}
+                          {getBraveryScore(item) > 0 && (
+                            <Badge variant="secondary">
+                              <Flame className="h-3 w-3 mr-1" /> 
+                              {getBraveryScore(item)}
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
                       <TableCell>{formatDate(item.timestamp)}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end space-x-2">

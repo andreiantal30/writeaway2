@@ -1,55 +1,46 @@
 
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import {
-  getSavedCampaignById,
-  removeSavedCampaign,
-  toggleFavoriteStatus
-} from '@/lib/campaignStorage';
-import { CampaignSidebarProvider } from '@/components/CampaignSidebarProvider';
-import CampaignSidebar from '@/components/CampaignSidebar';
-import { SidebarInset } from '@/components/ui/sidebar';
+import { ArrowLeft, Loader2 } from 'lucide-react';
+import { getSavedCampaignById, removeSavedCampaign, toggleFavoriteStatus } from '@/lib/campaignStorage';
 import CampaignDetailView from '@/components/CampaignDetail/CampaignDetailView';
+import CampaignHeader from '@/components/CampaignDetail/CampaignHeader';
+import CampaignMeta from '@/components/CampaignDetail/CampaignMeta';
+import CampaignActions from '@/components/CampaignDetail/CampaignActions';
 
 interface CampaignDetailProps {
-  id?: string;
+  id: string;
 }
 
-const CampaignDetail: React.FC<CampaignDetailProps> = ({ id: propId }) => {
-  const { id: paramId } = useParams<{ id: string }>();
-  const id = propId || paramId;
-  const navigate = useNavigate();
-  const [campaign, setCampaign] = useState<any | null>(null);
+const CampaignDetail: React.FC<CampaignDetailProps> = ({ id }) => {
+  const [campaign, setCampaign] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [isInSidebar, setIsInSidebar] = useState(!!propId);
-
+  const navigate = useNavigate();
+  const isInSidebar = true; // This page is always shown in the sidebar layout
+  
   useEffect(() => {
     if (!id) return;
     
     try {
-      const savedCampaign = getSavedCampaignById(id);
-      if (savedCampaign) {
-        setCampaign(savedCampaign);
-      } else {
-        toast.error('Campaign not found');
-        navigate('/library');
-      }
+      const loadedCampaign = getSavedCampaignById(id);
+      setCampaign(loadedCampaign);
+      setLoading(false);
     } catch (error) {
       console.error('Error loading campaign:', error);
       toast.error('Failed to load campaign');
-    } finally {
       setLoading(false);
     }
-  }, [id, navigate]);
-
+  }, [id]);
+  
   const handleDelete = () => {
-    if (!id) return;
+    if (!campaign) return;
     
     if (window.confirm('Are you sure you want to delete this campaign?')) {
       try {
-        const success = removeSavedCampaign(id);
+        const success = removeSavedCampaign(campaign.id);
         if (success) {
           toast.success('Campaign deleted successfully');
           navigate('/library');
@@ -62,18 +53,18 @@ const CampaignDetail: React.FC<CampaignDetailProps> = ({ id: propId }) => {
       }
     }
   };
-
+  
   const handleToggleFavorite = () => {
-    if (!id) return;
+    if (!campaign) return;
     
     try {
-      const success = toggleFavoriteStatus(id);
+      const success = toggleFavoriteStatus(campaign.id);
       if (success) {
-        setCampaign(prev => ({
-          ...prev,
-          favorite: !prev.favorite
+        // Update the local state to reflect the change
+        setCampaign(prevCampaign => ({
+          ...prevCampaign,
+          favorite: !prevCampaign.favorite
         }));
-        toast.success(campaign?.favorite ? 'Removed from favorites' : 'Added to favorites');
       } else {
         toast.error('Failed to update favorite status');
       }
@@ -82,51 +73,57 @@ const CampaignDetail: React.FC<CampaignDetailProps> = ({ id: propId }) => {
       toast.error('An error occurred while updating the campaign');
     }
   };
-
-  const handleCampaignSelect = (campaignId: string) => {
-    navigate(`/campaign/${campaignId}`);
-  };
-
+  
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p>Loading campaign details...</p>
+      <div className="flex items-center justify-center min-h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
-
+  
   if (!campaign) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center">
+      <Card className="p-6 text-center">
         <p className="text-muted-foreground mb-4">Campaign not found</p>
-        <Button onClick={() => navigate('/library')}>Return to Library</Button>
-      </div>
+        <Button onClick={() => navigate('/library')}>
+          Back to Library
+        </Button>
+      </Card>
     );
   }
-
-  const renderContent = () => (
-    <CampaignDetailView
-      id={id || ''}
-      campaign={campaign}
-      isInSidebar={isInSidebar}
-      onDelete={handleDelete}
-      onToggleFavorite={handleToggleFavorite}
-    />
-  );
-
-  // If component is used directly (not from router), render just the content
-  if (isInSidebar) {
-    return renderContent();
-  }
-
-  // If accessed via route, wrap with sidebar
+  
   return (
-    <CampaignSidebarProvider>
-      <CampaignSidebar onCampaignSelect={handleCampaignSelect} selectedCampaignId={id} />
-      <SidebarInset className="bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-950">
-        {renderContent()}
-      </SidebarInset>
-    </CampaignSidebarProvider>
+    <div className="space-y-6">
+      {!isInSidebar && (
+        <Button 
+          variant="ghost" 
+          onClick={() => navigate('/library')}
+          className="mb-2"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Library
+        </Button>
+      )}
+      
+      <CampaignHeader 
+        name={campaign.campaign.campaignName} 
+        brand={campaign.brand} 
+        industry={campaign.industry}
+      />
+      
+      <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
+        <CampaignMeta campaign={campaign} />
+        <CampaignActions 
+          campaign={campaign} 
+          isFavorite={campaign.favorite}
+          onToggleFavorite={handleToggleFavorite}
+          onDelete={handleDelete}
+          id={campaign.id}
+        />
+      </div>
+      
+      <CampaignDetailView campaign={campaign} />
+    </div>
   );
 };
 

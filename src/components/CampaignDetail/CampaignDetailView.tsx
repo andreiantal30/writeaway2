@@ -151,7 +151,15 @@ const CampaignDetailView: React.FC<CampaignDetailViewProps> = ({ campaign }) => 
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <StorytellingNarrative storytelling={campaign.campaign.storytelling} />
+                  <StorytellingNarrative storytelling={{
+                    hook: campaign.campaign.storytelling.hook,
+                    protagonist: campaign.campaign.storytelling.protagonist,
+                    conflict: campaign.campaign.storytelling.conflict,
+                    journey: campaign.campaign.storytelling.journey,
+                    resolution: campaign.campaign.storytelling.resolution,
+                    fullNarrative: campaign.campaign.storytelling.fullNarrative,
+                    narrative: campaign.campaign.storytelling.fullNarrative || ""
+                  }} />
                 </CardContent>
               </Card>
             </div>
