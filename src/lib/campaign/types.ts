@@ -57,6 +57,17 @@ export interface BraveryScores {
   totalScore: number;
 }
 
+// Storytelling output interface
+export interface StorytellingOutput {
+  hook?: string;
+  protagonist?: string;
+  conflict?: string;
+  journey?: string;
+  resolution?: string;
+  fullNarrative: string;
+  narrative?: string;
+}
+
 // Complete generated campaign with all components
 export interface GeneratedCampaign {
   campaignName: string;
@@ -73,14 +84,7 @@ export interface GeneratedCampaign {
   emotionalAppeal: string[];
   referenceCampaigns: ReferenceCampaign[];
   expectedOutcomes: string[];
-  storytelling?: {
-    hook: string;
-    protagonist: string;
-    conflict: string;
-    journey: string;
-    resolution: string;
-    fullNarrative: string;
-  };
+  storytelling?: StorytellingOutput;
   evaluation?: CampaignEvaluation;
   narrativeAnchor?: {
     anchors: string[];
@@ -90,4 +94,5 @@ export interface GeneratedCampaign {
   insightScores?: InsightScores;
   braveryScores?: BraveryScores;
   viralHook?: string; // Added for compatibility with existing code
+  _cdModifications?: string[]; // For tracking creative director modifications
 }

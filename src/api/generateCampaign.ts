@@ -9,7 +9,7 @@ const router = express.Router();
  * API endpoint for generating a campaign
  * Keeps OpenAI API key on the server side for security
  */
-router.post('/generateCampaign', async (req, res) => {
+router.post('/generateCampaign', (req, res) => {
   try {
     const input: CampaignInput = req.body.input;
     
@@ -35,10 +35,17 @@ router.post('/generateCampaign', async (req, res) => {
     };
     
     // Generate campaign
-    const campaign = await generateCampaign(input, openAIConfig);
-    
-    // Return generated campaign
-    return res.json(campaign);
+    generateCampaign(input, openAIConfig)
+      .then(campaign => {
+        // Return generated campaign
+        return res.json(campaign);
+      })
+      .catch(error => {
+        console.error("Error generating campaign:", error);
+        return res.status(500).json({ 
+          error: error instanceof Error ? error.message : "Failed to generate campaign" 
+        });
+      });
   } catch (error) {
     console.error("Error generating campaign:", error);
     return res.status(500).json({ 

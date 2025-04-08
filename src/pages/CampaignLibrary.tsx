@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
-import { Search, ArrowLeft, Filter, Grid3X3, ListFilter, Star, StarOff, Trash2, Plus, Home, Award, Sparkles } from 'lucide-react';
+import { Search, ArrowLeft, Filter, Grid3X3, ListFilter, Star, StarOff, Trash2, Plus, Home, Award, Sparkles, Flame } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { 

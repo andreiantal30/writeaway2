@@ -4,7 +4,7 @@ export interface CampaignInput {
   brand: string;
   industry: string;
   targetAudience: string[];
-  objectives: string[];
+  objectives?: string[];
   emotionalAppeal: string[];
   campaignStyle?: string;
   brandPersonality?: string;
@@ -23,14 +23,15 @@ export interface CreativeInsights {
 }
 
 // Import the standardized campaign type from the campaign module
-import { GeneratedCampaign, CampaignEvaluation, CampaignVersion, InsightScores } from '../lib/campaign/types';
+import { GeneratedCampaign, CampaignEvaluation, CampaignVersion, InsightScores, StorytellingOutput } from '../lib/campaign/types';
 
 // Re-export the imported types for backward compatibility
 export type { 
   GeneratedCampaign,
   CampaignEvaluation,
   CampaignVersion,
-  InsightScores
+  InsightScores,
+  StorytellingOutput
 };
 
 // Reference campaign format

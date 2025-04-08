@@ -385,7 +385,7 @@ export const generateCampaign = async (
       };
       
       const storytelling = await generateStorytellingNarrative(storytellingInput, openAIConfig);
-      finalCampaign.storytelling = storytelling;
+      finalCampaign.storytelling = storytelling as StorytellingOutput;
     } catch (error) {
       console.error("Error generating storytelling content:", error);
       toast.error("Error generating storytelling content");

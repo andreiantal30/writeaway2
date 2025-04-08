@@ -14,9 +14,11 @@ import {
 
 interface CampaignHeaderProps {
   campaignName: string;
+  brand: string;
+  industry: string;
 }
 
-const CampaignHeader: React.FC<CampaignHeaderProps> = ({ campaignName }) => {
+const CampaignHeader: React.FC<CampaignHeaderProps> = ({ campaignName, brand, industry }) => {
   return (
     <div className="mb-8">
       <Breadcrumb className="mb-4">

@@ -4,7 +4,7 @@ import express from 'express';
 const router = express.Router();
 
 // Define API route handlers
-router.get('/news-trends', async (req, res) => {
+router.get('/news-trends', (req, res) => {
   try {
     // Implementation
     return res.json({ message: "News trends endpoint" });

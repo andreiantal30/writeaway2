@@ -25,6 +25,18 @@ interface CampaignDetailViewProps {
 const CampaignDetailView: React.FC<CampaignDetailViewProps> = ({ campaign }) => {
   const [tab, setTab] = useState("overview");
   
+  // Helper to safely access storytelling properties
+  const getStorytelling = () => {
+    if (!campaign.campaign.storytelling) return null;
+    
+    return {
+      narrative: campaign.campaign.storytelling.fullNarrative || '',
+      ...campaign.campaign.storytelling
+    };
+  };
+  
+  const storytelling = getStorytelling();
+  
   return (
     <div className="space-y-6">
       <Tabs defaultValue="overview" value={tab} onValueChange={setTab}>
@@ -141,7 +153,7 @@ const CampaignDetailView: React.FC<CampaignDetailViewProps> = ({ campaign }) => 
             </CardContent>
           </Card>
           
-          {campaign.campaign.storytelling && (
+          {storytelling && (
             <div className="mt-6">
               <Card>
                 <CardHeader>
@@ -151,15 +163,7 @@ const CampaignDetailView: React.FC<CampaignDetailViewProps> = ({ campaign }) => 
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <StorytellingNarrative storytelling={{
-                    hook: campaign.campaign.storytelling.hook,
-                    protagonist: campaign.campaign.storytelling.protagonist,
-                    conflict: campaign.campaign.storytelling.conflict,
-                    journey: campaign.campaign.storytelling.journey,
-                    resolution: campaign.campaign.storytelling.resolution,
-                    fullNarrative: campaign.campaign.storytelling.fullNarrative,
-                    narrative: campaign.campaign.storytelling.fullNarrative || ""
-                  }} />
+                  <StorytellingNarrative storytelling={storytelling} />
                 </CardContent>
               </Card>
             </div>

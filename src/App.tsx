@@ -1,5 +1,5 @@
 
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useParams } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import Index from "./pages/Index";
@@ -9,6 +9,12 @@ import CampaignLibrary from "./pages/CampaignLibrary";
 import CampaignDetail from "./pages/CampaignDetail";
 import { CampaignSidebarProvider } from "./components/CampaignSidebarProvider";
 import { useEffect } from "react";
+
+// Wrapper component to extract the ID parameter and pass it to CampaignDetail
+const CampaignDetailWrapper = () => {
+  const { id } = useParams();
+  return <CampaignDetail id={id || ""} />;
+};
 
 function App() {
   // Add more detailed logging
@@ -37,7 +43,7 @@ function App() {
             <Route path="/" element={<Index />} />
             <Route path="/manager" element={<CampaignManager />} />
             <Route path="/library" element={<CampaignLibrary />} />
-            <Route path="/campaign/:id" element={<CampaignDetail />} />
+            <Route path="/campaign/:id" element={<CampaignDetailWrapper />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Router>

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, Flame } from 'lucide-react';
 import { getSavedCampaignById, removeSavedCampaign, toggleFavoriteStatus } from '@/lib/campaignStorage';
 import CampaignDetailView from '@/components/CampaignDetail/CampaignDetailView';
 import CampaignHeader from '@/components/CampaignDetail/CampaignHeader';
