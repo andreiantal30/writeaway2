@@ -1,12 +1,11 @@
 
 import { useState, useRef } from "react";
-import { CampaignInput, GeneratedCampaign, generateCampaign, CampaignVersion } from "@/lib/generateCampaign";
+import { CampaignInput, GeneratedCampaign, CampaignVersion } from "@/lib/generateCampaign";
 import { OpenAIConfig } from "@/lib/openai";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { Message } from "@/components/ChatWindow";
 import { saveCampaignToLibrary } from "@/lib/campaignStorage";
-import { CampaignFeedback } from "@/components/CampaignResult";
 import { useCampaignChat } from "./campaign/useCampaignChat";
 import { useCampaignRefinement } from "./campaign/useCampaignRefinement";
 import { useCampaignRegeneration } from "./campaign/useCampaignRegeneration";
@@ -112,7 +111,24 @@ export function useCampaignGeneration(openAIConfig: OpenAIConfig) {
     setLastInput(input);
     
     try {
-      const campaign = await generateCampaign(input, openAIConfig);
+      // Updated to use the server-side API endpoint
+      const response = await fetch('/api/generateCampaign', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          input,
+          model: openAIConfig.model
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to generate campaign");
+      }
+      
+      const campaign: GeneratedCampaign = await response.json();
       
       // Save the initial campaign as a version
       if (campaign) {

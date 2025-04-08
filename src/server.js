@@ -2,7 +2,6 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const dataSourcesRouter = require('./api/data-sources');
 const cdPassRouter = require('./server/cdPass');
 const disruptivePassRouter = require('./server/disruptivePass');
 
@@ -14,14 +13,14 @@ app.use(cors());
 app.use(express.json());
 
 // API routes
-app.use('/api', dataSourcesRouter);
+app.use('/api', require('./api/data-sources'));
 app.use('/api', cdPassRouter);
 app.use('/api', disruptivePassRouter);
 
 // OpenAI proxy endpoint (to keep API key server-side)
-app.post('/api/generate-campaign', async (req, res) => {
+app.post('/api/generateCampaign', async (req, res) => {
   try {
-    const { input, openAIConfig } = req.body;
+    const { input } = req.body;
     
     // Import the necessary modules
     const { generateCampaign } = require('./lib/campaign/generateCampaign');
@@ -35,7 +34,7 @@ app.post('/api/generate-campaign', async (req, res) => {
     // Create config with server-side API key
     const config = {
       apiKey,
-      model: openAIConfig?.model || 'gpt-4o'
+      model: req.body.model || 'gpt-4o'
     };
     
     // Generate campaign

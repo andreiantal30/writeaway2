@@ -1,8 +1,8 @@
 
-import express from 'express';
+import express, { Router } from 'express';
 import cors from 'cors';
 
-const router = express.Router();
+const router: Router = express.Router();
 
 // Use CORS middleware
 router.use(cors());

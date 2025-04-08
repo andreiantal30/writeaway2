@@ -9,6 +9,7 @@ import cors from "cors";
 import newsApiRouter from "./newsApi";     // ✅ NewsAPI route
 import cdPassRoute from "./cdPass";        // ✅ Creative Director Pass route
 import disruptivePassRoute from './disruptivePass'; // ✅ Disruptive Pass route
+import generateCampaignRouter from "../src/api/generateCampaign"; // ✅ Campaign generation route
 
 const app = express();
 const port = 8090;
@@ -30,6 +31,7 @@ app.use(cors({
 app.use('/api', newsApiRouter);   // → /api/news
 app.use('/api', cdPassRoute);     // → /api/cd-pass
 app.use('/api', disruptivePassRoute); // → /api/disruptive-pass
+app.use('/api', generateCampaignRouter); // → /api/generateCampaign
 
 // Optional: Health check route
 app.get("/api/health", (_req, res) => {
