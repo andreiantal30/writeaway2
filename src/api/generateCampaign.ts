@@ -46,6 +46,7 @@ router.post('/generate', async (req, res) => {
     // Log successful generation (without sensitive data)
     console.log('Campaign generated successfully for:', input.brand);
     
+    // Just send the response using res.json, no stringification needed
     return res.json(campaign);
   } catch (error) {
     // Improved error handling with more details

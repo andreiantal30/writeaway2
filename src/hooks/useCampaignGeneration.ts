@@ -135,7 +135,7 @@ export function useCampaignGeneration(openAIConfig: OpenAIConfig) {
           errorData = await response.json();
           console.error("Server error response:", errorData);
         } catch (jsonError) {
-          console.error("Failed to parse error response:", jsonError);
+          console.error("Failed to parse error response as JSON:", jsonError);
           
           try {
             const errorText = await clonedResponse.text();

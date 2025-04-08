@@ -11,7 +11,7 @@ router.get('/news-trends', async (req, res) => {
     // Check for a fetchNewsFromServer function instead of getNewsTrends
     if (typeof newsApi.fetchNewsFromServer === 'function') {
       const trends = await newsApi.fetchNewsFromServer();
-      return res.json(trends);
+      return res.json(trends); // Properly use res.json without double stringification
     } else {
       // Fallback if the function doesn't exist
       return res.json({ message: "News trends API not implemented" });
@@ -31,7 +31,7 @@ router.get('/reddit-trends', async (req, res) => {
     console.log('Reddit trends API request received');
     // Use fetchAndGenerateRedditTrends which is the correct exported function
     const trends = await fetchAndGenerateRedditTrends();
-    return res.json(trends);
+    return res.json(trends); // Properly use res.json without double stringification
   } catch (error) {
     console.error('Error fetching Reddit trends:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
