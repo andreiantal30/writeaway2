@@ -17,11 +17,19 @@ type CampaignOutput = {
   };
 };
 
+// Initialize OpenAI client with server-side API key
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
+  dangerouslyAllowBrowser: false,
 });
 
 export async function applyCreativeDirectorPass(generatedCampaign: CampaignOutput): Promise<CampaignOutput> {
+  // Verify API key is available
+  if (!process.env.OPENAI_API_KEY) {
+    console.error("Missing OpenAI API key in environment variables");
+    return generatedCampaign; // Return original if API key is missing
+  }
+
   const prompt = `
 You are a Cannes Lions-winning Creative Director. Improve this marketing campaign with sharper naming, cultural tension, emotional storytelling, and creative boldness.
 

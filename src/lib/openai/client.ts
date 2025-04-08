@@ -19,5 +19,7 @@ export function createOpenAIClient(): OpenAI {
     defaultQuery: {
       model: 'gpt-4o',
     },
+    // Explicitly prevent browser usage to avoid exposing the API key
+    dangerouslyAllowBrowser: false,
   });
 }

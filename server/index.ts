@@ -13,6 +13,11 @@ import disruptivePassRoute from './disruptivePass'; // ✅ Disruptive Pass route
 const app = express();
 const port = 8090;
 
+// Ensure OpenAI API key is available
+if (!process.env.OPENAI_API_KEY) {
+  console.error("❗ Missing OPENAI_API_KEY environment variable. Please check your .env file.");
+}
+
 app.use(express.json());
 
 app.use(cors({

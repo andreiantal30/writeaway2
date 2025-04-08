@@ -17,12 +17,20 @@ type CampaignOutput = {
 
 import OpenAI from 'openai';
 
+// Initialize OpenAI client with server-side API key
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
+  dangerouslyAllowBrowser: false,
 });
 
 export async function injectDisruptiveDevice(campaign: CampaignOutput): Promise<CampaignOutput> {
   try {
+    // Verify API key is available
+    if (!process.env.OPENAI_API_KEY) {
+      console.error("Missing OpenAI API key in environment variables");
+      return campaign; // Return original if API key is missing
+    }
+    
     const prompt = `
 You're a disruptive creative thinker. Review the following campaign and inject one unexpected creative twist that would make it more bold, viral, or culturally subversive.
 

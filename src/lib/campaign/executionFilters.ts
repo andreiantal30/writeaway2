@@ -2,6 +2,8 @@
 import { OpenAIConfig, generateWithOpenAI } from '../openai';
 import { CampaignInput, GeneratedCampaign } from './types';
 import { extractJsonFromResponse, safeJsonParse } from '../../utils/formatters';
+import { isServer } from '../utils/envVariables';
+import { createOpenAIClient } from '../openai/client';
 
 /**
  * Apply execution filters to improve campaign execution plan
@@ -53,7 +55,22 @@ Format your response as JSON:
 \`\`\`
 `;
 
-    const response = await generateWithOpenAI(prompt, config);
+    let response;
+    
+    // Use server-side API key if running on server
+    if (isServer()) {
+      const openai = createOpenAIClient();
+      const completion = await openai.chat.completions.create({
+        model: config.model || 'gpt-4o',
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.7,
+      });
+      response = completion.choices[0].message.content || '';
+    } else {
+      // Fall back to provided config (this would be the client-side path)
+      response = await generateWithOpenAI(prompt, config);
+    }
+    
     const cleanedResponse = extractJsonFromResponse(response);
     
     // Default fallback structure
