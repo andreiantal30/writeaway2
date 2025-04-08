@@ -5,7 +5,7 @@ import { fetchAndGenerateRedditTrends } from '../lib/fetchRedditTrends';
 
 const router = Router();
 
-// Fix: Use router.get instead of directly passing handler
+// Fixed: Use proper router.get pattern
 router.get('/news-trends', async (req: Request, res: Response) => {
   try {
     // Check for a fetchNewsFromServer function instead of getNewsTrends
