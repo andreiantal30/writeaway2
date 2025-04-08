@@ -16,9 +16,10 @@ interface CampaignHeaderProps {
   campaignName: string;
   brand: string;
   industry: string;
+  id?: string; // Added id as an optional prop to match usage in CampaignDetail
 }
 
-const CampaignHeader: React.FC<CampaignHeaderProps> = ({ campaignName, brand, industry }) => {
+const CampaignHeader: React.FC<CampaignHeaderProps> = ({ campaignName, brand, industry, id }) => {
   return (
     <div className="mb-8">
       <Breadcrumb className="mb-4">

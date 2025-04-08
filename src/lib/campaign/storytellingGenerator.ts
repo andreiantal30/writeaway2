@@ -47,7 +47,7 @@ Return a JSON object with these keys: hook, protagonist, conflict, journey, reso
 
   try {
     const response = await generateWithOpenAI(prompt, openAIConfig);
-    let storytellingData = {};
+    let storytellingData: Partial<StorytellingOutput> = {};
     
     try {
       // Try to parse as JSON first
@@ -68,9 +68,12 @@ Return a JSON object with these keys: hook, protagonist, conflict, journey, reso
       resolution: storytellingData.resolution || '',
       fullNarrative: storytellingData.fullNarrative || response.trim(),
       // Additional context fields if available
-      protagonistDescription: storytellingData.protagonist || '',
-      conflictDescription: storytellingData.conflict || '',
-      resolutionDescription: storytellingData.resolution || ''
+      protagonistDescription: storytellingData.protagonistDescription || storytellingData.protagonist || '',
+      conflictDescription: storytellingData.conflictDescription || storytellingData.conflict || '',
+      resolutionDescription: storytellingData.resolutionDescription || storytellingData.resolution || '',
+      brandValueConnection: storytellingData.brandValueConnection || '',
+      audienceRelevance: storytellingData.audienceRelevance || '',
+      storyNarrative: storytellingData.storyNarrative || storytellingData.fullNarrative || response.trim()
     };
 
     return result;
@@ -84,7 +87,13 @@ Return a JSON object with these keys: hook, protagonist, conflict, journey, reso
       conflict: "",
       journey: "",
       resolution: "",
-      fullNarrative: ""
+      fullNarrative: "",
+      protagonistDescription: "",
+      conflictDescription: "",
+      resolutionDescription: "",
+      brandValueConnection: "",
+      audienceRelevance: "",
+      storyNarrative: ""
     };
   }
 }
