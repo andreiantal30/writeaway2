@@ -1,9 +1,9 @@
 
-import { Router } from 'express';
+import express from 'express';
 import * as newsApi from '../lib/fetchNewsFromServer';
 import { fetchAndGenerateRedditTrends } from '../lib/fetchRedditTrends';
 
-const router = Router();
+const router = express.Router();
 
 router.get('/news-trends', async (req, res) => {
   try {

@@ -1,9 +1,9 @@
 
-import { Router } from 'express';
+import express from 'express';
 import { generateCampaign } from '../lib/campaign/generateCampaign';
 import { CampaignInput } from '../types/campaign';
 
-const router = Router();
+const router = express.Router();
 
 router.post('/generate', async (req, res) => {
   try {

@@ -1,14 +1,9 @@
 
+import { extractJsonFromResponse } from "../../utils/formatters";
+
 /**
- * Extracts JSON from a potentially markdown-formatted string
+ * Re-export the extractJsonFromResponse function from formatters
+ * for backward compatibility
  */
-export const extractJsonFromResponse = (text: string): string => {
-  const jsonRegex = /```(?:json)?\s*([\s\S]*?)```/;
-  const match = text.match(jsonRegex);
-  
-  if (match && match[1]) {
-    return match[1].trim();
-  }
-  
-  return text.trim();
-};
+export { extractJsonFromResponse };
+

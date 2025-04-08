@@ -135,37 +135,44 @@ export function useCampaignGeneration(openAIConfig: OpenAIConfig) {
           errorData = await response.json();
           console.error("Server error response:", errorData);
         } catch (jsonError) {
-          const errorText = await clonedResponse.text();
           console.error("Failed to parse error response:", jsonError);
-          console.error("Response status:", response.status);
-          console.error("Response text:", errorText);
-          throw new Error(`Server error (${response.status}): Unable to parse response`);
+          
+          try {
+            const errorText = await clonedResponse.text();
+            console.error("Response status:", clonedResponse.status);
+            console.error("Response text:", errorText);
+            throw new Error(`Server error (${clonedResponse.status}): ${errorText || 'Unable to parse response'}`);
+          } catch (textError) {
+            console.error("Failed to get response text:", textError);
+            throw new Error(`Server error (${clonedResponse.status}): Unable to parse response`);
+          }
         }
         
-        throw new Error(errorData.error || `Server error (${response.status}): ${errorData.message || 'Failed to generate campaign'}`);
+        throw new Error(errorData?.error || errorData?.message || `Server error (${response.status}): Failed to generate campaign`);
       }
       
-      const campaign = await response.json();
-      console.log("Campaign successfully parsed from JSON");
+      // Ensure we have a valid JSON response
+      const responseData = await response.json();
+      console.log("Campaign response successfully parsed from JSON");
       
-      if (campaign) {
+      if (responseData) {
         setCampaignVersions([{
           id: uuidv4(),
           versionTag: "original",
           timestamp: Date.now(),
-          campaign: { ...campaign }
+          campaign: { ...responseData }
         }]);
         
-        setGeneratedCampaign(campaign);
+        setGeneratedCampaign(responseData);
         
-        if (campaign && input.brand && input.industry) {
-          const savedCampaign = saveCampaignToLibrary(campaign, input.brand, input.industry);
+        if (responseData && input.brand && input.industry) {
+          const savedCampaign = saveCampaignToLibrary(responseData, input.brand, input.industry);
           if (savedCampaign) {
             toast.success("Campaign automatically saved to your library");
           }
         }
         
-        initializeChat(campaign, input);
+        initializeChat(responseData, input);
         return true;
       } else {
         throw new Error("Received empty campaign response from server");
