@@ -29,8 +29,8 @@ interface CampaignDetailViewProps {
 const CampaignDetailView: React.FC<CampaignDetailViewProps> = ({ campaign }) => {
   const [tab, setTab] = useState("overview");
   
-  const getStorytelling = (): StorytellingOutput | null => {
-    if (!campaign.campaign.storytelling) return null;
+  const getStorytelling = (): StorytellingOutput | undefined => {
+    if (!campaign.campaign.storytelling) return undefined;
     
     return {
       narrative: campaign.campaign.storytelling.fullNarrative || campaign.campaign.storytelling.narrative || '',
@@ -38,47 +38,33 @@ const CampaignDetailView: React.FC<CampaignDetailViewProps> = ({ campaign }) => 
       protagonistDescription: campaign.campaign.storytelling.protagonist || '',
       conflictDescription: campaign.campaign.storytelling.conflict || '',
       resolutionDescription: campaign.campaign.storytelling.resolution || '',
-      brandValueConnection: '',
-      hook: campaign.campaign.storytelling.hook,
-      protagonist: campaign.campaign.storytelling.protagonist,
-      conflict: campaign.campaign.storytelling.conflict,
-      journey: campaign.campaign.storytelling.journey,
-      resolution: campaign.campaign.storytelling.resolution,
-      fullNarrative: campaign.campaign.storytelling.fullNarrative
+      brandValueConnection: campaign.campaign.storytelling.brandValueConnection || '',
+      hook: campaign.campaign.storytelling.hook || '',
+      protagonist: campaign.campaign.storytelling.protagonist || '',
+      conflict: campaign.campaign.storytelling.conflict || '',
+      journey: campaign.campaign.storytelling.journey || '',
+      resolution: campaign.campaign.storytelling.resolution || '',
+      fullNarrative: campaign.campaign.storytelling.fullNarrative || ''
     };
   };
   
   const storytelling = getStorytelling();
   
-  const StorytellingSection = ({ storytelling }: { storytelling?: StorytellingOutput }) => {
-    if (!storytelling) return null;
-    
-    return (
-      <div className="space-y-4">
-        <div>
-          <h3 className="text-lg font-semibold">Narrative</h3>
-          <p>{storytelling.narrative}</p>
-        </div>
-        {storytelling.protagonistDescription && (
-          <div>
-            <h3 className="text-lg font-semibold">Protagonist</h3>
-            <p>{storytelling.protagonistDescription}</p>
-          </div>
-        )}
-        {storytelling.conflictDescription && (
-          <div>
-            <h3 className="text-lg font-semibold">Conflict</h3>
-            <p>{storytelling.conflictDescription}</p>
-          </div>
-        )}
-        {storytelling.resolutionDescription && (
-          <div>
-            <h3 className="text-lg font-semibold">Resolution</h3>
-            <p>{storytelling.resolutionDescription}</p>
-          </div>
-        )}
-      </div>
-    );
+  const safeCampaign = {
+    ...campaign.campaign,
+    strategy: campaign.campaign.strategy || "No strategy specified",
+    creativeStrategy: Array.isArray(campaign.campaign.creativeStrategy) ? campaign.campaign.creativeStrategy : [],
+    executionPlan: Array.isArray(campaign.campaign.executionPlan) ? campaign.campaign.executionPlan : [],
+    prHeadline: campaign.campaign.prHeadline || "No PR headline specified",
+    viralElement: campaign.campaign.viralElement || campaign.campaign.viralHook || "No viral element specified",
+    consumerInteraction: campaign.campaign.consumerInteraction || "No consumer interaction specified",
+    creativeInsights: campaign.campaign.creativeInsights || {
+      surfaceInsight: "No surface insight available",
+      emotionalUndercurrent: "No emotional undercurrent available",
+      creativeUnlock: "No creative unlock available"
+    },
+    narrativeAnchor: campaign.campaign.narrativeAnchor || undefined,
+    expectedOutcomes: Array.isArray(campaign.campaign.expectedOutcomes) ? campaign.campaign.expectedOutcomes : []
   };
   
   return (
@@ -101,13 +87,13 @@ const CampaignDetailView: React.FC<CampaignDetailViewProps> = ({ campaign }) => 
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm">{campaign.campaign.strategy}</p>
+                <p className="text-sm">{safeCampaign.strategy}</p>
                 
-                {campaign.campaign.creativeStrategy && (
+                {safeCampaign.creativeStrategy.length > 0 && (
                   <div className="mt-4">
                     <h3 className="text-sm font-medium mb-2">Creative Strategy</h3>
                     <div className="flex flex-wrap gap-2">
-                      {campaign.campaign.creativeStrategy.map((item, index) => (
+                      {safeCampaign.creativeStrategy.map((item, index) => (
                         <Badge key={index} variant="outline">{item}</Badge>
                       ))}
                     </div>
@@ -124,11 +110,11 @@ const CampaignDetailView: React.FC<CampaignDetailViewProps> = ({ campaign }) => 
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm">{campaign.campaign.keyMessage}</p>
+                <p className="text-sm">{safeCampaign.keyMessage || "No key message specified"}</p>
                 
                 <div className="mt-4">
                   <h3 className="text-sm font-medium mb-2">Call to Action</h3>
-                  <p className="text-sm">{campaign.campaign.callToAction}</p>
+                  <p className="text-sm">{safeCampaign.callToAction || "No call to action specified"}</p>
                 </div>
               </CardContent>
             </Card>
@@ -141,7 +127,7 @@ const CampaignDetailView: React.FC<CampaignDetailViewProps> = ({ campaign }) => 
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm">{campaign.campaign.prHeadline}</p>
+                <p className="text-sm">{safeCampaign.prHeadline}</p>
               </CardContent>
             </Card>
             
@@ -153,13 +139,13 @@ const CampaignDetailView: React.FC<CampaignDetailViewProps> = ({ campaign }) => 
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm">{campaign.campaign.viralElement}</p>
+                <p className="text-sm">{safeCampaign.viralElement}</p>
               </CardContent>
             </Card>
             
-            {campaign.campaign.braveryScores && (
+            {safeCampaign.braveryScores && (
               <div className="md:col-span-2">
-                <BraveryMatrix scores={campaign.campaign.braveryScores} />
+                <BraveryMatrix scores={safeCampaign.braveryScores} />
               </div>
             )}
           </div>
@@ -175,41 +161,35 @@ const CampaignDetailView: React.FC<CampaignDetailViewProps> = ({ campaign }) => 
             </CardHeader>
             <CardContent>
               <ul className="space-y-3">
-                {campaign.campaign.executionPlan.map((item, index) => (
-                  <li key={index} className="flex">
-                    <Badge className="shrink-0 mr-2 mt-0.5" variant="outline">{index + 1}</Badge>
-                    <p className="text-sm">{item}</p>
-                  </li>
-                ))}
+                {safeCampaign.executionPlan.length > 0 ? (
+                  safeCampaign.executionPlan.map((item, index) => (
+                    <li key={index} className="flex">
+                      <Badge className="shrink-0 mr-2 mt-0.5" variant="outline">{index + 1}</Badge>
+                      <p className="text-sm">{item}</p>
+                    </li>
+                  ))
+                ) : (
+                  <li>No execution plan specified</li>
+                )}
               </ul>
               
-              {campaign.campaign.executionFilterRationale && (
+              {safeCampaign.executionFilterRationale && (
                 <div className="mt-6 pt-4 border-t">
                   <h3 className="text-sm font-medium mb-2">Execution Rationale</h3>
-                  <p className="text-sm text-muted-foreground">{campaign.campaign.executionFilterRationale}</p>
+                  <p className="text-sm text-muted-foreground">{safeCampaign.executionFilterRationale}</p>
                 </div>
               )}
               
               <div className="mt-6 pt-4 border-t">
                 <h3 className="text-sm font-medium mb-2">Consumer Interaction</h3>
-                <p className="text-sm">{campaign.campaign.consumerInteraction}</p>
+                <p className="text-sm">{safeCampaign.consumerInteraction}</p>
               </div>
             </CardContent>
           </Card>
           
           {storytelling && (
             <div className="mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center">
-                    <FileText className="h-4 w-4 mr-2 text-primary" />
-                    Storytelling Narrative
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <StorytellingNarrative storytelling={storytelling} />
-                </CardContent>
-              </Card>
+              <StorytellingNarrative storytelling={storytelling} />
             </div>
           )}
         </TabsContent>
@@ -225,29 +205,29 @@ const CampaignDetailView: React.FC<CampaignDetailViewProps> = ({ campaign }) => 
             <CardContent className="space-y-4">
               <div>
                 <h3 className="text-sm font-medium mb-1">Surface Insight</h3>
-                <p className="text-sm text-muted-foreground">{campaign.campaign.creativeInsights.surfaceInsight}</p>
+                <p className="text-sm text-muted-foreground">{safeCampaign.creativeInsights.surfaceInsight}</p>
               </div>
               <div>
                 <h3 className="text-sm font-medium mb-1">Emotional Undercurrent</h3>
-                <p className="text-sm text-muted-foreground">{campaign.campaign.creativeInsights.emotionalUndercurrent}</p>
+                <p className="text-sm text-muted-foreground">{safeCampaign.creativeInsights.emotionalUndercurrent}</p>
               </div>
               <div>
                 <h3 className="text-sm font-medium mb-1">Creative Unlock</h3>
-                <p className="text-sm text-muted-foreground">{campaign.campaign.creativeInsights.creativeUnlock}</p>
+                <p className="text-sm text-muted-foreground">{safeCampaign.creativeInsights.creativeUnlock}</p>
               </div>
               
-              {campaign.campaign.narrativeAnchor && (
+              {safeCampaign.narrativeAnchor && (
                 <div className="mt-6 pt-4 border-t">
                   <h3 className="text-sm font-medium mb-2">Narrative Anchors</h3>
                   <ul className="space-y-2">
-                    {campaign.campaign.narrativeAnchor.anchors.map((anchor, index) => (
+                    {safeCampaign.narrativeAnchor.anchors.map((anchor, index) => (
                       <li key={index} className="flex">
                         <Badge className="shrink-0 mr-2 mt-0.5" variant="outline">{index + 1}</Badge>
                         <p className="text-sm">{anchor}</p>
                       </li>
                     ))}
                   </ul>
-                  <p className="text-xs text-muted-foreground mt-3">{campaign.campaign.narrativeAnchor.rationale}</p>
+                  <p className="text-xs text-muted-foreground mt-3">{safeCampaign.narrativeAnchor.rationale}</p>
                 </div>
               )}
             </CardContent>
@@ -255,7 +235,7 @@ const CampaignDetailView: React.FC<CampaignDetailViewProps> = ({ campaign }) => 
         </TabsContent>
         
         <TabsContent value="evaluation" className="mt-6">
-          {campaign.campaign.evaluation ? (
+          {safeCampaign.evaluation ? (
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center">
@@ -270,7 +250,7 @@ const CampaignDetailView: React.FC<CampaignDetailViewProps> = ({ campaign }) => 
                       <span className="text-green-500 mr-1.5">+</span> Strengths
                     </h3>
                     <ul className="space-y-1">
-                      {campaign.campaign.evaluation.strengths.map((strength, index) => (
+                      {safeCampaign.evaluation.strengths.map((strength, index) => (
                         <li key={index} className="text-sm flex items-start">
                           <span className="text-green-500 mr-1.5">•</span> {strength}
                         </li>
@@ -283,7 +263,7 @@ const CampaignDetailView: React.FC<CampaignDetailViewProps> = ({ campaign }) => 
                       <span className="text-amber-500 mr-1.5">→</span> Opportunities
                     </h3>
                     <ul className="space-y-1">
-                      {campaign.campaign.evaluation.opportunities.map((opportunity, index) => (
+                      {safeCampaign.evaluation.opportunities.map((opportunity, index) => (
                         <li key={index} className="text-sm flex items-start">
                           <span className="text-amber-500 mr-1.5">•</span> {opportunity}
                         </li>
@@ -296,7 +276,7 @@ const CampaignDetailView: React.FC<CampaignDetailViewProps> = ({ campaign }) => 
                       <span className="text-red-500 mr-1.5">!</span> Risks
                     </h3>
                     <ul className="space-y-1">
-                      {campaign.campaign.evaluation.risks.map((risk, index) => (
+                      {safeCampaign.evaluation.risks.map((risk, index) => (
                         <li key={index} className="text-sm flex items-start">
                           <span className="text-red-500 mr-1.5">•</span> {risk}
                         </li>
@@ -306,8 +286,8 @@ const CampaignDetailView: React.FC<CampaignDetailViewProps> = ({ campaign }) => 
                   
                   <div className="pt-4 border-t flex items-center justify-between">
                     <span className="font-medium">Overall Score:</span>
-                    <Badge variant={campaign.campaign.evaluation.overallScore >= 8 ? "default" : campaign.campaign.evaluation.overallScore >= 6 ? "secondary" : "outline"}>
-                      {campaign.campaign.evaluation.overallScore}/10
+                    <Badge variant={safeCampaign.evaluation.overallScore >= 8 ? "default" : safeCampaign.evaluation.overallScore >= 6 ? "secondary" : "outline"}>
+                      {safeCampaign.evaluation.overallScore}/10
                     </Badge>
                   </div>
                 </div>
@@ -319,7 +299,7 @@ const CampaignDetailView: React.FC<CampaignDetailViewProps> = ({ campaign }) => 
             </div>
           )}
           
-          {campaign.campaign.expectedOutcomes && campaign.campaign.expectedOutcomes.length > 0 && (
+          {safeCampaign.expectedOutcomes.length > 0 && (
             <div className="mt-6">
               <Card>
                 <CardHeader>
@@ -330,7 +310,7 @@ const CampaignDetailView: React.FC<CampaignDetailViewProps> = ({ campaign }) => 
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-1">
-                    {campaign.campaign.expectedOutcomes.map((outcome, index) => (
+                    {safeCampaign.expectedOutcomes.map((outcome, index) => (
                       <li key={index} className="flex items-start">
                         <span className="text-primary mr-2">•</span>
                         <span className="text-sm">{outcome}</span>

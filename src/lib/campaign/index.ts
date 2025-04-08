@@ -11,7 +11,7 @@ export type {
 } from './types';
 
 // Re-export CampaignInput from the central location
-export type { CampaignInput } from '../types/campaign';
+export type { CampaignInput } from '../../types/campaign';
 
 export { generateCampaign } from './generateCampaign';
 export { calculateBraveryMatrix } from './calculateBraveryMatrix';

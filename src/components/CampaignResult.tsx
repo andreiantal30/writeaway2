@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
@@ -70,14 +71,29 @@ const CampaignResult: React.FC<CampaignResultProps> = ({
       setIsSubmittingFeedback(false);
     }
   };
+
+  // Create safe campaign with fallbacks for all potentially undefined properties
+  const safeCampaign = {
+    campaignName: campaign.campaignName || "Untitled Campaign",
+    keyMessage: campaign.keyMessage || "No key message available",
+    emotionalAppeal: Array.isArray(campaign.emotionalAppeal) ? campaign.emotionalAppeal : [],
+    callToAction: campaign.callToAction || campaign.consumerInteraction || "No call to action specified",
+    viralElement: campaign.viralElement || campaign.viralHook || "No viral element specified",
+    viralHook: campaign.viralHook || campaign.viralElement || "No viral hook specified",
+    creativeStrategy: Array.isArray(campaign.creativeStrategy) ? campaign.creativeStrategy : [],
+    executionPlan: Array.isArray(campaign.executionPlan) ? campaign.executionPlan : [],
+    expectedOutcomes: Array.isArray(campaign.expectedOutcomes) ? campaign.expectedOutcomes : [],
+    referenceCampaigns: Array.isArray(campaign.referenceCampaigns) ? campaign.referenceCampaigns : [],
+    braveryScores: campaign.braveryScores || undefined
+  };
   
   return (
     <div className="space-y-6 mb-8">
       <Card className="overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 border-b">
-          <CardTitle className="text-2xl md:text-3xl">{campaign.campaignName}</CardTitle>
+          <CardTitle className="text-2xl md:text-3xl">{safeCampaign.campaignName}</CardTitle>
           <CardDescription className="text-lg md:text-xl font-medium text-foreground/90">
-            {campaign.keyMessage}
+            {safeCampaign.keyMessage}
           </CardDescription>
         </CardHeader>
         <CardContent className="p-6">
@@ -107,7 +123,7 @@ const CampaignResult: React.FC<CampaignResultProps> = ({
                     </div>
                   )}
                 </h3>
-                <p>{campaign.keyMessage}</p>
+                <p>{safeCampaign.keyMessage}</p>
               </div>
               
               <Separator />
@@ -136,42 +152,39 @@ const CampaignResult: React.FC<CampaignResultProps> = ({
                     </div>
                   )}
                 </h3>
-                <p className="font-medium">{campaign.campaignName}</p>
+                <p className="font-medium">{safeCampaign.campaignName}</p>
               </div>
               
-              {campaign.emotionalAppeal && campaign.emotionalAppeal.length > 0 && (
+              {safeCampaign.emotionalAppeal.length > 0 && (
                 <>
                   <Separator />
                   <div className="space-y-2">
                     <h3 className="font-medium text-lg text-primary">Emotional & Strategic Hooks</h3>
                     <ul className="list-disc list-inside space-y-2 pl-2">
-                      {Array.isArray(campaign.emotionalAppeal) ? 
-                        campaign.emotionalAppeal.map((appeal, index) => (
-                          <li key={index} className="pl-1"><span className="ml-1">{appeal}</span></li>
-                        )) : 
-                        <li className="pl-1"><span className="ml-1">{campaign.emotionalAppeal}</span></li>
-                      }
+                      {safeCampaign.emotionalAppeal.map((appeal, index) => (
+                        <li key={index} className="pl-1"><span className="ml-1">{appeal}</span></li>
+                      ))}
                     </ul>
                   </div>
                 </>
               )}
               
-              {(campaign.callToAction || campaign.consumerInteraction) && (
+              {safeCampaign.callToAction && (
                 <>
                   <Separator />
                   <div className="space-y-2">
                     <h3 className="font-medium text-lg text-primary">Call to Action</h3>
-                    <p>{campaign.callToAction || campaign.consumerInteraction}</p>
+                    <p>{safeCampaign.callToAction}</p>
                   </div>
                 </>
               )}
 
-              {(campaign.viralElement || campaign.viralHook) && (
+              {safeCampaign.viralElement && (
                 <>
                   <Separator />
                   <div className="space-y-2">
                     <h3 className="font-medium text-lg text-primary">Viral Element</h3>
-                    <p>{campaign.viralElement || campaign.viralHook}</p>
+                    <p>{safeCampaign.viralElement}</p>
                   </div>
                 </>
               )}
@@ -203,11 +216,11 @@ const CampaignResult: React.FC<CampaignResultProps> = ({
                   )}
                 </h3>
                 <ul className="list-disc pl-5 space-y-2">
-                  {Array.isArray(campaign.creativeStrategy) ? 
-                    campaign.creativeStrategy.map((strategy, index) => (
+                  {safeCampaign.creativeStrategy.length > 0 ? 
+                    safeCampaign.creativeStrategy.map((strategy, index) => (
                       <li key={index}>{strategy}</li>
                     )) : 
-                    <li>{campaign.creativeStrategy}</li>
+                    <li>No creative strategy specified</li>
                   }
                 </ul>
               </div>
@@ -239,51 +252,48 @@ const CampaignResult: React.FC<CampaignResultProps> = ({
                   )}
                 </h3>
                 <ol className="list-decimal pl-5 space-y-2">
-                  {Array.isArray(campaign.executionPlan) ? 
-                    campaign.executionPlan.map((execution, index) => (
+                  {safeCampaign.executionPlan.length > 0 ? 
+                    safeCampaign.executionPlan.map((execution, index) => (
                       <li key={index} className="pl-1">
                         <span className="ml-1">{execution}</span>
                       </li>
                     )) : 
-                    <li>{campaign.executionPlan}</li>
+                    <li>No execution plan specified</li>
                   }
                 </ol>
               </div>
               
-              {campaign.braveryScores && (
-                <BraveryMatrix scores={campaign.braveryScores} />
+              {safeCampaign.braveryScores && (
+                <BraveryMatrix scores={safeCampaign.braveryScores} />
               )}
               
-              {campaign.expectedOutcomes && campaign.expectedOutcomes.length > 0 && (
+              {safeCampaign.expectedOutcomes.length > 0 && (
                 <>
                   <Separator />
                   <div className="space-y-2">
                     <h3 className="font-medium text-lg text-primary">Expected Outcomes</h3>
                     <ul className="list-disc pl-5 space-y-2">
-                      {Array.isArray(campaign.expectedOutcomes) ? 
-                        campaign.expectedOutcomes.map((outcome, index) => (
-                          <li key={index} className="pl-1">
-                            <span className="ml-1">{outcome}</span>
-                          </li>
-                        )) : 
-                        <li>{campaign.expectedOutcomes}</li>
-                      }
+                      {safeCampaign.expectedOutcomes.map((outcome, index) => (
+                        <li key={index} className="pl-1">
+                          <span className="ml-1">{outcome}</span>
+                        </li>
+                      ))}
                     </ul>
                   </div>
                 </>
               )}
               
-              {campaign.referenceCampaigns && campaign.referenceCampaigns.length > 0 && (
+              {safeCampaign.referenceCampaigns.length > 0 && (
                 <>
                   <Separator />
                   <div className="space-y-3">
                     <h3 className="font-medium text-lg text-primary">Reference Campaigns</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {campaign.referenceCampaigns.map((refCampaign, index) => (
+                      {safeCampaign.referenceCampaigns.map((refCampaign, index) => (
                         <div key={index} className="bg-muted/40 p-3 rounded-lg border border-muted">
-                          <h4 className="font-medium">{refCampaign.name}</h4>
+                          <h4 className="font-medium">{refCampaign.name || "Unnamed Campaign"}</h4>
                           <p className="text-sm text-muted-foreground">
-                            <span className="font-medium">{refCampaign.brand}</span>
+                            <span className="font-medium">{refCampaign.brand || "Unknown Brand"}</span>
                             {refCampaign.industry && (
                               <> · {refCampaign.industry}</>
                             )}

@@ -1,18 +1,28 @@
 
-import express, { Router, Request, Response } from 'express';
+import express, { Request, Response, Router } from 'express';
+import * as newsApi from '../lib/fetchNewsFromServer';
+import * as redditApi from '../lib/fetchRedditTrends';
 
 const router = Router();
 
-// Define API route handlers
 router.get('/news-trends', (req: Request, res: Response) => {
   try {
-    // Implementation
-    return res.json({ message: "News trends endpoint" });
+    const trends = newsApi.getNewsTrends();
+    return res.json(trends);
   } catch (error) {
-    console.error("Error fetching news trends:", error);
-    return res.status(500).json({ error: "Failed to fetch news trends" });
+    console.error('Error fetching news trends:', error);
+    return res.status(500).json({ error: 'Failed to fetch news trends' });
   }
 });
 
-// Export the router
+router.get('/reddit-trends', (req: Request, res: Response) => {
+  try {
+    const trends = redditApi.getRedditTrends();
+    return res.json(trends);
+  } catch (error) {
+    console.error('Error fetching Reddit trends:', error);
+    return res.status(500).json({ error: 'Failed to fetch Reddit trends' });
+  }
+});
+
 export default router;

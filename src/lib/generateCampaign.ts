@@ -1,10 +1,16 @@
 
 // Re-export everything from campaign/generateCampaign.ts and types for backward compatibility
 export { 
-  generateCampaign,
-  applyEmotionalRebalance,
-  calculateBraveryMatrix
+  generateCampaign
 } from './campaign/generateCampaign';
+
+export { 
+  applyEmotionalRebalance 
+} from './campaign/emotionalRebalance';
+
+export { 
+  calculateBraveryMatrix 
+} from './campaign/calculateBraveryMatrix';
 
 export type {
   CampaignInput,

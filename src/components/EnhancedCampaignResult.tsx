@@ -22,10 +22,27 @@ const EnhancedCampaignResult: React.FC<EnhancedCampaignResultProps> = ({
   showFeedbackForm = false,
   onRefine 
 }) => {
+  // Create safe campaign object with defaults
+  const safeCampaign = {
+    campaignName: campaign.campaignName || "Untitled Campaign",
+    keyMessage: campaign.keyMessage || "No insight available",
+    creativeInsights: campaign.creativeInsights || {
+      surfaceInsight: "No surface insight available",
+      emotionalUndercurrent: "No emotional undercurrent available",
+      creativeUnlock: "No creative unlock available"
+    },
+    emotionalAppeal: Array.isArray(campaign.emotionalAppeal) ? campaign.emotionalAppeal : [],
+    callToAction: campaign.callToAction || campaign.consumerInteraction || "No call to action available",
+    creativeStrategy: Array.isArray(campaign.creativeStrategy) ? campaign.creativeStrategy : [],
+    executionPlan: Array.isArray(campaign.executionPlan) ? campaign.executionPlan : [],
+    expectedOutcomes: Array.isArray(campaign.expectedOutcomes) ? campaign.expectedOutcomes : [],
+    referenceCampaigns: Array.isArray(campaign.referenceCampaigns) ? campaign.referenceCampaigns : []
+  };
+
   return (
     <Card className="border shadow-md overflow-hidden">
       <CardHeader className="bg-gradient-to-r from-amber-50 to-amber-100/50 dark:from-amber-950/30 dark:to-amber-900/20 border-b">
-        <CardTitle className="text-xl font-bold text-center">{campaign.campaignName || "Untitled Campaign"}</CardTitle>
+        <CardTitle className="text-xl font-bold text-center">{safeCampaign.campaignName}</CardTitle>
       </CardHeader>
       
       <CardContent className="p-6">
@@ -36,7 +53,7 @@ const EnhancedCampaignResult: React.FC<EnhancedCampaignResultProps> = ({
             {/* The Insight / Key Message */}
             <div className="space-y-2">
               <h3 className="text-lg font-semibold text-primary">The Insight</h3>
-              <p className="text-md">{campaign.keyMessage || "No insight available"}</p>
+              <p className="text-md">{safeCampaign.keyMessage}</p>
             </div>
             
             <Separator className="my-4" />
@@ -44,7 +61,7 @@ const EnhancedCampaignResult: React.FC<EnhancedCampaignResultProps> = ({
             {/* The Idea / Campaign Name */}
             <div className="space-y-2">
               <h3 className="text-lg font-semibold text-primary">The Idea</h3>
-              <p className="text-md font-medium">{campaign.campaignName || "Untitled Campaign"}</p>
+              <p className="text-md font-medium">{safeCampaign.campaignName}</p>
             </div>
             
             {/* Display Creative Insights if available */}
@@ -57,22 +74,22 @@ const EnhancedCampaignResult: React.FC<EnhancedCampaignResultProps> = ({
                     <h3 className="text-lg font-semibold text-primary">Creative Insights</h3>
                   </div>
                   <ul className="list-disc pl-5 space-y-1">
-                    <li className="text-md italic">{campaign.creativeInsights.surfaceInsight || "No surface insight available"}</li>
-                    <li className="text-md italic">{campaign.creativeInsights.emotionalUndercurrent || "No emotional undercurrent available"}</li>
-                    <li className="text-md italic">{campaign.creativeInsights.creativeUnlock || "No creative unlock available"}</li>
+                    <li className="text-md italic">{safeCampaign.creativeInsights.surfaceInsight}</li>
+                    <li className="text-md italic">{safeCampaign.creativeInsights.emotionalUndercurrent}</li>
+                    <li className="text-md italic">{safeCampaign.creativeInsights.creativeUnlock}</li>
                   </ul>
                 </div>
               </>
             )}
             
             {/* Emotional Appeal / Strategic Hooks */}
-            {campaign.emotionalAppeal && campaign.emotionalAppeal.length > 0 && (
+            {safeCampaign.emotionalAppeal.length > 0 && (
               <>
                 <Separator className="my-4" />
                 <div className="space-y-2">
                   <h3 className="text-lg font-semibold text-primary">Emotional & Strategic Hooks</h3>
                   <ul className="list-disc pl-5 space-y-1">
-                    {campaign.emotionalAppeal.map((appeal, index) => (
+                    {safeCampaign.emotionalAppeal.map((appeal, index) => (
                       <li key={index} className="text-md">{appeal}</li>
                     ))}
                   </ul>
@@ -81,12 +98,12 @@ const EnhancedCampaignResult: React.FC<EnhancedCampaignResultProps> = ({
             )}
             
             {/* Call to Action */}
-            {(campaign.callToAction || campaign.consumerInteraction) && (
+            {safeCampaign.callToAction && (
               <>
                 <Separator className="my-4" />
                 <div className="space-y-2">
                   <h3 className="text-lg font-semibold text-primary">Call to Action</h3>
-                  <p className="text-md">{campaign.callToAction || campaign.consumerInteraction || "No call to action available"}</p>
+                  <p className="text-md">{safeCampaign.callToAction}</p>
                 </div>
               </>
             )}
@@ -100,8 +117,8 @@ const EnhancedCampaignResult: React.FC<EnhancedCampaignResultProps> = ({
               <div className="space-y-4">
                 <p className="text-md">Implementation strategy to bring the idea to life:</p>
                 <ul className="list-decimal pl-5 space-y-2">
-                  {campaign.creativeStrategy && Array.isArray(campaign.creativeStrategy) && campaign.creativeStrategy.length > 0 
-                    ? campaign.creativeStrategy.map((strategy, index) => (
+                  {safeCampaign.creativeStrategy.length > 0 
+                    ? safeCampaign.creativeStrategy.map((strategy, index) => (
                       <li key={index} className="text-md">{strategy}</li>
                     ))
                     : <li className="text-md">Strategy details not available</li>
@@ -116,8 +133,8 @@ const EnhancedCampaignResult: React.FC<EnhancedCampaignResultProps> = ({
             <div className="space-y-2">
               <h3 className="text-lg font-semibold text-primary">Execution Plan</h3>
               <ol className="list-decimal pl-5 space-y-2">
-                {campaign.executionPlan && campaign.executionPlan.length > 0 
-                  ? campaign.executionPlan.map((execution, index) => (
+                {safeCampaign.executionPlan.length > 0 
+                  ? safeCampaign.executionPlan.map((execution, index) => (
                     <li key={index} className="text-md">{execution}</li>
                   ))
                   : <li className="text-md">Execution details not available</li>
@@ -126,13 +143,13 @@ const EnhancedCampaignResult: React.FC<EnhancedCampaignResultProps> = ({
             </div>
             
             {/* Expected Outcomes */}
-            {campaign.expectedOutcomes && campaign.expectedOutcomes.length > 0 && (
+            {safeCampaign.expectedOutcomes.length > 0 && (
               <>
                 <Separator className="my-4" />
                 <div className="space-y-2">
                   <h3 className="text-lg font-semibold text-primary">Expected Outcomes</h3>
                   <ul className="list-disc pl-5 space-y-2">
-                    {campaign.expectedOutcomes.map((outcome, index) => (
+                    {safeCampaign.expectedOutcomes.map((outcome, index) => (
                       <li key={index} className="text-md">{outcome}</li>
                     ))}
                   </ul>
@@ -141,13 +158,13 @@ const EnhancedCampaignResult: React.FC<EnhancedCampaignResultProps> = ({
             )}
             
             {/* Reference Campaigns */}
-            {campaign.referenceCampaigns && campaign.referenceCampaigns.length > 0 && (
+            {safeCampaign.referenceCampaigns.length > 0 && (
               <>
                 <Separator className="my-4" />
                 <div className="space-y-2">
                   <h3 className="text-lg font-semibold text-primary">Reference Campaigns</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-                    {campaign.referenceCampaigns.map((refCampaign, index) => (
+                    {safeCampaign.referenceCampaigns.map((refCampaign, index) => (
                       <div key={index} className="bg-muted/40 p-3 rounded-lg border border-muted">
                         <h4 className="font-medium text-sm">{refCampaign.name || "Unnamed Campaign"}</h4>
                         <p className="text-xs text-muted-foreground mt-1">
@@ -171,7 +188,7 @@ const EnhancedCampaignResult: React.FC<EnhancedCampaignResultProps> = ({
         {/* Creative Director Feedback Section */}
         {campaign.evaluation && (
           <div className="mt-6">
-            <CreativeDirectorFeedback feedback={campaign.evaluation as CampaignEvaluation} />
+            <CreativeDirectorFeedback feedback={campaign.evaluation} />
           </div>
         )}
         
