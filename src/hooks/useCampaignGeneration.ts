@@ -1,3 +1,4 @@
+
 import { useState, useRef } from "react";
 import { CampaignInput, GeneratedCampaign, CampaignVersion } from "@/lib/generateCampaign";
 import { OpenAIConfig } from "@/lib/openai";
@@ -111,10 +112,7 @@ export function useCampaignGeneration(openAIConfig: OpenAIConfig) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          input,
-          model: openAIConfig.model
-        }),
+        body: JSON.stringify(input),
       });
       
       if (!response.ok) {

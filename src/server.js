@@ -1,50 +1,33 @@
+
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const cdPassRouter = require('./server/cdPass');
 const disruptivePassRouter = require('./server/disruptivePass');
+const generateCampaignRouter = require('./src/api/generateCampaign');
+const dataSourcesRouter = require('./src/api/data-sources');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  next();
+});
 
 // API routes
-app.use('/api', require('./api/data-sources'));
+app.use('/api', dataSourcesRouter);
 app.use('/api', cdPassRouter);
 app.use('/api', disruptivePassRouter);
+app.use('/api', generateCampaignRouter);
 
-// OpenAI proxy endpoint (to keep API key server-side)
-app.post('/api/generateCampaign', async (req, res) => {
-  try {
-    const { input } = req.body;
-    
-    // Import the necessary modules
-    const { generateCampaign } = require('./lib/campaign/generateCampaign');
-    
-    // Generate campaign using server-side API key
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-      return res.status(500).json({ error: "OpenAI API key not configured" });
-    }
-    
-    // Create config with server-side API key
-    const config = {
-      apiKey,
-      model: req.body.model || 'gpt-4o'
-    };
-    
-    // Generate campaign
-    const campaign = await generateCampaign(input, config);
-    
-    res.json(campaign);
-  } catch (error) {
-    console.error("Error generating campaign:", error);
-    res.status(500).json({ error: error.message || "Failed to generate campaign" });
-  }
+// Health check route
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 // Serve static files in production
@@ -57,7 +40,18 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error('Unhandled error in request:', err);
+  res.status(500).json({
+    error: 'Server error',
+    message: err.message || 'Unknown error occurred',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`OpenAI API key ${process.env.OPENAI_API_KEY ? 'is' : 'is NOT'} configured`);
 });
