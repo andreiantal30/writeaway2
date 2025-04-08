@@ -16,66 +16,7 @@ import { applyExecutionFilters } from './executionFilters';
 import { ReferenceCampaign, CulturalTrend, CreativeDevice } from '../../types/campaign';
 
 /**
- * Apply Creative Director pass to improve campaign quality
- */
-const applyCreativeDirectorPass = async (rawOutput: any) => {
-  try {
-    const res = await fetch('/api/cd-pass', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(rawOutput),
-    });
-    
-    if (!res.ok) {
-      console.error(`CD pass API error: ${res.status}`);
-      return rawOutput; // Return original if API fails
-    }
-    
-    return await res.json();
-  } catch (err) {
-    console.error("CD pass failed:", err);
-    return rawOutput; // Return original if API fails
-  }
-};
-
-/**
- * Apply Cannes Spike to add award-worthy tactics if missing
- */
-const applyCannesSpike = async (campaign: Partial<GeneratedCampaign>, openAIConfig: OpenAIConfig) => {
-  // Only apply if not already present in executionPlan
-  const hasCannesWorthy = campaign.executionPlan?.some(item => 
-    item.toLowerCase().includes("disrupt") || 
-    item.toLowerCase().includes("innovate") || 
-    item.toLowerCase().includes("first-ever")
-  );
-  
-  if (!hasCannesWorthy && campaign.executionPlan) {
-    try {
-      const prompt = `
-You are an award-winning creative director reviewing this campaign execution plan:
-${campaign.executionPlan.join('\n')}
-
-Add ONE bold, Cannes Lions worthy tactic that would elevate this campaign to award-winning status. 
-It should be unexpected, culturally relevant, and technically innovative. 
-Return ONLY the new tactic as plain text, no explanation or commentary.
-`;
-      
-      const response = await generateWithOpenAI(prompt, openAIConfig);
-      
-      if (response && response.trim()) {
-        campaign.executionPlan.push(response.trim());
-        console.log("🏆 Cannes Spike added");
-      }
-    } catch (err) {
-      console.error("⚠️ Cannes Spike failed:", err);
-    }
-  }
-  
-  return campaign;
-};
-
-/**
- * Apply insight scoring to analyze quality of insights
+ * Apply Insight scoring to analyze quality of insights
  */
 const applyInsightScoring = async (campaign: Partial<GeneratedCampaign>, openAIConfig: OpenAIConfig) => {
   if (!campaign.creativeInsights) return campaign;
@@ -129,6 +70,92 @@ Return ONLY a JSON object with scores, no explanation:
 };
 
 /**
+ * Apply Cannes Spike to add award-worthy tactics if missing
+ */
+const applyCannesSpike = async (campaign: Partial<GeneratedCampaign>, openAIConfig: OpenAIConfig) => {
+  // Only apply if not already present in executionPlan
+  if (!campaign.executionPlan) return campaign;
+  
+  const hasCannesWorthy = campaign.executionPlan.some(item => 
+    item.toLowerCase().includes("disrupt") || 
+    item.toLowerCase().includes("innovate") || 
+    item.toLowerCase().includes("first-ever")
+  );
+  
+  if (!hasCannesWorthy) {
+    try {
+      const prompt = `
+You are an award-winning creative director reviewing this campaign execution plan:
+${campaign.executionPlan.join('\n')}
+
+Add ONE bold, Cannes Lions worthy tactic that would elevate this campaign to award-winning status. 
+It should be unexpected, culturally relevant, and technically innovative. 
+Return ONLY the new tactic as plain text, no explanation or commentary.
+`;
+      
+      const response = await generateWithOpenAI(prompt, openAIConfig);
+      
+      if (response && response.trim()) {
+        campaign.executionPlan.push(response.trim());
+        console.log("🏆 Cannes Spike added");
+      }
+    } catch (err) {
+      console.error("⚠️ Cannes Spike failed:", err);
+    }
+  }
+  
+  return campaign;
+};
+
+/**
+ * Apply Creative Director pass to improve campaign quality
+ */
+const applyCreativeDirectorPass = async (rawOutput: any) => {
+  try {
+    const res = await fetch('/api/cd-pass', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(rawOutput),
+    });
+    
+    if (!res.ok) {
+      console.error(`CD pass API error: ${res.status}`);
+      return rawOutput; // Return original if API fails
+    }
+    
+    return await res.json();
+  } catch (err) {
+    console.error("CD pass failed:", err);
+    return rawOutput; // Return original if API fails
+  }
+};
+
+/**
+ * Apply Disruptive Device via API
+ */
+const applyDisruptivePass = async (campaign: Partial<GeneratedCampaign>) => {
+  try {
+    const res = await fetch('/api/disruptive-pass', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(campaign),
+    });
+
+    if (!res.ok) {
+      throw new Error(`Disruptive pass API error: ${res.status}`);
+    }
+    
+    const jsonResponse = await res.json();
+    console.log("🎯 Disruptive twist added");
+    return jsonResponse;
+  } catch (err) {
+    console.error("⚠️ Disruptive device injection failed:", err);
+    toast.error("Disruptive enhancement failed, using base campaign");
+    return campaign;
+  }
+};
+
+/**
  * Main function to generate a campaign using AI
  */
 export const generateCampaign = async (
@@ -152,7 +179,7 @@ export const generateCampaign = async (
     );
 
     // Select creative devices based on campaign style
-    const creativeDevices = getCreativeDevicesForStyle(input.campaignStyle, 3);
+    const creativeDevices = getCreativeDevicesForStyle(input.campaignStyle || 'bold', 3);
     console.log("Selected Creative Devices:", creativeDevices.map(d => d.name));
     
     // Get relevant cultural trends
@@ -210,79 +237,71 @@ export const generateCampaign = async (
     };
     
     // Use safe JSON parse with fallback
-    const generatedContent = safeJsonParse(cleanedResponse, defaultCampaign);
+    let generatedContent = safeJsonParse(cleanedResponse, defaultCampaign);
 
-    // ===== POST-GENERATION LAYERS =====
+    // ===== POST-GENERATION LAYERS (NEW SEQUENCE) =====
     
-    // 1. Apply Creative Director refinement
-    let improvedContent = generatedContent;
-    try {
-      improvedContent = await applyCreativeDirectorPass(generatedContent);
-      console.log("✅ CD pass applied");
-    } catch (err) {
-      console.error("⚠️ CD pass failed:", err);
-    }
+    // Initialize a campaign object with the required fields
+    let campaign: Partial<GeneratedCampaign> = {
+      ...generatedContent,
+      creativeInsights: creativeInsights,
+      emotionalAppeal: input.emotionalAppeal,
+      brand: input.brand,
+      referenceCampaigns
+    };
+    
+    // ===== 1. Apply Insight Scoring =====
+    campaign = await applyInsightScoring(campaign, openAIConfig);
+    console.log("✅ Insight scoring applied");
 
-    // 2. Apply Strategy Booster
-    improvedContent = await applyStrategyBooster(improvedContent, input, openAIConfig);
+    // ===== 2. Apply Strategy Booster =====
+    campaign = await applyStrategyBooster(campaign, input, openAIConfig);
+    console.log("✅ Strategy booster applied");
     
-    // 3. Add Narrative Anchor
-    improvedContent = await addNarrativeAnchor(improvedContent, input, openAIConfig);
+    // ===== 3. Add Narrative Anchor =====
+    campaign = await addNarrativeAnchor(campaign, input, openAIConfig);
+    console.log("✅ Narrative anchor added");
     
-    // 4. Apply Execution Filters (reduces to 4-5 boldest ideas)
-    improvedContent = await applyExecutionFilters(improvedContent, input, openAIConfig);
+    // ===== 4. Apply Execution Filters (reduces to 4-5 boldest ideas) =====
+    campaign = await applyExecutionFilters(campaign, input, openAIConfig);
+    console.log("✅ Execution filters applied");
     
-    // 5. Apply Cannes Spike (adds award-worthy tactic if missing)
-    improvedContent = await applyCannesSpike(improvedContent, openAIConfig);
+    // ===== 5. Apply Cannes Spike (adds award-worthy tactic if missing) =====
+    campaign = await applyCannesSpike(campaign, openAIConfig);
+    console.log("✅ Cannes spike applied if needed");
 
-    // 6. Inject Disruptive Device via API
-    let finalContent = improvedContent;
-    try {
-      const res = await fetch('/api/disruptive-pass', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(improvedContent),
-      });
+    // ===== 6. Inject Disruptive Device via API =====
+    campaign = await applyDisruptivePass(campaign);
+    console.log("✅ Disruptive pass applied");
 
-      if (!res.ok) {
-        throw new Error(`Disruptive pass API error: ${res.status}`);
-      }
-      
-      const jsonResponse = await res.json();
-      finalContent = jsonResponse;
-      console.log("🎯 Disruptive twist added");
-    } catch (err) {
-      console.error("⚠️ Disruptive device injection failed:", err);
-      toast.error("Disruptive enhancement failed, using base campaign");
-    }
-    
-    // 7. Apply Insight Scoring
-    finalContent = await applyInsightScoring(finalContent, openAIConfig);
+    // ===== 7. Apply Creative Director refinement =====
+    campaign = await applyCreativeDirectorPass(campaign);
+    console.log("✅ Creative Director pass applied");
 
     // Ensure all required fields are present in the final campaign
-    const campaign: GeneratedCampaign = {
+    const finalCampaign: GeneratedCampaign = {
       // Core fields from generated content
-      campaignName: finalContent.campaignName || "Untitled Campaign",
-      keyMessage: finalContent.keyMessage || improviseKeyMessage(input),
+      campaignName: campaign.campaignName || "Untitled Campaign",
+      keyMessage: campaign.keyMessage || improviseKeyMessage(input),
       brand: input.brand,
-      strategy: finalContent.strategy || "",
-      executionPlan: finalContent.executionPlan || [],
-      viralElement: finalContent.viralElement || finalContent.viralHook || "",
-      prHeadline: finalContent.prHeadline || "",
-      consumerInteraction: finalContent.consumerInteraction || "",
-      callToAction: finalContent.callToAction || "",
+      strategy: campaign.strategy || "",
+      executionPlan: campaign.executionPlan || [],
+      viralElement: campaign.viralElement || (campaign as any).viralHook || "",
+      prHeadline: campaign.prHeadline || "",
+      consumerInteraction: campaign.consumerInteraction || "",
+      callToAction: campaign.callToAction || "",
       
       // Additional fields
       creativeInsights: creativeInsights,
       emotionalAppeal: input.emotionalAppeal,
-      creativeStrategy: finalContent.creativeStrategy || [],
+      creativeStrategy: campaign.creativeStrategy || [],
       referenceCampaigns,
-      expectedOutcomes: finalContent.expectedOutcomes || [],
+      expectedOutcomes: campaign.expectedOutcomes || [],
       
       // Optional enhancement fields
-      narrativeAnchor: finalContent.narrativeAnchor,
-      executionFilterRationale: finalContent.executionFilterRationale,
-      insightScores: finalContent.insightScores
+      narrativeAnchor: campaign.narrativeAnchor,
+      executionFilterRationale: campaign.executionFilterRationale,
+      insightScores: campaign.insightScores
     };
     
     // Generate storytelling narrative
@@ -292,12 +311,12 @@ export const generateCampaign = async (
         industry: input.industry,
         targetAudience: input.targetAudience,
         emotionalAppeal: input.emotionalAppeal,
-        campaignName: campaign.campaignName,
-        keyMessage: campaign.keyMessage
+        campaignName: finalCampaign.campaignName,
+        keyMessage: finalCampaign.keyMessage
       };
       
       const storytelling = await generateStorytellingNarrative(storytellingInput, openAIConfig);
-      campaign.storytelling = storytelling;
+      finalCampaign.storytelling = storytelling;
     } catch (error) {
       console.error("Error generating storytelling content:", error);
       toast.error("Error generating storytelling content");
@@ -305,13 +324,13 @@ export const generateCampaign = async (
     
     // Generate campaign evaluation
     try {
-      const evaluation = await evaluateCampaign(campaign, openAIConfig);
-      campaign.evaluation = evaluation;
+      const evaluation = await evaluateCampaign(finalCampaign, openAIConfig);
+      finalCampaign.evaluation = evaluation;
     } catch (error) {
       console.error("Error evaluating campaign:", error);
     }
     
-    return campaign;
+    return finalCampaign;
   } catch (error) {
     console.error("Error generating campaign:", error);
     throw error;

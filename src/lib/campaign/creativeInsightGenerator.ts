@@ -1,8 +1,8 @@
 
-import { CampaignInput } from '../campaign/types';
+import { CampaignInput } from './types';
 import { generateWithOpenAI, OpenAIConfig } from '../openai';
 import { extractJsonFromResponse, safeJsonParse } from '../../utils/formatters';
-import { CreativeInsights } from '../campaign/types';
+import { CreativeInsights } from './types';
 
 /**
  * Generate creative insights for campaign generation

@@ -24,7 +24,7 @@ You are a bold, award-winning Creative Director evaluating execution tactics for
 
 Brand: ${input.brand}
 Industry: ${input.industry}
-Campaign Name: ${campaign.campaignName}
+Campaign Name: ${campaign.campaignName || 'Untitled Campaign'}
 Target Audience: ${input.targetAudience.join(', ')}
 
 Here is the current execution plan:
