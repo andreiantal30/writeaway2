@@ -3,7 +3,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { CampaignInput } from "@/types/campaign";
-import { CampaignVersion, GeneratedCampaign } from "@/lib/campaign/types";
+import { GeneratedCampaign, CampaignVersion } from "@/lib/campaign/types";
 import { OpenAIConfig } from "@/lib/openai";
 import { saveCampaignToLibrary } from "@/lib/campaignStorage";
 import { Message } from "@/components/ChatWindow";
