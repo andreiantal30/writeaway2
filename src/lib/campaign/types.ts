@@ -1,52 +1,45 @@
 
-import { StorytellingOutput } from './storytellingGenerator';
+import { ReferenceCampaign } from "../../types/campaign";
 
+// Input for generating a campaign
 export interface CampaignInput {
   brand: string;
   industry: string;
   targetAudience: string[];
-  objectives: string[];
   emotionalAppeal: string[];
-  additionalConstraints?: string;
+  objectives?: string[];
+  campaignStyle?: string;
   brandPersonality?: string;
   differentiator?: string;
-  culturalInsights?: string;
-  campaignStyle?: string; // Changed from enum to string for compatibility
-  persona?: string;
+  additionalConstraints?: string;
   creativeLens?: string;
+  persona?: string;
+  culturalInsights?: string;
 }
 
-export interface FeedbackCriterion {
-  score: number;
-  comment: string;
+// Creative insights generated for a campaign
+export interface CreativeInsights {
+  surfaceInsight: string;
+  emotionalUndercurrent: string;
+  creativeUnlock: string;
 }
 
+// Campaign evaluation
 export interface CampaignEvaluation {
-  insightSharpness: FeedbackCriterion;
-  ideaOriginality: FeedbackCriterion;
-  executionPotential: FeedbackCriterion;
-  awardPotential: FeedbackCriterion;
-  finalVerdict: string;
+  strengths: string[];
+  opportunities: string[];
+  risks: string[];
+  overallScore: number;
 }
 
+// Insight scoring system
 export interface InsightScores {
-  insight1: {
-    contradiction: number;
-    irony: number;
-    tension: number;
-  };
-  insight2: {
-    contradiction: number;
-    irony: number;
-    tension: number;
-  };
-  insight3: {
-    contradiction: number;
-    irony: number;
-    tension: number;
-  };
+  insight1: { contradiction: number; irony: number; tension: number };
+  insight2: { contradiction: number; irony: number; tension: number };
+  insight3: { contradiction: number; irony: number; tension: number };
 }
 
+// Campaign version tracking
 export interface CampaignVersion {
   id: string;
   versionTag: string;
@@ -54,39 +47,45 @@ export interface CampaignVersion {
   campaign: GeneratedCampaign;
 }
 
-// Creative insights structure
-export interface CreativeInsights {
-  surfaceInsight: string;
-  emotionalUndercurrent: string;
-  creativeUnlock: string;
+// Bravery scores for campaign execution plan
+export interface BraveryScores {
+  physicality: number;
+  risk: number;
+  culturalTension: number;
+  novelty: number;
+  totalScore: number;
 }
 
-// The final generated campaign output - standardized across backend and frontend
+// Complete generated campaign with all components
 export interface GeneratedCampaign {
-  // Core campaign elements
   campaignName: string;
   keyMessage: string;
   brand: string;
   strategy: string;
+  creativeStrategy: string[];
   executionPlan: string[];
   viralElement: string;
-  viralHook?: string; // Legacy support
   prHeadline: string;
   consumerInteraction: string;
   callToAction: string;
-  
-  // Creative elements
   creativeInsights: CreativeInsights;
-  emotionalAppeal: string[]; // Required for UI components
-  creativeStrategy: string[]; // Required for UI components
-  
-  // Campaign extensions
-  expectedOutcomes?: string[]; // Optional but used in UI components
-  referenceCampaigns?: any[];
-  storytelling?: StorytellingOutput;
+  emotionalAppeal: string[];
+  referenceCampaigns: ReferenceCampaign[];
+  expectedOutcomes: string[];
+  storytelling?: {
+    hook: string;
+    protagonist: string;
+    conflict: string;
+    journey: string;
+    resolution: string;
+    fullNarrative: string;
+  };
   evaluation?: CampaignEvaluation;
-  narrativeAnchor?: string;
+  narrativeAnchor?: {
+    anchors: string[];
+    rationale: string;
+  };
   executionFilterRationale?: string;
   insightScores?: InsightScores;
-  versionTag?: string;
+  braveryScores?: BraveryScores;
 }

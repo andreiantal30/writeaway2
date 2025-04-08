@@ -1,124 +1,201 @@
 
 import React from 'react';
 import { GeneratedCampaign } from '@/lib/generateCampaign';
-import { Separator } from '@/components/ui/separator';
-import ElementRating from './ElementRating';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Badge } from '@/components/ui/badge';
+import { Info, Sparkles, FileText, Zap, Lightbulb, Target } from 'lucide-react';
+import StorytellingNarrative from '@/components/StorytellingNarrative';
+import BraveryMatrix from './BraveryMatrix';
 
 interface CampaignRightColumnProps {
   campaign: GeneratedCampaign;
-  showFeedbackForm: boolean;
-  feedbackSubmitted: boolean;
-  elementRatings: Record<string, number>;
-  onRateElement: (element: string, value: number) => void;
 }
 
-const CampaignRightColumn: React.FC<CampaignRightColumnProps> = ({
-  campaign,
-  showFeedbackForm,
-  feedbackSubmitted,
-  elementRatings,
-  onRateElement
-}) => {
+const CampaignRightColumn: React.FC<CampaignRightColumnProps> = ({ campaign }) => {
   return (
-    <div className="md:col-span-7 space-y-6 pl-0 md:pl-6">
-      {/* Creative Strategy Section - The How */}
-      <div className="space-y-2">
-        <ElementRating
-          element="The How"
-          elementKey="creativeStrategy"
-          rating={elementRatings.creativeStrategy}
-          onRate={onRateElement}
-          showFeedback={showFeedbackForm}
-          feedbackSubmitted={feedbackSubmitted}
-        />
-        <ul className="list-disc pl-5 space-y-2">
-          {Array.isArray(campaign.creativeStrategy) && campaign.creativeStrategy?.length > 0 ? 
-            campaign.creativeStrategy.map((strategy, index) => (
-              <li key={index}>{strategy}</li>
-            )) : 
-            <li>{"No strategy details available"}</li>
-          }
-        </ul>
-      </div>
-      
-      <Separator />
-      
-      {/* Execution Plan Section */}
-      <div className="space-y-2">
-        <ElementRating
-          element="Execution Plan"
-          elementKey="executionPlan"
-          rating={elementRatings.executionPlan}
-          onRate={onRateElement}
-          showFeedback={showFeedbackForm}
-          feedbackSubmitted={feedbackSubmitted}
-        />
-        <ol className="list-decimal pl-5 space-y-2">
-          {Array.isArray(campaign.executionPlan) && campaign.executionPlan?.length > 0 ? 
-            campaign.executionPlan.map((execution, index) => (
-              <li key={index} className="pl-1">
-                <span className="ml-1">{execution}</span>
-              </li>
-            )) : 
-            <li className="pl-1">
-              <span className="ml-1">{"No execution details available"}</span>
-            </li>
-          }
-        </ol>
-        
-        {/* Viral Element Section integrated with execution plan */}
-        {(campaign.viralElement || campaign.viralHook) && (
-          <div className="mt-4 bg-primary/5 p-3 rounded-md">
-            <h4 className="font-medium text-primary mb-2">The transformation goes viral with:</h4>
-            <p className="text-sm">{campaign.viralElement || campaign.viralHook || "No viral element specified"}</p>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg flex items-center">
+            <Lightbulb className="h-4 w-4 mr-2 text-primary" />
+            Creative Insights
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <h4 className="text-sm font-medium mb-1">Surface Insight</h4>
+            <p className="text-sm text-muted-foreground">
+              {campaign.creativeInsights.surfaceInsight}
+            </p>
           </div>
-        )}
-      </div>
-      
-      {/* Expected Outcomes Section */}
-      {campaign.expectedOutcomes && campaign.expectedOutcomes.length > 0 && (
-        <>
-          <Separator />
-          <div className="space-y-2">
-            <h3 className="font-medium text-lg text-primary">Expected Outcomes</h3>
-            <ul className="list-disc pl-5 space-y-2">
-              {Array.isArray(campaign.expectedOutcomes) ? 
-                campaign.expectedOutcomes.map((outcome, index) => (
-                  <li key={index} className="pl-1">
-                    <span className="ml-1">{outcome}</span>
-                  </li>
-                )) : 
-                <li className="pl-1">
-                  <span className="ml-1">{"No expected outcomes available"}</span>
-                </li>
-              }
-            </ul>
+          <div>
+            <h4 className="text-sm font-medium mb-1">Emotional Undercurrent</h4>
+            <p className="text-sm text-muted-foreground">
+              {campaign.creativeInsights.emotionalUndercurrent}
+            </p>
           </div>
-        </>
-      )}
-      
-      {/* Reference Campaigns Section */}
-      {campaign.referenceCampaigns && campaign.referenceCampaigns.length > 0 && (
-        <>
-          <Separator />
-          <div className="space-y-3">
-            <h3 className="font-medium text-lg text-primary">Reference Campaigns</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {campaign.referenceCampaigns.map((refCampaign, index) => (
-                <div key={index} className="bg-muted/40 p-3 rounded-lg border border-muted">
-                  <h4 className="font-medium">{refCampaign.name || "Unnamed Campaign"}</h4>
-                  <p className="text-sm text-muted-foreground">
-                    <span className="font-medium">{refCampaign.brand || "Unknown Brand"}</span>
-                    {refCampaign.industry && (
-                      <> · {refCampaign.industry}</>
-                    )}
+          <div>
+            <h4 className="text-sm font-medium mb-1">Creative Unlock</h4>
+            <p className="text-sm text-muted-foreground">
+              {campaign.creativeInsights.creativeUnlock}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {campaign.narrativeAnchor && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center">
+              <Target className="h-4 w-4 mr-2 text-primary" />
+              Narrative Anchors
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[170px] pr-4">
+              <div className="space-y-2">
+                {campaign.narrativeAnchor.anchors.map((anchor, index) => (
+                  <div key={index} className="flex items-start gap-2">
+                    <Badge variant="outline" className="mt-0.5 shrink-0">
+                      {index + 1}
+                    </Badge>
+                    <p className="text-sm">{anchor}</p>
+                  </div>
+                ))}
+                <div className="pt-2 mt-2 border-t border-border">
+                  <p className="text-xs text-muted-foreground">
+                    {campaign.narrativeAnchor.rationale}
                   </p>
                 </div>
+              </div>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      )}
+
+      {campaign.storytelling && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center">
+              <FileText className="h-4 w-4 mr-2 text-primary" />
+              Storytelling Narrative
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <StorytellingNarrative storytelling={campaign.storytelling} />
+          </CardContent>
+        </Card>
+      )}
+
+      {campaign.expectedOutcomes && campaign.expectedOutcomes.length > 0 && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center">
+              <Target className="h-4 w-4 mr-2 text-primary" />
+              Expected Outcomes
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[150px] pr-4">
+              <ul className="space-y-2">
+                {campaign.expectedOutcomes.map((outcome, index) => (
+                  <li key={index} className="flex items-start">
+                    <span className="text-primary mr-2 font-bold">•</span>
+                    <span className="text-sm">{outcome}</span>
+                  </li>
+                ))}
+              </ul>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      )}
+
+      {campaign.braveryScores && (
+        <BraveryMatrix scores={campaign.braveryScores} />
+      )}
+
+      {campaign.emotionalAppeal && campaign.emotionalAppeal.length > 0 && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center">
+              <Zap className="h-4 w-4 mr-2 text-primary" />
+              Emotional Appeal
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-2">
+              {campaign.emotionalAppeal.map((emotion, index) => (
+                <Badge key={index} variant="secondary">{emotion}</Badge>
               ))}
             </div>
-          </div>
-        </>
+          </CardContent>
+        </Card>
       )}
+
+      {campaign.evaluation && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center">
+              <Sparkles className="h-4 w-4 mr-2 text-primary" />
+              Campaign Evaluation
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <h4 className="text-sm font-medium flex items-center">
+                  <span className="text-green-500 mr-1.5">+</span> Strengths
+                </h4>
+                <ul className="mt-1 space-y-1">
+                  {campaign.evaluation.strengths.map((strength, index) => (
+                    <li key={index} className="text-sm text-muted-foreground flex items-start">
+                      <span className="text-green-500 mr-1.5">•</span> {strength}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h4 className="text-sm font-medium flex items-center">
+                  <span className="text-amber-500 mr-1.5">→</span> Opportunities
+                </h4>
+                <ul className="mt-1 space-y-1">
+                  {campaign.evaluation.opportunities.map((opportunity, index) => (
+                    <li key={index} className="text-sm text-muted-foreground flex items-start">
+                      <span className="text-amber-500 mr-1.5">•</span> {opportunity}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h4 className="text-sm font-medium flex items-center">
+                  <span className="text-red-500 mr-1.5">!</span> Risks
+                </h4>
+                <ul className="mt-1 space-y-1">
+                  {campaign.evaluation.risks.map((risk, index) => (
+                    <li key={index} className="text-sm text-muted-foreground flex items-start">
+                      <span className="text-red-500 mr-1.5">•</span> {risk}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="pt-2 border-t border-border flex items-center justify-between">
+                <span className="text-sm font-medium">Overall Score:</span>
+                <Badge variant={campaign.evaluation.overallScore >= 8 ? "default" : campaign.evaluation.overallScore >= 6 ? "secondary" : "outline"}>
+                  {campaign.evaluation.overallScore}/10
+                </Badge>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="p-3">
+        <p className="text-xs text-muted-foreground text-center">
+          <Info className="h-3 w-3 inline-block mr-1 opacity-70" />
+          Content generated with AI assistance
+        </p>
+      </div>
     </div>
   );
 };

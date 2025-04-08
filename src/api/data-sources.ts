@@ -1,13 +1,8 @@
+import express from 'express';
 
-import express, { Router } from 'express';
-import cors from 'cors';
+const router = express.Router();
 
-const router: Router = express.Router();
-
-// Use CORS middleware
-router.use(cors());
-
-// Define API route handlers with correct type signatures
+// Define API route handlers
 router.get('/news-trends', async (req, res) => {
   try {
     // Implementation
@@ -18,5 +13,5 @@ router.get('/news-trends', async (req, res) => {
   }
 });
 
-// Export the router, not the handler function
+// Export the router
 export default router;

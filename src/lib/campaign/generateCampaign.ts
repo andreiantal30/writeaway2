@@ -12,6 +12,7 @@ import { evaluateCampaign } from './evaluateCampaign';
 import { applyStrategyBooster } from './strategyBooster';
 import { addNarrativeAnchor } from './narrativeAnchor';
 import { applyExecutionFilters } from './executionFilters';
+import { calculateBraveryMatrix, BraveryScores } from './calculateBraveryMatrix';
 import { ReferenceCampaign, CulturalTrend, CreativeDevice } from '../../types/campaign';
 
 /**
@@ -275,6 +276,11 @@ export const generateCampaign = async (
     campaign = await applyCreativeDirectorPass(campaign);
     console.log("✅ Creative Director pass applied");
 
+    // ===== 8. Calculate Bravery Matrix (NEW) =====
+    const braveryScores = calculateBraveryMatrix(campaign as GeneratedCampaign);
+    console.log("✅ Bravery matrix calculated:", braveryScores);
+    campaign.braveryScores = braveryScores;
+
     // Ensure all required fields are present in the final campaign
     const finalCampaign: GeneratedCampaign = {
       // Core fields from generated content
@@ -298,7 +304,8 @@ export const generateCampaign = async (
       // Optional enhancement fields
       narrativeAnchor: campaign.narrativeAnchor,
       executionFilterRationale: campaign.executionFilterRationale,
-      insightScores: campaign.insightScores
+      insightScores: campaign.insightScores,
+      braveryScores: campaign.braveryScores
     };
     
     // Generate storytelling narrative
