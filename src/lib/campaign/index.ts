@@ -12,6 +12,7 @@ export type {
 
 export { generateCampaign } from './generateCampaign';
 export { calculateBraveryMatrix } from './calculateBraveryMatrix';
+export { applyEmotionalRebalance } from './emotionalRebalance';
 
 // Re-export other campaign modules
 export * from './campaignMatcher';

@@ -1,3 +1,4 @@
+
 import { toast } from "sonner";
 import { OpenAIConfig, defaultOpenAIConfig, generateWithOpenAI } from '../openai';
 import { CampaignInput, GeneratedCampaign, CreativeInsights } from './types';
@@ -13,6 +14,7 @@ import { applyStrategyBooster } from './strategyBooster';
 import { addNarrativeAnchor } from './narrativeAnchor';
 import { applyExecutionFilters } from './executionFilters';
 import { calculateBraveryMatrix, BraveryScores } from './calculateBraveryMatrix';
+import { applyEmotionalRebalance } from './emotionalRebalance';
 import { ReferenceCampaign, CulturalTrend, CreativeDevice } from '../../types/campaign';
 
 /**
@@ -166,7 +168,7 @@ export const generateCampaign = async (
     // Find similar reference campaigns
     const referenceCampaignsResponse = await findSimilarCampaigns(input, openAIConfig);
     // Cast to ReferenceCampaign[] to fix type error
-    const referenceCampaigns = referenceCampaignsResponse as unknown as ReferenceCampaign[];
+    const referenceCampaigns = referenceCampaignsResponse as ReferenceCampaign[];
     
     console.log("Matched Reference Campaigns:", 
       referenceCampaigns.map(c => ({
@@ -276,7 +278,7 @@ export const generateCampaign = async (
     campaign = await applyCreativeDirectorPass(campaign);
     console.log("✅ Creative Director pass applied");
 
-    // ===== 8. Calculate Bravery Matrix (NEW) =====
+    // ===== 8. Calculate Bravery Matrix =====
     const braveryScores = calculateBraveryMatrix(campaign as GeneratedCampaign);
     console.log("✅ Bravery matrix calculated:", braveryScores);
     campaign.braveryScores = braveryScores;
@@ -345,8 +347,19 @@ export const generateCampaign = async (
     } catch (error) {
       console.error("Error evaluating campaign:", error);
     }
+
+    // ===== 9. Apply Emotional Rebalance (NEW STEP) =====
+    // Add this after the disruptive pass to ensure we don't lose warmth
+    try {
+      const emotionallyBalancedCampaign = await applyEmotionalRebalance(finalCampaign, openAIConfig);
+      console.log("✅ Emotional rebalance applied");
+      return emotionallyBalancedCampaign;
+    } catch (error) {
+      console.error("Error applying emotional rebalance:", error);
+      // Return the original campaign if emotional rebalance fails
+      return finalCampaign;
+    }
     
-    return finalCampaign;
   } catch (error) {
     console.error("Error generating campaign:", error);
     throw error;

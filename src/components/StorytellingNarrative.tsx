@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { StorytellingOutput } from '@/lib/storytellingGenerator';
+import { StorytellingOutput } from '@/lib/campaign/storytellingGenerator';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChevronDown, ChevronUp, BookOpen } from 'lucide-react';
@@ -16,7 +16,7 @@ const StorytellingNarrative: React.FC<StorytellingNarrativeProps> = ({ storytell
   if (!storytelling) return null;
 
   // Use narrative as the main field from storytelling output
-  const narrativeText = storytelling.narrative || storytelling.storyNarrative || '';
+  const narrativeText = storytelling.narrative || '';
   
   // Check if we have detailed story elements to show in expanded view
   const hasExpandedDetails = !!(
