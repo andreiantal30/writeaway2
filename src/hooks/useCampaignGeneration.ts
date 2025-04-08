@@ -1,4 +1,3 @@
-
 import { useState, useRef } from "react";
 import { CampaignInput, GeneratedCampaign, CampaignVersion } from "@/lib/generateCampaign";
 import { OpenAIConfig } from "@/lib/openai";
@@ -20,7 +19,6 @@ export function useCampaignGeneration(openAIConfig: OpenAIConfig) {
   const campaignResultRef = useRef<HTMLDivElement | null>(null);
   const [campaignVersions, setCampaignVersions] = useState<CampaignVersion[]>([]);
 
-  // Import functionality from the separated hooks
   const { 
     messages,
     setMessages,
@@ -48,7 +46,6 @@ export function useCampaignGeneration(openAIConfig: OpenAIConfig) {
     }
   };
 
-  // Import refinement functionality
   const { handleRefineCampaign } = useCampaignRefinement(
     openAIConfig,
     lastInput,
@@ -58,7 +55,6 @@ export function useCampaignGeneration(openAIConfig: OpenAIConfig) {
     scrollToCampaign
   );
 
-  // Import regeneration functionality 
   const { handleRegenerateCampaign } = useCampaignRegeneration(
     openAIConfig,
     lastInput,
@@ -69,7 +65,6 @@ export function useCampaignGeneration(openAIConfig: OpenAIConfig) {
     scrollToCampaign
   );
 
-  // Import chat refinement functionality
   const { 
     isApplyingChanges,
     applyChangesAndRegenerateCampaign 
@@ -82,7 +77,6 @@ export function useCampaignGeneration(openAIConfig: OpenAIConfig) {
     scrollToCampaign
   );
 
-  // Save a version of the current campaign
   const saveCampaignVersion = (tag: string) => {
     if (!generatedCampaign) return;
 
@@ -96,7 +90,6 @@ export function useCampaignGeneration(openAIConfig: OpenAIConfig) {
     setCampaignVersions(prev => [...prev, newVersion]);
   };
 
-  // Load a saved campaign version
   const loadCampaignVersion = (version: CampaignVersion) => {
     setGeneratedCampaign({ ...version.campaign });
   };
@@ -111,8 +104,9 @@ export function useCampaignGeneration(openAIConfig: OpenAIConfig) {
     setLastInput(input);
     
     try {
-      // Updated to use the server-side API endpoint
-      const response = await fetch('/api/generateCampaign', {
+      toast.info("Generating campaign...", { duration: 3000 });
+      
+      const response = await fetch('/api/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -124,15 +118,24 @@ export function useCampaignGeneration(openAIConfig: OpenAIConfig) {
       });
       
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to generate campaign");
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch (jsonError) {
+          throw new Error(`Server error (${response.status}): Unable to parse response`);
+        }
+        
+        throw new Error(errorData.error || `Server error (${response.status}): Failed to generate campaign`);
       }
       
-      const campaign: GeneratedCampaign = await response.json();
+      let campaign: GeneratedCampaign;
+      try {
+        campaign = await response.json();
+      } catch (jsonError) {
+        throw new Error("Failed to parse campaign response from server");
+      }
       
-      // Save the initial campaign as a version
       if (campaign) {
-        // Clear previous versions when generating a completely new campaign
         setCampaignVersions([{
           id: uuidv4(),
           versionTag: "original",

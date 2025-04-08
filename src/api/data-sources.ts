@@ -5,7 +5,7 @@ import { fetchAndGenerateRedditTrends } from '../lib/fetchRedditTrends';
 
 const router = Router();
 
-// Fixed: Use proper router.get pattern
+// Fixed: Use proper router.get pattern with improved error handling
 router.get('/news-trends', async (req: Request, res: Response) => {
   try {
     // Check for a fetchNewsFromServer function instead of getNewsTrends
@@ -18,7 +18,11 @@ router.get('/news-trends', async (req: Request, res: Response) => {
     }
   } catch (error) {
     console.error('Error fetching news trends:', error);
-    return res.status(500).json({ error: 'Failed to fetch news trends' });
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return res.status(500).json({ 
+      error: 'Failed to fetch news trends', 
+      message: errorMessage 
+    });
   }
 });
 
@@ -29,7 +33,11 @@ router.get('/reddit-trends', async (req: Request, res: Response) => {
     return res.json(trends);
   } catch (error) {
     console.error('Error fetching Reddit trends:', error);
-    return res.status(500).json({ error: 'Failed to fetch Reddit trends' });
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return res.status(500).json({ 
+      error: 'Failed to fetch Reddit trends', 
+      message: errorMessage 
+    });
   }
 });
 
