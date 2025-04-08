@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
@@ -6,6 +5,7 @@ import { Separator } from './ui/separator';
 import { ArrowUpRight, RefreshCw, Sparkles, ThumbsDown as ThumbsDownIcon, ThumbsUp as ThumbsUpIcon } from 'lucide-react';
 import { GeneratedCampaign } from '@/lib/generateCampaign';
 import FeedbackSystem, { CampaignFeedbackData } from './FeedbackSystem';
+import BraveryMatrix from './CampaignResult/BraveryMatrix';
 
 export interface CampaignFeedback {
   overallRating: number;
@@ -55,7 +55,6 @@ const CampaignResult: React.FC<CampaignResultProps> = ({
     setIsSubmittingFeedback(true);
     
     try {
-      // Convert the FeedbackSystem's data format to our component's format
       const campaignFeedback: CampaignFeedback = {
         overallRating: feedback.overallRating,
         comments: feedback.comments,
@@ -82,11 +81,8 @@ const CampaignResult: React.FC<CampaignResultProps> = ({
           </CardDescription>
         </CardHeader>
         <CardContent className="p-6">
-          {/* Two-column Cannes Lions layout */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-            {/* Left Column (40% width) */}
             <div className="md:col-span-5 space-y-6 border-r-0 md:border-r border-dashed border-gray-200 dark:border-gray-700 pr-0 md:pr-6">
-              {/* The Insight / Key Message */}
               <div className="space-y-2">
                 <h3 className="font-medium text-lg text-primary flex items-center justify-between">
                   The Insight
@@ -116,7 +112,6 @@ const CampaignResult: React.FC<CampaignResultProps> = ({
               
               <Separator />
               
-              {/* The Idea / Campaign Name */}
               <div className="space-y-2">
                 <h3 className="font-medium text-lg text-primary flex items-center justify-between">
                   The Idea
@@ -144,7 +139,6 @@ const CampaignResult: React.FC<CampaignResultProps> = ({
                 <p className="font-medium">{campaign.campaignName}</p>
               </div>
               
-              {/* Emotional Appeal Section */}
               {campaign.emotionalAppeal && campaign.emotionalAppeal.length > 0 && (
                 <>
                   <Separator />
@@ -162,7 +156,6 @@ const CampaignResult: React.FC<CampaignResultProps> = ({
                 </>
               )}
               
-              {/* Call to Action Section */}
               {(campaign.callToAction || campaign.consumerInteraction) && (
                 <>
                   <Separator />
@@ -173,7 +166,6 @@ const CampaignResult: React.FC<CampaignResultProps> = ({
                 </>
               )}
 
-              {/* Viral Element Section if available */}
               {(campaign.viralElement || campaign.viralHook) && (
                 <>
                   <Separator />
@@ -185,9 +177,7 @@ const CampaignResult: React.FC<CampaignResultProps> = ({
               )}
             </div>
             
-            {/* Right Column (60% width) */}
             <div className="md:col-span-7 space-y-6 pl-0 md:pl-6">
-              {/* Creative Strategy Section - The How */}
               <div className="space-y-2">
                 <h3 className="font-medium text-lg text-primary flex items-center justify-between">
                   The How
@@ -224,7 +214,6 @@ const CampaignResult: React.FC<CampaignResultProps> = ({
               
               <Separator />
               
-              {/* Execution Plan Section */}
               <div className="space-y-2">
                 <h3 className="font-medium text-lg text-primary flex items-center justify-between">
                   Execution Plan
@@ -261,7 +250,10 @@ const CampaignResult: React.FC<CampaignResultProps> = ({
                 </ol>
               </div>
               
-              {/* Expected Outcomes Section */}
+              {campaign.braveryScores && (
+                <BraveryMatrix scores={campaign.braveryScores} />
+              )}
+              
               {campaign.expectedOutcomes && campaign.expectedOutcomes.length > 0 && (
                 <>
                   <Separator />
@@ -281,7 +273,6 @@ const CampaignResult: React.FC<CampaignResultProps> = ({
                 </>
               )}
               
-              {/* Reference Campaigns Section */}
               {campaign.referenceCampaigns && campaign.referenceCampaigns.length > 0 && (
                 <>
                   <Separator />

@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { CampaignInput, GeneratedCampaign } from "@/lib/campaign/types";
@@ -150,7 +149,7 @@ export function useCampaignRegeneration(
           }
         }
         
-        updatedCampaign.versionTag = `${targetSection}-refined`;
+        updatedCampaign.executionFilterRationale = `Refined ${targetSection} based on user feedback`;
         setGeneratedCampaign(updatedCampaign);
       } else {
         const enhancedInput: CampaignInput = {

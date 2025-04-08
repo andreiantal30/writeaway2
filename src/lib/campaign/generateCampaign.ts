@@ -281,6 +281,11 @@ export const generateCampaign = async (
     console.log("✅ Bravery matrix calculated:", braveryScores);
     campaign.braveryScores = braveryScores;
 
+    // If evaluation exists, add bravery score to it
+    if (campaign.evaluation) {
+      campaign.evaluation.braveryScore = braveryScores.totalScore;
+    }
+
     // Ensure all required fields are present in the final campaign
     const finalCampaign: GeneratedCampaign = {
       // Core fields from generated content
@@ -305,7 +310,8 @@ export const generateCampaign = async (
       narrativeAnchor: campaign.narrativeAnchor,
       executionFilterRationale: campaign.executionFilterRationale,
       insightScores: campaign.insightScores,
-      braveryScores: campaign.braveryScores
+      braveryScores: campaign.braveryScores,
+      viralHook: (campaign as any).viralHook || ""
     };
     
     // Generate storytelling narrative
@@ -329,6 +335,12 @@ export const generateCampaign = async (
     // Generate campaign evaluation
     try {
       const evaluation = await evaluateCampaign(finalCampaign, openAIConfig);
+      
+      // Add bravery score to evaluation
+      if (evaluation) {
+        evaluation.braveryScore = braveryScores.totalScore;
+      }
+      
       finalCampaign.evaluation = evaluation;
     } catch (error) {
       console.error("Error evaluating campaign:", error);

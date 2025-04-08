@@ -1,4 +1,3 @@
-
 import { OpenAIConfig, generateWithOpenAI } from '../openai';
 import { CampaignInput, GeneratedCampaign } from './types';
 
@@ -6,11 +5,11 @@ import { CampaignInput, GeneratedCampaign } from './types';
  * Add narrative anchor to the campaign content
  * Provides a unifying storytelling thread through the campaign
  */
-export async function addNarrativeAnchor(
+export const addNarrativeAnchor = async (
   campaign: Partial<GeneratedCampaign>,
   input: CampaignInput,
-  config: OpenAIConfig
-): Promise<Partial<GeneratedCampaign>> {
+  openAIConfig: OpenAIConfig
+): Promise<Partial<GeneratedCampaign>> => {
   try {
     // Only proceed if we have the necessary elements
     if (!campaign.campaignName || !campaign.strategy) {
@@ -33,17 +32,34 @@ Return ONLY the narrative anchor as plain text, no explanations or commentary.
 Make it under 100 words.
 `;
 
-    const response = await generateWithOpenAI(prompt, config);
+    const response = await generateWithOpenAI(prompt, openAIConfig);
     
-    if (response && response.trim()) {
-      // Add the narrative anchor to the campaign
-      campaign.narrativeAnchor = response.trim();
-      console.log("Narrative anchor added");
+    try {
+      // First try to parse as JSON
+      const parsedAnchor = JSON.parse(response);
+      campaign.narrativeAnchor = parsedAnchor;
+    } catch (error) {
+      // If not valid JSON, extract from the text response
+      const anchors = response
+        .split("\n")
+        .filter(line => line.trim().startsWith("-") || line.trim().startsWith("*"))
+        .map(line => line.replace(/^[-*]\s+/, "").trim());
+      
+      campaign.narrativeAnchor = {
+        anchors: anchors.length > 0 ? anchors : ["Emotional connection", "Brand authenticity"],
+        rationale: "Derived from campaign insights and objectives"
+      };
     }
     
     return campaign;
   } catch (error) {
     console.error("Error adding narrative anchor:", error);
-    return campaign; // Return original campaign if enhancement fails
+    // Provide a default narrative anchor if generation fails
+    campaign.narrativeAnchor = {
+      anchors: ["Emotional connection", "Brand authenticity"],
+      rationale: "Default anchor based on brand positioning"
+    };
+    
+    return campaign;
   }
-}
+};

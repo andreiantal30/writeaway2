@@ -1,103 +1,109 @@
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CampaignEvaluation } from '@/lib/campaign/types';
-import { Award, ThumbsUp, Star, CheckCircle2, Lightbulb } from 'lucide-react';
+import { Award, Check, AlertCircle, Lightbulb } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 
 interface CreativeDirectorFeedbackProps {
   feedback: CampaignEvaluation;
 }
 
 const CreativeDirectorFeedback: React.FC<CreativeDirectorFeedbackProps> = ({ feedback }) => {
-  if (!feedback) {
-    return null;
-  }
-
-  // Helper function to get a color class based on score
-  const getScoreColorClass = (score: number): string => {
-    if (score >= 8) return 'text-green-500 dark:text-green-400';
-    if (score >= 6) return 'text-amber-500 dark:text-amber-400';
-    return 'text-red-500 dark:text-red-400';
+  // Helper function to get the right color based on score
+  const getScoreColor = (score: number) => {
+    if (score >= 8) return 'text-green-500';
+    if (score >= 6) return 'text-amber-500';
+    if (score >= 4) return 'text-orange-500';
+    return 'text-red-500';
   };
-
-  // Helper function to get score or fallback
-  const getScore = (score?: number): number => {
-    return typeof score === 'number' ? score : 0;
+  
+  // Helper function to get the progress color
+  const getProgressColor = (score: number) => {
+    if (score >= 8) return 'bg-green-500';
+    if (score >= 6) return 'bg-amber-500';
+    if (score >= 4) return 'bg-orange-500';
+    return 'bg-red-500';
   };
-
-  // Safely access feedback criteria
-  const insightSharpness = feedback?.insightSharpness || { score: 0, comment: "Not rated" };
-  const ideaOriginality = feedback?.ideaOriginality || { score: 0, comment: "Not rated" };
-  const executionPotential = feedback?.executionPotential || { score: 0, comment: "Not rated" };
-  const awardPotential = feedback?.awardPotential || { score: 0, comment: "Not rated" };
   
   return (
-    <Card className="border-0 bg-muted/30">
-      <CardHeader className="pb-3">
-        <div className="flex items-center gap-2">
-          <Award className="h-5 w-5 text-amber-500" />
-          <CardTitle className="text-lg">Creative Director Feedback</CardTitle>
-        </div>
-        <CardDescription>
-          Expert assessment of the campaign's creative potential
-        </CardDescription>
+    <Card className="border-none shadow-none bg-slate-50 dark:bg-slate-900/50">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg flex items-center">
+          <Award className="mr-2 h-5 w-5 text-amber-500" />
+          Creative Director Feedback
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Left Column - Scores */}
-          <div className="space-y-4">
-            <h3 className="font-medium text-sm text-muted-foreground">ASSESSMENT SCORES</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Insight Sharpness</span>
-                  <span className={`text-lg font-bold ${getScoreColorClass(getScore(insightSharpness?.score))}`}>
-                    {getScore(insightSharpness?.score)}/10
+          <div>
+            <h3 className="text-sm font-medium text-muted-foreground mb-4">Campaign Assessment</h3>
+            
+            <div className="space-y-4">
+              {/* Overall Score */}
+              <div className="space-y-1">
+                <div className="flex justify-between">
+                  <span className="text-sm">Overall Creative Quality</span>
+                  <span className={`font-bold ${getScoreColor(feedback.overallScore)}`}>
+                    {feedback.overallScore}/10
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">{insightSharpness?.comment || "No comment provided"}</p>
+                <Progress value={feedback.overallScore * 10} className={`h-2 ${getProgressColor(feedback.overallScore)}`} />
               </div>
-
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Idea Originality</span>
-                  <span className={`text-lg font-bold ${getScoreColorClass(getScore(ideaOriginality?.score))}`}>
-                    {getScore(ideaOriginality?.score)}/10
-                  </span>
+              
+              {/* Bravery Score */}
+              {feedback.braveryScore !== undefined && (
+                <div className="space-y-1">
+                  <div className="flex justify-between">
+                    <span className="text-sm">Execution Bravery</span>
+                    <span className={`font-bold ${getScoreColor(feedback.braveryScore)}`}>
+                      {feedback.braveryScore}/10
+                    </span>
+                  </div>
+                  <Progress value={feedback.braveryScore * 10} className={`h-2 ${getProgressColor(feedback.braveryScore)}`} />
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">{ideaOriginality?.comment || "No comment provided"}</p>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Execution Potential</span>
-                  <span className={`text-lg font-bold ${getScoreColorClass(getScore(executionPotential?.score))}`}>
-                    {getScore(executionPotential?.score)}/10
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">{executionPotential?.comment || "No comment provided"}</p>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Award Potential</span>
-                  <span className={`text-lg font-bold ${getScoreColorClass(getScore(awardPotential?.score))}`}>
-                    {getScore(awardPotential?.score)}/10
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">{awardPotential?.comment || "No comment provided"}</p>
-              </div>
+              )}
+            </div>
+            
+            {/* Strengths */}
+            <div className="mt-6">
+              <h3 className="text-sm font-medium mb-2 flex items-center">
+                <Check className="mr-2 h-4 w-4 text-green-500" />
+                Strengths
+              </h3>
+              <ul className="pl-6 space-y-1 list-disc text-sm">
+                {feedback.strengths.map((strength, i) => (
+                  <li key={i}>{strength}</li>
+                ))}
+              </ul>
+            </div>
+            
+            {/* Risks */}
+            <div className="mt-4">
+              <h3 className="text-sm font-medium mb-2 flex items-center">
+                <AlertCircle className="mr-2 h-4 w-4 text-amber-500" />
+                Risks
+              </h3>
+              <ul className="pl-6 space-y-1 list-disc text-sm">
+                {feedback.risks.map((risk, i) => (
+                  <li key={i}>{risk}</li>
+                ))}
+              </ul>
             </div>
           </div>
-
-          {/* Right Column - Final Verdict */}
-          <div className="space-y-4">
-            <h3 className="font-medium text-sm text-muted-foreground">FINAL VERDICT</h3>
-            <div className="bg-muted/50 p-4 rounded-md border border-muted">
-              <p className="text-md font-medium italic">
-                {feedback.finalVerdict || "No final verdict provided"}
-              </p>
-            </div>
+          
+          {/* Right Column - Opportunities */}
+          <div>
+            <h3 className="text-sm font-medium text-muted-foreground mb-4 flex items-center">
+              <Lightbulb className="mr-2 h-4 w-4 text-blue-500" />
+              Opportunities for Improvement
+            </h3>
+            <ul className="pl-6 space-y-3 list-disc">
+              {feedback.opportunities.map((opportunity, i) => (
+                <li key={i} className="text-sm">{opportunity}</li>
+              ))}
+            </ul>
           </div>
         </div>
       </CardContent>

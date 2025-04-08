@@ -5,12 +5,13 @@ export type {
   GeneratedCampaign,
   CampaignVersion,
   CampaignEvaluation,
-  FeedbackCriterion,
   InsightScores,
-  CreativeInsights
+  CreativeInsights,
+  BraveryScores
 } from './types';
 
 export { generateCampaign } from './generateCampaign';
+export { calculateBraveryMatrix } from './calculateBraveryMatrix';
 
 // Re-export other campaign modules
 export * from './campaignMatcher';

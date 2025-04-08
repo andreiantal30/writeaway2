@@ -7,6 +7,7 @@ import CampaignLeftColumn from './CampaignLeftColumn';
 import CampaignRightColumn from './CampaignRightColumn';
 import CampaignActions from './CampaignActions';
 import CreativeDirectorFeedback from './CreativeDirectorFeedback';
+import BraveryMatrix from './BraveryMatrix';
 
 export interface CampaignFeedback {
   overallRating: number;
@@ -91,7 +92,8 @@ const CampaignResult: React.FC<CampaignResultProps> = ({
       creativeUnlock: "No creative unlock available"
     },
     emotionalAppeal: Array.isArray(campaign.emotionalAppeal) ? campaign.emotionalAppeal : [],
-    creativeStrategy: Array.isArray(campaign.creativeStrategy) ? campaign.creativeStrategy : []
+    creativeStrategy: Array.isArray(campaign.creativeStrategy) ? campaign.creativeStrategy : [],
+    referenceCampaigns: campaign.referenceCampaigns || []
   };
   
   return (
@@ -116,12 +118,17 @@ const CampaignResult: React.FC<CampaignResultProps> = ({
             
             <CampaignRightColumn 
               campaign={safeCampaign} 
-              showFeedbackForm={showFeedbackForm}
-              feedbackSubmitted={feedbackSubmitted}
               elementRatings={elementRatings}
               onRateElement={handleElementRating}
             />
           </div>
+          
+          {/* Bravery Matrix */}
+          {safeCampaign.braveryScores && (
+            <div className="mt-6">
+              <BraveryMatrix scores={safeCampaign.braveryScores} />
+            </div>
+          )}
         </CardContent>
       </Card>
       

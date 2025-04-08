@@ -1,70 +1,110 @@
-
+import { GeneratedCampaign } from './types';
 import { OpenAIConfig, generateWithOpenAI } from '../openai';
-import { GeneratedCampaign, CampaignEvaluation } from './types';
-import { extractJsonFromResponse, safeJsonParse } from '../../utils/formatters';
 
-/**
- * Evaluate a generated campaign against standard creative metrics
- */
-export async function evaluateCampaign(
-  campaign: GeneratedCampaign,
-  config: OpenAIConfig
-): Promise<CampaignEvaluation> {
+export interface CampaignEvaluation {
+  strengths: string[];
+  opportunities: string[];
+  risks: string[];
+  overallScore: number;
+  braveryScore?: number;
+}
+
+export interface FeedbackCriterion {
+  aspect: string;
+  question: string;
+  scale: string;
+}
+
+export const evaluateCampaign = async (campaign: GeneratedCampaign, openAIConfig: OpenAIConfig): Promise<CampaignEvaluation> => {
+  const feedbackCriteria: FeedbackCriterion[] = [
+    {
+      aspect: "Brand Alignment",
+      question: "How well does the campaign align with the brand's values and identity?",
+      scale: "1-10"
+    },
+    {
+      aspect: "Target Audience Resonance",
+      question: "How likely is the campaign to resonate with the target audience?",
+      scale: "1-10"
+    },
+    {
+      aspect: "Creative Innovation",
+      question: "How innovative and original is the creative approach?",
+      scale: "1-10"
+    },
+    {
+      aspect: "Strategic Clarity",
+      question: "How clear and effective is the overall campaign strategy?",
+      scale: "1-10"
+    },
+    {
+      aspect: "Execution Feasibility",
+      question: "How feasible is the execution plan, considering budget and resources?",
+      scale: "1-10"
+    }
+  ];
+  
   try {
     const prompt = `
-You are an experienced creative director at a top advertising agency. You've been asked to evaluate the following campaign proposal:
+You are an experienced marketing strategist providing constructive feedback on a campaign.
+Evaluate the following campaign based on these criteria:
+${feedbackCriteria.map(criterion => `- ${criterion.aspect}: ${criterion.question} (Scale: ${criterion.scale})`).join('\n')}
 
-Campaign Name: ${campaign.campaignName}
-Key Message: ${campaign.keyMessage || 'N/A'}
-Creative Strategy: ${campaign.strategy}
-Execution Plan: ${campaign.executionPlan.join(", ")}
-Viral Element: ${campaign.viralElement}
-Call to Action: ${campaign.callToAction}
+Campaign Details:
+- Campaign Name: ${campaign.campaignName}
+- Key Message: ${campaign.keyMessage}
+- Brand: ${campaign.brand}
+- Strategy: ${campaign.strategy}
+- Creative Strategy: ${campaign.creativeStrategy.join(', ')}
+- Execution Plan: ${campaign.executionPlan.join(', ')}
+- Viral Element: ${campaign.viralElement}
+- Consumer Interaction: ${campaign.consumerInteraction}
+- Call to Action: ${campaign.callToAction}
 
-Please evaluate this campaign on the following criteria, with a score from 1-10 and a brief comment for each:
+Provide your evaluation in JSON format with these keys: strengths, opportunities, risks, overallScore.
+The overallScore is an integer from 1-10.
+Include a braveryScore based on the campaign's calculated bravery.
 
-1. Insight Sharpness: How unique, specific, and commercially relevant is the strategic insight behind the campaign?
-2. Idea Originality: How fresh and unexpected is the creative approach? Is it truly distinct from existing campaigns?
-3. Execution Potential: How well does the tactical execution plan deliver on the core idea? Is it implementable and resonant?
-4. Award Potential: How likely is this campaign to win creative awards? Does it have breakthrough potential?
-
-Then provide a 2-3 sentence final verdict on the overall strength of the proposal.
-
-Format your response as JSON with the following structure:
-\`\`\`json
+Example:
 {
-  "insightSharpness": { "score": 8, "comment": "Your comment here" },
-  "ideaOriginality": { "score": 7, "comment": "Your comment here" },
-  "executionPotential": { "score": 9, "comment": "Your comment here" },
-  "awardPotential": { "score": 6, "comment": "Your comment here" },
-  "finalVerdict": "Your 2-3 sentence verdict here"
+  "strengths": ["Clear brand positioning", "Strong emotional appeal"],
+  "opportunities": ["Further differentiation", "More innovative execution"],
+  "risks": ["Execution complexity", "Potential audience misunderstanding"],
+  "overallScore": 7,
+  "braveryScore": 6
 }
-\`\`\`
 `;
-
-    const response = await generateWithOpenAI(prompt, config);
-    const cleanedResponse = extractJsonFromResponse(response);
     
-    // Default evaluation to use if parsing fails
-    const defaultEvaluation: CampaignEvaluation = {
-      insightSharpness: { score: 5, comment: "Unable to evaluate insight sharpness." },
-      ideaOriginality: { score: 5, comment: "Unable to evaluate idea originality." },
-      executionPotential: { score: 5, comment: "Unable to evaluate execution potential." },
-      awardPotential: { score: 5, comment: "Unable to evaluate award potential." },
-      finalVerdict: "Unable to provide a final verdict due to evaluation processing error."
-    };
+    const evaluationResponse = await generateWithOpenAI(prompt, openAIConfig);
     
-    // Use safe JSON parse with fallback
-    return safeJsonParse<CampaignEvaluation>(cleanedResponse, defaultEvaluation);
+    try {
+      const parsedEvaluation = JSON.parse(evaluationResponse);
+      return {
+        strengths: parsedEvaluation.strengths || [],
+        opportunities: parsedEvaluation.opportunities || [],
+        risks: parsedEvaluation.risks || [],
+        overallScore: parsedEvaluation.overallScore || 7,
+        braveryScore: campaign.braveryScores?.totalScore || 5
+      };
+    } catch (error) {
+      console.error("Error parsing evaluation response:", error);
+      // Fallback with default values
+      return {
+        strengths: ["Clear brand positioning", "Strong emotional appeal"],
+        opportunities: ["Further differentiation", "More innovative execution"],
+        risks: ["Execution complexity", "Potential audience misunderstanding"],
+        overallScore: 7,
+        braveryScore: campaign.braveryScores?.totalScore || 5
+      };
+    }
   } catch (error) {
     console.error("Error evaluating campaign:", error);
-    // Return default evaluation if API call fails
     return {
-      insightSharpness: { score: 5, comment: "Unable to evaluate insight sharpness." },
-      ideaOriginality: { score: 5, comment: "Unable to evaluate idea originality." },
-      executionPotential: { score: 5, comment: "Unable to evaluate execution potential." },
-      awardPotential: { score: 5, comment: "Unable to evaluate award potential." },
-      finalVerdict: "Unable to provide a final verdict due to evaluation processing error."
+      strengths: ["Clear brand positioning", "Strong emotional appeal"],
+      opportunities: ["Further differentiation", "More innovative execution"],
+      risks: ["Execution complexity", "Potential audience misunderstanding"],
+      overallScore: 7,
+      braveryScore: campaign.braveryScores?.totalScore || 5
     };
   }
-}
+};

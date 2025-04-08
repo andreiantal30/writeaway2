@@ -30,6 +30,7 @@ export interface CampaignEvaluation {
   opportunities: string[];
   risks: string[];
   overallScore: number;
+  braveryScore?: number;
 }
 
 // Insight scoring system
@@ -88,4 +89,5 @@ export interface GeneratedCampaign {
   executionFilterRationale?: string;
   insightScores?: InsightScores;
   braveryScores?: BraveryScores;
+  viralHook?: string; // Added for compatibility with existing code
 }
