@@ -1,9 +1,8 @@
-
-import { Campaign } from "@/types/Campaign";
-import { CampaignInput } from "@/lib/generateCampaign";
-import { findSimilarCampaignsWithEmbeddings } from "@/lib/embeddingsUtil";
-import { creativePatternPrompt } from "./awardPatterns";
-import { campaigns } from "@/data/campaigns";
+import { Campaign } from '@/types/campaign-legacy';
+import { CampaignInput } from '@/lib/generateCampaign';
+import { findSimilarCampaignsWithEmbeddings } from '@/lib/embeddingsUtil';
+import { creativePatternPrompt } from './awardPatterns';
+import { campaigns } from '@/data/campaigns';
 
 /**
  * Primary function for matching reference campaigns using embeddings when available,

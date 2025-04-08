@@ -1,7 +1,6 @@
-
 import { useState, useEffect } from 'react';
 import { Message } from '@/components/ChatWindow';
-import { Campaign } from '@/types/Campaign';
+import { Campaign } from '@/types/campaign-legacy';
 import { campaigns } from '@/data/campaigns';
 
 interface ChatMemory {

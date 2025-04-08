@@ -1,3 +1,4 @@
+
 import express from 'express';
 import cors from 'cors';
 
@@ -7,7 +8,7 @@ const router = express.Router();
 router.use(cors());
 
 // Define API route handlers with correct type signatures
-router.get('/api/news-trends', async (req, res) => {
+router.get('/news-trends', async (req, res) => {
   try {
     // Implementation
     return res.json({ message: "News trends endpoint" });

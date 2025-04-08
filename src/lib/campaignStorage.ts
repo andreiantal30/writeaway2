@@ -1,5 +1,4 @@
-
-import { Campaign } from '@/types/Campaign';
+import { Campaign } from '@/types/campaign-legacy';
 import { campaigns } from '@/data/campaigns';
 import { GeneratedCampaign } from './generateCampaign';
 import { v4 as uuidv4 } from 'uuid';

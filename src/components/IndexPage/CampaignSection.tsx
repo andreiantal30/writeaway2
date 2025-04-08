@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import CampaignForm from "@/components/CampaignForm";
 import CampaignResult, { CampaignFeedback } from "@/components/CampaignResult";
@@ -12,6 +11,7 @@ import { Link } from "react-router-dom";
 import { ChevronDown, Library, Lightbulb } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import CampaignVersions from "@/components/CampaignVersions";
+import { PersonaType } from "@/types/persona";
 
 interface CampaignSectionProps {
   generatedCampaign: GeneratedCampaign | null;
@@ -66,10 +66,8 @@ const CampaignSection = ({
   const scrollArrowRef = React.useRef<HTMLDivElement>(null);
   const mainScrollArrowRef = React.useRef<HTMLDivElement>(null);
   
-  // Effect to scroll to campaign result when generated
   useEffect(() => {
     if (generatedCampaign && campaignResultRef.current) {
-      // Scroll to the campaign result with smooth behavior
       setTimeout(() => {
         campaignResultRef.current?.scrollIntoView({ 
           behavior: 'smooth', 
@@ -79,7 +77,6 @@ const CampaignSection = ({
     }
   }, [generatedCampaign, campaignResultRef]);
   
-  // Effect to hide arrow on scroll
   useEffect(() => {
     const handleScroll = () => {
       if (scrollArrowRef.current && window.scrollY > 100) {
@@ -100,7 +97,6 @@ const CampaignSection = ({
 
   const scrollToContent = () => {
     if (!generatedCampaign) {
-      // Find the HowItWorks section and scroll to it
       const howItWorksSection = document.getElementById('how-it-works');
       if (howItWorksSection) {
         howItWorksSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -127,7 +123,6 @@ const CampaignSection = ({
             <CampaignForm onSubmit={onGenerateCampaign} isGenerating={isGenerating} />
           </div>
           
-          {/* Main page scroll down arrow */}
           <div 
             ref={mainScrollArrowRef}
             className="flex justify-center mt-8 mb-8 transition-opacity duration-500"
@@ -140,7 +135,6 @@ const CampaignSection = ({
         </div>
       ) : (
         <div className="space-y-12" ref={campaignResultRef} id="generated-campaign">
-          {/* Version Management */}
           {onSaveCampaignVersion && onLoadCampaignVersion && (
             <div className="flex justify-end">
               <div className="flex gap-2">
@@ -163,7 +157,6 @@ const CampaignSection = ({
             />
           </div>
           
-          {/* Scroll down arrow */}
           <div 
             ref={scrollArrowRef}
             className="flex justify-center mt-2 mb-8 transition-opacity duration-500"
@@ -182,7 +175,7 @@ const CampaignSection = ({
                 onApplyChangesAndRegenerate={onApplyChangesAndRegenerate}
                 isLoading={isProcessingMessage}
                 openAIConfig={openAIConfig}
-                persona={lastInput?.persona}
+                persona={lastInput?.persona as PersonaType}
                 chatMemory={chatMemory}
               />
             </TransitionElement>

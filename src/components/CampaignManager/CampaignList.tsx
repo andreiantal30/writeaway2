@@ -1,7 +1,6 @@
-
 import { useState, useEffect } from 'react';
 
-import { Campaign } from '@/types/Campaign';
+import { Campaign } from '@/types/campaign-legacy';
 import { Input } from '@/components/ui/input';
 import {
   Select,
