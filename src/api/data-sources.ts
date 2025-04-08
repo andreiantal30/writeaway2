@@ -23,9 +23,9 @@ router.get('/news-trends', async (req: Request, res: Response) => {
 
 router.get('/reddit-trends', async (req: Request, res: Response) => {
   try {
-    // Check for a fetchRedditTrends function
-    if (typeof redditApi.fetchRedditTrends === 'function') {
-      const trends = await redditApi.fetchRedditTrends();
+    // Use fetchAndGenerateRedditTrends which is the correct exported function
+    if (typeof redditApi.fetchAndGenerateRedditTrends === 'function') {
+      const trends = await redditApi.fetchAndGenerateRedditTrends();
       return res.json(trends);
     } else {
       // Fallback if the function doesn't exist

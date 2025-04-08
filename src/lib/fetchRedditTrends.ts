@@ -5,6 +5,7 @@ import { Headline } from "./fetchNewsTrends.client.ts";
 // We'll use the public Reddit JSON API instead of snoowrap
 const subreddits = ["GenZ", "trend", "OutOfTheLoop", "advertising", "marketing", "trendingsubreddits", "popular"];
 
+// Main export function that should be used by API routes
 export async function fetchAndGenerateRedditTrends(): Promise<any[]> {
   try {
     const allHeadlines: Headline[] = [];
@@ -63,3 +64,6 @@ export async function fetchAndGenerateRedditTrends(): Promise<any[]> {
     throw error;
   }
 }
+
+// Backward compatibility alias for legacy code that might expect this function
+export const fetchRedditTrends = fetchAndGenerateRedditTrends;
