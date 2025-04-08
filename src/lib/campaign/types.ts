@@ -59,13 +59,18 @@ export interface BraveryScores {
 
 // Storytelling output interface
 export interface StorytellingOutput {
+  narrative: string;
+  storyNarrative?: string;
+  protagonistDescription?: string;
+  conflictDescription?: string;
+  resolutionDescription?: string;
+  brandValueConnection?: string;
   hook?: string;
   protagonist?: string;
   conflict?: string;
   journey?: string;
   resolution?: string;
-  fullNarrative: string;
-  narrative?: string;
+  fullNarrative?: string;
 }
 
 // Complete generated campaign with all components
