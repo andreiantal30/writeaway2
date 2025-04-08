@@ -90,5 +90,5 @@ export interface GeneratedCampaign {
   _cdModifications?: string[]; // For tracking creative director modifications
 }
 
-// Exporting the CampaignInput type from the central location
+// Export CampaignInput from types/campaign.ts
 export type { CampaignInput };

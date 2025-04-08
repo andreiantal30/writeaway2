@@ -1,6 +1,7 @@
 
 import { useState } from "react";
-import { CampaignInput, GeneratedCampaign } from "@/lib/campaign/types";
+import { CampaignInput } from "@/types/campaign";
+import { GeneratedCampaign, CampaignVersion } from "@/lib/campaign/types";
 import { OpenAIConfig } from "@/lib/openai";
 import { Message } from "@/components/ChatWindow";
 import { useCampaignChat } from "@/hooks/campaign/useCampaignChat";
@@ -107,4 +108,4 @@ export function useCampaignGeneration(openAIConfig: OpenAIConfig): UseCampaignGe
   };
 }
 
-export * from "./types";
+export type { UseCampaignGenerationReturn } from "./types";

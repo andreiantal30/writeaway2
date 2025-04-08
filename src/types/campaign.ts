@@ -1,8 +1,3 @@
-// Import CampaignVersion type to ensure it's available
-import { CampaignVersion, GeneratedCampaign } from '@/lib/campaign/types';
-
-// Re-export for backwards compatibility
-export type { CampaignVersion, GeneratedCampaign };
 
 // Campaign input collected from the user
 export interface CampaignInput {
@@ -19,17 +14,6 @@ export interface CampaignInput {
   persona?: string;
   culturalInsights?: string;
 }
-
-// Re-export the standardized campaign interfaces from the campaign module to avoid circular dependencies
-import { 
-  GeneratedCampaign, 
-  CampaignEvaluation, 
-  CampaignVersion, 
-  InsightScores,
-  CreativeInsights,
-  StorytellingOutput,
-  BraveryScores 
-} from '../lib/campaign/types';
 
 // Reference campaign format
 export interface ReferenceCampaign {
@@ -68,13 +52,26 @@ export interface CulturalTrend {
   addedOn: Date;
 }
 
-// Re-export types for backward compatibility
-export type { 
-  GeneratedCampaign,
-  CampaignEvaluation,
-  CampaignVersion,
-  InsightScores,
-  CreativeInsights,
-  StorytellingOutput,
-  BraveryScores
+// Import all campaign types from the campaign module
+// but don't re-export with the same names to avoid duplicates
+import {
+  GeneratedCampaign as LibGeneratedCampaign,
+  CampaignEvaluation as LibCampaignEvaluation,
+  CampaignVersion as LibCampaignVersion,
+  InsightScores as LibInsightScores,
+  CreativeInsights as LibCreativeInsights,
+  StorytellingOutput as LibStorytellingOutput,
+  BraveryScores as LibBraveryScores
+} from '../lib/campaign/types';
+
+// Re-export with type aliases to maintain backward compatibility
+// without creating duplicate declarations
+export type {
+  LibGeneratedCampaign as GeneratedCampaign,
+  LibCampaignEvaluation as CampaignEvaluation,
+  LibCampaignVersion as CampaignVersion,
+  LibInsightScores as InsightScores,
+  LibCreativeInsights as CreativeInsights,
+  LibStorytellingOutput as StorytellingOutput,
+  LibBraveryScores as BraveryScores
 };

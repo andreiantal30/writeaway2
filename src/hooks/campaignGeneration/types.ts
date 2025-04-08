@@ -1,5 +1,6 @@
 
-import { CampaignInput, GeneratedCampaign, CampaignVersion } from "@/lib/campaign/types";
+import { CampaignInput } from "@/types/campaign";
+import { GeneratedCampaign, CampaignVersion } from "@/lib/campaign/types";
 import { Message } from "@/components/ChatWindow";
 import { OpenAIConfig } from "@/lib/openai";
 
