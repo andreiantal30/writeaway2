@@ -40,34 +40,45 @@ export function useGenerateCampaign(
         openAIKey: "[REDACTED]"
       });
       
-      const response = await fetch('/api/generate', {
+      // Add timestamp to prevent caching
+      const timestamp = Date.now();
+      const response = await fetch(`/api/generate?t=${timestamp}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store'
         },
         body: JSON.stringify(payload),
       });
       
       if (!response.ok) {
-        // IMPORTANT: Clone the response FIRST before attempting to read it
+        // Always clone the response before trying to read its body
         const clonedResponse = response.clone();
         
         let errorMessage = `Server error (${response.status})`;
+        const contentType = response.headers.get('content-type');
         
         try {
-          // Attempt to parse error as JSON from the original response
-          const errorData = await response.json();
-          errorMessage = errorData?.error || errorData?.message || errorMessage;
-          console.error("Server error response:", errorData);
-        } catch (jsonError) {
-          // JSON parsing failed, try to get the text content from the cloned response
-          console.error("Failed to parse error response as JSON:", jsonError);
-          
-          try {
+          // Try to parse error as JSON only if content type is application/json
+          if (contentType && contentType.includes('application/json')) {
+            const errorData = await response.json();
+            errorMessage = errorData?.error || errorData?.message || errorMessage;
+            console.error("Server error response:", errorData);
+          } else {
+            // If it's not JSON, get the text response
             const errorText = await clonedResponse.text();
             console.error("Response status:", clonedResponse.status);
-            console.error("Response text:", errorText);
-            errorMessage = `${errorMessage}: ${errorText || 'Unable to parse response'}`;
+            console.error("Response text (first 200 chars):", errorText.substring(0, 200));
+            errorMessage = `${errorMessage}: Non-JSON response received`;
+          }
+        } catch (parsingError) {
+          console.error("Failed to parse error response:", parsingError);
+          
+          try {
+            // Attempt to get raw text from the cloned response
+            const errorText = await clonedResponse.text();
+            console.error("Raw error text (first 200 chars):", errorText.substring(0, 200));
+            errorMessage = `${errorMessage}: ${errorText.substring(0, 100) || 'Unable to parse response'}`;
           } catch (textError) {
             console.error("Failed to get response text:", textError);
             errorMessage = `${errorMessage}: Unable to parse response`;
@@ -77,11 +88,19 @@ export function useGenerateCampaign(
         throw new Error(errorMessage);
       }
       
-      // Clone the response before trying to parse it as JSON
-      // This ensures we have a backup copy if JSON parsing fails
+      // Check content type before attempting to parse
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        // Clone the response to read it as text since it's not JSON
+        const clonedResponse = response.clone();
+        const textResponse = await clonedResponse.text();
+        console.error("Received non-JSON response (first 200 chars):", textResponse.substring(0, 200));
+        throw new Error("Server returned non-JSON response. Check server logs for details.");
+      }
+      
+      // Clone response before parsing as JSON
       const responseClone = response.clone();
       
-      // Ensure we have a valid JSON response
       let responseData;
       try {
         responseData = await response.json();
@@ -93,6 +112,11 @@ export function useGenerateCampaign(
         try {
           const rawText = await responseClone.text();
           console.log("Raw response text (first 200 chars):", rawText.substring(0, 200));
+          
+          if (rawText.trim().startsWith("<!DOCTYPE") || rawText.trim().startsWith("<html")) {
+            console.error("Received HTML instead of JSON from server");
+            throw new Error("Server returned HTML instead of JSON. Check server configuration.");
+          }
           
           // Check if it might be wrapped in backticks or other formatting
           const cleanedText = rawText.replace(/```(?:json)?\s*|\s*```$/g, '').trim();

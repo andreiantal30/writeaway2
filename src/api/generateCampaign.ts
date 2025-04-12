@@ -15,12 +15,16 @@ router.post('/generate', async (req: Request, res: Response): Promise<void> => {
     const input = req.body as CampaignInput;
     
     if (!input) {
+      // Always set JSON content type for consistent handling
+      res.setHeader('Content-Type', 'application/json');
       res.status(400).json({ error: 'Invalid campaign input' });
       return;
     }
     
     // Add a basic validation check for required fields
     if (!input.brand || !input.industry || !input.targetAudience || !input.emotionalAppeal) {
+      // Always set JSON content type for consistent handling
+      res.setHeader('Content-Type', 'application/json');
       res.status(400).json({ 
         error: 'Missing required fields in campaign input',
         message: 'The campaign input is missing required fields',
@@ -40,6 +44,8 @@ router.post('/generate', async (req: Request, res: Response): Promise<void> => {
     
     // Validate that the campaign contains all required fields
     if (!campaign || !campaign.campaignName || !campaign.strategy || !campaign.executionPlan) {
+      // Always set JSON content type for consistent handling
+      res.setHeader('Content-Type', 'application/json');
       res.status(500).json({ 
         error: 'Invalid campaign output',
         message: 'The generated campaign is missing required fields',
@@ -62,6 +68,8 @@ router.post('/generate', async (req: Request, res: Response): Promise<void> => {
       ? error.message 
       : 'Unknown error occurred while generating campaign';
       
+    // Always set JSON content type for consistent handling
+    res.setHeader('Content-Type', 'application/json');
     res.status(500).json({ 
       error: 'Failed to generate campaign',
       message: errorMessage,
