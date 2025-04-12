@@ -1,4 +1,6 @@
 
 @echo off
+echo Starting with TypeScript declaration generation...
 node generate-declarations.js
+echo Starting Vite development server...
 npx vite --force
