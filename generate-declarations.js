@@ -31,6 +31,54 @@ try {
   console.log('⚠️ No previous declaration files to clean or error cleaning:', error.message);
 }
 
+// Create or update tsconfig.declarations.json for declaration file generation
+console.log('📋 Creating/updating tsconfig.declarations.json...');
+const tsconfigDeclarations = {
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "./dist/types",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "composite": true
+  },
+  "include": ["src/**/*", "server/**/*"],
+  "exclude": ["node_modules", "dist"]
+};
+
+fs.writeFileSync(
+  path.join(__dirname, 'tsconfig.declarations.json'),
+  JSON.stringify(tsconfigDeclarations, null, 2)
+);
+console.log('✅ tsconfig.declarations.json updated');
+
+// Create a temporary tsconfig.temp.json to fix reference issues
+console.log('🔧 Creating temporary TypeScript configuration...');
+const tempConfigContent = `
+// This file is auto-generated - do not modify
+{
+  "extends": "./tsconfig.declarations.json"
+}
+`;
+fs.writeFileSync(path.join(__dirname, 'tsconfig.temp.json'), tempConfigContent);
+console.log('✅ Temporary TypeScript configuration created');
+
 // Run the TypeScript compiler using our special declarations config
 console.log('🔨 Building declaration files...');
 try {
@@ -42,20 +90,16 @@ try {
   console.log('⚠️ Continuing despite declaration generation errors');
 }
 
-// Create a fix for the main tsconfig.json to avoid TS6306 errors
-console.log('🔧 Fixing TypeScript configuration references...');
+// Check if declarations were actually generated
 try {
-  // Write a temporary patch file to fix references
-  const patchContent = `
-// This file is auto-generated - do not modify
-{
-  "extends": "./tsconfig.declarations.json"
-}
-`;
-  fs.writeFileSync(path.join(__dirname, 'tsconfig.temp.json'), patchContent);
-  console.log('✅ TypeScript configuration patched');
+  const files = fs.readdirSync(typesDir);
+  if (files.length === 0) {
+    console.warn('⚠️ Warning: No declaration files were generated. There might be TypeScript configuration issues.');
+  } else {
+    console.log(`✅ Generated ${files.length} declaration files/directories`);
+  }
 } catch (error) {
-  console.error(`❌ Error creating temporary TypeScript configuration: ${error.message}`);
+  console.error('❌ Error checking declaration files:', error.message);
 }
 
 console.log('✅ Declaration generation process completed');

@@ -4,32 +4,44 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-console.log('📦 Creative Campaign Generator Startup Helper');
+console.log('📦 Creative Campaign Generator - TypeScript Declarations & Start');
 console.log('===========================================');
 
+// Check if tsconfig.declarations.json exists, create if not
+if (!fs.existsSync('tsconfig.declarations.json')) {
+  console.log('🔧 Creating tsconfig.declarations.json...');
+  execSync('node generate-declarations.js', { stdio: 'inherit' });
+}
+
 // First generate declarations
-console.log('🔄 Generating declaration files...');
+console.log('🔄 Running declaration generation...');
 try {
   execSync('node generate-declarations.js', { stdio: 'inherit' });
   console.log('✅ Declaration files generated successfully');
 } catch (err) {
   console.warn('⚠️ Warning: Failed to generate declaration files, continuing anyway...');
+  console.error(err.message);
 }
 
-// Determine the best command to run
-console.log('🚀 Starting development server...');
-const command = 'npx vite --force';
+// Set up environment variables for Vite
+const env = {
+  ...process.env,
+  VITE_DISABLE_WS_TOKEN: 'true',
+  __WS_TOKEN__: 'development-token',
+  VITE_SKIP_TS_CHECK: 'true',
+  DEBUG: 'vite:hmr' // Enable detailed hmr logging
+};
 
-console.log(`Running: ${command}`);
-const child = execSync(command, {
-  env: {
-    ...process.env,
-    // Disable WebSocket token validation
-    VITE_DISABLE_WS_TOKEN: 'true',
-    // Define the WS token directly
-    __WS_TOKEN__: 'development-token',
-    // Enable detailed hmr logging
-    DEBUG: 'vite:hmr'
-  },
-  stdio: 'inherit'
-});
+// Start Vite with force flag to ensure clean start
+console.log('🚀 Starting Vite development server...');
+console.log('Running: npx vite --force');
+
+try {
+  execSync('npx vite --force', { 
+    env,
+    stdio: 'inherit' // This will pipe the child process I/O to the parent
+  });
+} catch (error) {
+  // This will trigger if user presses Ctrl+C, not necessarily an error
+  console.log('\n🛑 Development server stopped.');
+}

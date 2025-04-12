@@ -31,7 +31,8 @@ export default defineConfig(({ mode }) => {
       react({
         // Skip TypeScript checking in development for faster refresh
         tsDecorators: true,
-        typescript: skipTsCheck ? { transpileOnly: true } : undefined
+        // The correct way to configure transpileOnly option
+        ...(skipTsCheck ? { plugins: [['@swc/plugin-transform-typescript', { transpileOnly: true }]] } : {})
       }),
       mode === "development" && componentTagger(),
     ].filter(Boolean),

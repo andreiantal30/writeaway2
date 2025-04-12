@@ -9,6 +9,7 @@ try {
     // Only need to do this on Unix-like systems
     execSync('chmod +x generate-declarations.js');
     execSync('chmod +x start-declarations.js');
+    execSync('chmod +x start-with-declarations.js');
     execSync('chmod +x start-with-declarations.sh');
   }
   
@@ -16,7 +17,7 @@ try {
   console.log('To start the application with TypeScript declaration generation, run:');
   console.log('- On Windows: start-with-declarations.bat');
   console.log('- On Mac/Linux: ./start-with-declarations.sh');
-  console.log('- Or use: node start-declarations.js');
+  console.log('- Or use: node start-with-declarations.js');
 } catch (error) {
   console.error('Error making scripts executable:', error.message);
 }
